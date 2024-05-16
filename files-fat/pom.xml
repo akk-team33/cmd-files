@@ -4,23 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>de.team33.cmd.template</groupId>
-        <artifactId>template-root</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <groupId>de.team33.cmd.files</groupId>
+        <artifactId>files-root</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>de.team33.patterns</groupId>
-    <artifactId>template-fat</artifactId>
+    <artifactId>files-fat</artifactId>
     <packaging>pom</packaging>
 
-    <name>CMD Template Fat Jar</name>
-    <description>[Project template]
-        A command line tool to perform various tasks on the file system - fat jar module.</description>
+    <name>CMD Files Fat Jar</name>
+    <description>A command line tool to perform various tasks on the file system - fat jar module.</description>
 
     <dependencies>
         <dependency>
-            <groupId>de.team33.cmd.template</groupId>
-            <artifactId>template-main</artifactId>
+            <groupId>de.team33.cmd.files</groupId>
+            <artifactId>files-main</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

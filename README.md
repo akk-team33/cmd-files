@@ -1,4 +1,4 @@
-# cmd-mm-template
+# cmd-files
 
     A template command-line multi-module project
     
