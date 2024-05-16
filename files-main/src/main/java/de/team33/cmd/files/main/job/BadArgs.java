@@ -1,6 +1,6 @@
-package de.team33.cmd.template.main.job;
+package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.template.main.common.Context;
+import de.team33.cmd.files.main.common.Context;
 import de.team33.patterns.io.deimos.TextIO;
 
 import java.util.List;

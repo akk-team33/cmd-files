@@ -1,8 +1,6 @@
-package de.team33.cmd.template.main.job;
+package de.team33.cmd.files.main.job;
 
 import org.junit.jupiter.api.Test;
-
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,9 +1,9 @@
-package de.team33.cmd.template.main;
+package de.team33.cmd.files.main;
 
-import de.team33.cmd.template.main.common.Context;
-import de.team33.cmd.template.main.job.BadArgs;
-import de.team33.cmd.template.main.job.Regular;
-import de.team33.cmd.template.main.job.NoArgs;
+import de.team33.cmd.files.main.job.BadArgs;
+import de.team33.cmd.files.main.job.NoArgs;
+import de.team33.cmd.files.main.job.Regular;
+import de.team33.cmd.files.main.common.Context;
 import de.team33.patterns.enums.alpha.EnumTool;
 
 import java.util.Arrays;

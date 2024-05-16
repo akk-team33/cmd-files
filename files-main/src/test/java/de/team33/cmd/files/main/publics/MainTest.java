@@ -1,7 +1,7 @@
-package de.team33.cmd.template.main.publics;
+package de.team33.cmd.files.main.publics;
 
-import de.team33.cmd.template.main.Main;
-import de.team33.cmd.template.main.job.Regular;
+import de.team33.cmd.files.main.job.Regular;
+import de.team33.cmd.files.main.Main;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.testing.titan.io.Redirected;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package de.team33.patterns.enums.alpha.publics;
 
-import de.team33.cmd.template.main.Main;
+import de.team33.cmd.files.main.Main;
 import de.team33.patterns.enums.alpha.EnumTool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

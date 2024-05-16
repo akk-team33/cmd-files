@@ -1,4 +1,4 @@
-package de.team33.cmd.template.main.common;
+package de.team33.cmd.files.main.common;
 
 public interface Context {
 
