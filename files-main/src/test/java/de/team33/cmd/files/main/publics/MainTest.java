@@ -27,6 +27,17 @@ class MainTest {
     }
 
     @Test
+    final void main_oneArg() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_oneArg.txt"),
+                                              Regular.excerpt());
+
+        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME));
+        // System.out.println(result);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
     final void main_about() throws Exception {
         final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_about.txt"));
 
@@ -42,11 +53,10 @@ class MainTest {
     }
 
     @Test
-    final void main_oneArg() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_oneArg.txt"),
-                                              Regular.excerpt());
+    final void main_balance() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_balance.txt"));
 
-        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME));
+        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME, "balance"));
         // System.out.println(result);
 
         assertEquals(expected, result);
