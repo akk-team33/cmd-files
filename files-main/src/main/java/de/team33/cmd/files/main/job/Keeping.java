@@ -2,12 +2,16 @@ package de.team33.cmd.files.main.job;
 
 import de.team33.cmd.files.main.common.Context;
 import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.phobos.FileIndex;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Keeping implements Runnable {
 
@@ -56,6 +60,22 @@ public class Keeping implements Runnable {
 
     @Override
     public final void run() {
-        throw new UnsupportedOperationException("not yet implemented");
+        final Set<String> names = FileIndex.evaluated(path1)
+                                           .skipEntry(FileEntry::isDirectory)
+                                           .stream()
+                                           .map(this::toPureName)
+                                           .filter(Objects::nonNull)
+                                           .collect(Collectors.toCollection(TreeSet::new));
+        context.printf("names: %s", names);
+    }
+
+    private String toPureName(final FileEntry entry) {
+        final String fullName = entry.path().getFileName().toString();
+        return type1.stream()
+                    .map(ext -> "." + ext)
+                    .filter(fullName::endsWith)
+                    .findAny()
+                    .map(ext -> fullName.replace(ext, ""))
+                    .orElse(null);
     }
 }

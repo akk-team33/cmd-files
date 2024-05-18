@@ -53,6 +53,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>de.team33.template</groupId>
+                <artifactId>io-phobos</artifactId>
+                <version>1.18.1</version>
+            </dependency>
 
             <!-- Testing -->
             <dependency>
