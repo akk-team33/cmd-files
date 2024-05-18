@@ -3,12 +3,12 @@
 +------------------------------------------------------------------------------
 Your request:
 
-    %1$s
+    MainTest keep
 
 Expected request scheme:
 
-    [1] %2$s keep PATH0 TYPE1 TYPE2
-    [2] %2$s keep PATH1 TYPE1 PATH2 TYPE2
+    [1] MainTest keep PATH0 TYPE1 TYPE2
+    [2] MainTest keep PATH1 TYPE1 PATH2 TYPE2
 
 Parameters:
 

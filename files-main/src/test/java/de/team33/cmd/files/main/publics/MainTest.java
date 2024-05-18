@@ -53,10 +53,10 @@ class MainTest {
     }
 
     @Test
-    final void main_balance() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_balance.txt"));
+    final void main_keep() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_keep.txt"));
 
-        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME, "balance"));
+        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME, "keep"));
         // System.out.println(result);
 
         assertEquals(expected, result);
