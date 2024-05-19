@@ -1,0 +1,20 @@
+keeping : DIRECTORY {
+    (moved) : DIRECTORY {
+        (moved) : DIRECTORY {
+            DSC_0002.tif : REGULAR (0, 2024-05-18T12:18:35Z);
+            DSC_0004.tiff : REGULAR (0, 2024-05-18T12:18:35Z);
+            DSC_0007.tif : REGULAR (0, 2024-05-18T12:18:35Z);
+        };
+        DSC_0001.tiff : REGULAR (0, 2024-05-18T12:18:35Z);
+        DSC_0003.tif : REGULAR (0, 2024-05-18T12:18:35Z);
+        DSC_0005.tif : REGULAR (0, 2024-05-18T12:18:35Z);
+        DSC_0006.tiff : REGULAR (0, 2024-05-18T12:18:35Z);
+        DSC_0009.tif : REGULAR (0, 2024-05-18T12:18:35Z);
+    };
+    DSC_0001.jpg : REGULAR (0, 2024-05-18T12:18:35Z);
+    DSC_0003.jpe : REGULAR (0, 2024-05-18T12:18:35Z);
+    DSC_0005.jpg : REGULAR (0, 2024-05-18T12:18:35Z);
+    DSC_0006.jpeg : REGULAR (0, 2024-05-18T12:18:35Z);
+    DSC_0008.jpg : REGULAR (0, 2024-05-18T12:18:35Z);
+    DSC_0009.jpg : REGULAR (0, 2024-05-18T12:18:35Z);
+};
