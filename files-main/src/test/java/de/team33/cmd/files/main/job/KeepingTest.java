@@ -20,7 +20,7 @@ class KeepingTest implements Context {
     private final Path keepingPath = TEST_PATH.resolve(UUID.randomUUID().toString()).resolve("keeping");
 
     @Test
-    final void run() {
+    final void run_singlePath() {
         ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
         assertEquals(TextIO.read(KeepingTest.class, "KeepingRunInitial.txt"), FileInfo.of(keepingPath).toString());
 

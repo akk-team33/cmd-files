@@ -3,8 +3,9 @@ package de.team33.cmd.files.main.job;
 import de.team33.cmd.files.main.common.Context;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.io.phobos.FileEntry;
-import de.team33.patterns.io.phobos.FileIndex;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,7 @@ public class Keeping implements Runnable {
     private final Set<String> type1;
     private final Path path2;
     private final Set<String> type2;
+    private final Path path3;
 
     private Keeping(final Context context, final List<String> args) {
         this.context = context;
@@ -34,6 +36,7 @@ public class Keeping implements Runnable {
             lastIndex = 3;
         }
         this.type2 = setOf(args.get(lastIndex));
+        this.path3 = path2.resolve("(moved)");
     }
 
     private static Set<String> setOf(final String csv) {
@@ -60,13 +63,48 @@ public class Keeping implements Runnable {
 
     @Override
     public final void run() {
-        final Set<String> names = FileIndex.evaluated(path1)
-                                           .skipEntry(FileEntry::isDirectory)
+        final Set<String> names = FileEntry.primary(path1)
+                                           .content()
                                            .stream()
+                                           .map(FileEntry::primary)
+                                           .filter(FileEntry::isRegularFile)
                                            .map(this::toPureName)
                                            .filter(Objects::nonNull)
                                            .collect(Collectors.toCollection(TreeSet::new));
-        context.printf("names: %s", names);
+        FileEntry.primary(path2)
+                 .content()
+                 .stream()
+                 .filter(this::isType2)
+                 .filter(path -> isNotMatching(path, names))
+                 .forEach(this::move);
+    }
+
+    private boolean isType2(final Path path) {
+        final String fullName = path.getFileName().toString();
+        return type2.stream()
+                    .map(ext -> "." + ext)
+                    .anyMatch(fullName::endsWith);
+    }
+
+    private void move(final Path path) {
+        final Path relative = path2.relativize(path);
+        final Path target = path3.resolve(relative);
+        context.printf("moving %s%n-> %s ...", path, target);
+        try {
+            Files.createDirectories(path3);
+            Files.move(path, target);
+            context.printf(" ok%n");
+        } catch (final IOException e) {
+            context.printf(" failed%n");
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
+    private boolean isNotMatching(final Path path, final Set<String> names) {
+        return names.stream()
+                    .noneMatch(name -> path.getFileName()
+                                           .toString()
+                                           .startsWith(name));
     }
 
     private String toPureName(final FileEntry entry) {
