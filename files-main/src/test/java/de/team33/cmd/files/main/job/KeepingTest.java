@@ -41,7 +41,6 @@ class KeepingTest {
         final String path2 = keepingPath.resolve("(moved)").toString();
         ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
         Keeping.job(SILENT, Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
-        // assertEquals(TextIO.read(KeepingTest.class, "KeepingRunInitial.txt"), FileInfo.of(keepingPath).toString());
 
         Keeping.job(VERBOSE, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
 

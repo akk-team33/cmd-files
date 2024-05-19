@@ -17,26 +17,53 @@ import java.util.stream.Collectors;
 public class Keeping implements Runnable {
 
     private final Context context;
-    private final Path path1;
-    private final Set<String> type1;
+    private final Set<String> names;
     private final Path path2;
     private final Set<String> type2;
     private final Path path3;
 
     private Keeping(final Context context, final List<String> args) {
         this.context = context;
-        this.path1 = Path.of(args.get(0)).toAbsolutePath().normalize();
-        this.type1 = setOf(args.get(1));
+        this.names = names(Path.of(args.get(0)), setOf(args.get(1)));
+
         final int lastIndex;
         if (4 > args.size()) {
-            this.path2 = path1;
+            this.path2 = Path.of(args.get(0));
             lastIndex = 2;
         } else {
-            this.path2 = Path.of(args.get(2)).toAbsolutePath().normalize();
+            this.path2 = Path.of(args.get(2));
             lastIndex = 3;
         }
         this.type2 = setOf(args.get(lastIndex));
         this.path3 = path2.resolve("(moved)");
+    }
+
+    private static Set<String> names(final Path path, final Set<String> type) {
+        return FileEntry.primary(path)
+                        .content()
+                        .stream()
+                        .map(FileEntry::primary)
+                        .filter(FileEntry::isRegularFile)
+                        .map(entry -> toPureName(entry, type))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    private static String toPureName(final FileEntry entry, final Set<String> type) {
+        final String fullName = entry.path().getFileName().toString();
+        return type.stream()
+                   .map(ext -> "." + ext)
+                   .filter(fullName::endsWith)
+                   .findAny()
+                   .map(ext -> fullName.replace(ext, ""))
+                   .orElse(null);
+    }
+
+    private static boolean isType(final Set<String> type, final Path path) {
+        final String fullName = path.getFileName().toString();
+        return type.stream()
+                   .map(ext -> "." + ext)
+                   .anyMatch(fullName::endsWith);
     }
 
     private static Set<String> setOf(final String csv) {
@@ -63,32 +90,17 @@ public class Keeping implements Runnable {
 
     @Override
     public final void run() {
-        final Set<String> names = FileEntry.primary(path1)
-                                           .content()
-                                           .stream()
-                                           .map(FileEntry::primary)
-                                           .filter(FileEntry::isRegularFile)
-                                           .map(this::toPureName)
-                                           .filter(Objects::nonNull)
-                                           .collect(Collectors.toCollection(TreeSet::new));
         FileEntry.primary(path2)
                  .content()
                  .stream()
-                 .filter(this::isType2)
+                 .filter(path -> isType(type2, path))
                  .filter(path -> isNotMatching(path, names))
                  .forEach(this::move);
     }
 
-    private boolean isType2(final Path path) {
-        final String fullName = path.getFileName().toString();
-        return type2.stream()
-                    .map(ext -> "." + ext)
-                    .anyMatch(fullName::endsWith);
-    }
-
     private void move(final Path path) {
-        final Path relative = path2.relativize(path);
-        final Path target = path3.resolve(relative);
+        final Path fileName = path.getFileName();
+        final Path target = path3.resolve(fileName);
         context.printf("moving %s%n-> %s ...", path, target);
         try {
             Files.createDirectories(path3);
@@ -100,20 +112,10 @@ public class Keeping implements Runnable {
         }
     }
 
-    private boolean isNotMatching(final Path path, final Set<String> names) {
+    private static boolean isNotMatching(final Path path, final Set<String> names) {
         return names.stream()
                     .noneMatch(name -> path.getFileName()
                                            .toString()
                                            .startsWith(name));
-    }
-
-    private String toPureName(final FileEntry entry) {
-        final String fullName = entry.path().getFileName().toString();
-        return type1.stream()
-                    .map(ext -> "." + ext)
-                    .filter(fullName::endsWith)
-                    .findAny()
-                    .map(ext -> fullName.replace(ext, ""))
-                    .orElse(null);
     }
 }
