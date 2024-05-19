@@ -53,16 +53,16 @@ public class Keeping implements Runnable {
         final String fullName = entry.path().getFileName().toString();
         return type.stream()
                    .map(ext -> "." + ext)
-                   .filter(fullName::endsWith)
+                   .filter(ext -> fullName.toLowerCase().endsWith(ext.toLowerCase()))
                    .findAny()
                    .map(ext -> fullName.replace(ext, ""))
                    .orElse(null);
     }
 
     private static boolean isType(final Set<String> type, final Path path) {
-        final String fullName = path.getFileName().toString();
+        final String fullName = path.getFileName().toString().toLowerCase();
         return type.stream()
-                   .map(ext -> "." + ext)
+                   .map(ext -> "." + ext.toLowerCase())
                    .anyMatch(fullName::endsWith);
     }
 
