@@ -1,6 +1,7 @@
 package de.team33.cmd.files.main.job;
 
 import de.team33.cmd.files.main.common.Context;
+import de.team33.cmd.files.main.common.FileType;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.io.phobos.FileEntry;
 
@@ -12,19 +13,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 public class Keeping implements Runnable {
 
     private final Context context;
     private final Set<String> names;
     private final Path path2;
-    private final Set<String> type2;
+    private final FileType type2;
     private final Path path3;
 
     private Keeping(final Context context, final List<String> args) {
         this.context = context;
-        this.names = names(Path.of(args.get(0)), setOf(args.get(1)));
+        this.names = names(Path.of(args.get(0)), FileType.parse(args.get(1)));
 
         final int lastIndex;
         if (4 > args.size()) {
@@ -34,29 +38,18 @@ public class Keeping implements Runnable {
             this.path2 = Path.of(args.get(2));
             lastIndex = 3;
         }
-        this.type2 = setOf(args.get(lastIndex));
+        this.type2 = FileType.parse(args.get(lastIndex));
         this.path3 = path2.resolve("(moved)");
     }
 
-    private static Set<String> names(final Path path, final Set<String> type) {
-        return FileEntry.primary(path)
+    private static Set<String> names(final Path path, final FileType type) {
+        return FileEntry.evaluated(path)
                         .content()
                         .stream()
-                        .map(FileEntry::primary)
-                        .filter(FileEntry::isRegularFile)
-                        .map(entry -> toPureName(entry, type))
+                        .filter(Files::isRegularFile)
+                        .map(type::toPureName)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toCollection(TreeSet::new));
-    }
-
-    private static String toPureName(final FileEntry entry, final Set<String> type) {
-        final String fullName = entry.path().getFileName().toString();
-        return type.stream()
-                   .map(ext -> "." + ext)
-                   .filter(ext -> fullName.toLowerCase().endsWith(ext.toLowerCase()))
-                   .findAny()
-                   .map(ext -> fullName.replace(ext, ""))
-                   .orElse(null);
     }
 
     private static boolean isType(final Set<String> type, final Path path) {
@@ -90,11 +83,12 @@ public class Keeping implements Runnable {
 
     @Override
     public final void run() {
-        FileEntry.primary(path2)
+        FileEntry.evaluated(path2)
                  .content()
                  .stream()
-                 .filter(path -> isType(type2, path))
-                 .filter(path -> isNotMatching(path, names))
+                 .filter(type2::isTypeOf)
+                 .filter(not(path -> isMatching(path, names)))
+                 //.collect(Collectors.toList())
                  .forEach(this::move);
     }
 
@@ -112,10 +106,10 @@ public class Keeping implements Runnable {
         }
     }
 
-    private static boolean isNotMatching(final Path path, final Set<String> names) {
+    private static boolean isMatching(final Path path, final Set<String> names) {
         return names.stream()
-                    .noneMatch(name -> path.getFileName()
-                                           .toString()
-                                           .startsWith(name));
+                    .anyMatch(name -> path.getFileName()
+                                          .toString()
+                                          .startsWith(name));
     }
 }
