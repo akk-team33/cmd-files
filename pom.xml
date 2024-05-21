@@ -4,7 +4,7 @@
 
     <groupId>de.team33.cmd.files</groupId>
     <artifactId>files-root</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>CMD Files Root</name>
@@ -54,7 +54,7 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>de.team33.template</groupId>
+                <groupId>de.team33.patterns</groupId>
                 <artifactId>io-phobos</artifactId>
                 <version>1.18.1</version>
             </dependency>

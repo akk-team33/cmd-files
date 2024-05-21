@@ -7,7 +7,7 @@
     <parent>
         <groupId>de.team33.cmd.files</groupId>
         <artifactId>files-root</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>files-main</artifactId>
@@ -22,7 +22,7 @@
             <artifactId>io-deimos</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.team33.template</groupId>
+            <groupId>de.team33.patterns</groupId>
             <artifactId>io-phobos</artifactId>
         </dependency>
         <!--dependency>

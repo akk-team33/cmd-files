@@ -39,7 +39,7 @@ public class Keeping implements Runnable {
         context.printf("[names to keep]%n%s%n", String.format(String.join("%n", nameToKeep)));
         this.context = context;
         this.toBeMoved = toBeMoved(path2, type2, nameToKeep);
-        this.movePath = path2.resolve("(moved)");
+        this.movePath = Path.of(path2.toString() + ".moved");
     }
 
     private static Set<Path> toBeMoved(final Path parent, final FileType type, final Set<String> names) {

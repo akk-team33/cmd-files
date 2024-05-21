@@ -23,27 +23,36 @@ class KeepingTest {
         }
     };
 
-    private final Path keepingPath = TEST_PATH.resolve(UUID.randomUUID().toString()).resolve("keeping");
+    private final String uuid = UUID.randomUUID().toString();
+    private final Path keepingPath = TEST_PATH.resolve(uuid).resolve("keeping");
+
+    private String keepingInfo() {
+        return FileInfo.of(keepingPath.getParent()).toString().replace(uuid, "[UUID]");
+    }
+
+    private String expectedInfo(final String rsrcName) {
+        return TextIO.read(getClass(), rsrcName);
+    }
 
     @Test
     final void run_singlePath() {
         ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
-        assertEquals(TextIO.read(KeepingTest.class, "KeepingRunInitial.txt"), FileInfo.of(keepingPath).toString());
+        assertEquals(expectedInfo("KeepingRunInitial.txt"), keepingInfo());
 
         Keeping.job(VERBOSE, Arrays.asList("files", "keep", keepingPath.toString(), "jpg,jpe,jpeg", "tif,tiff")).run();
 
-        assertEquals(TextIO.read(KeepingTest.class, "KeepingRunExpected.txt"), FileInfo.of(keepingPath).toString());
+        assertEquals(expectedInfo("KeepingRunExpected.txt"), keepingInfo());
     }
 
     @Test
     final void run_dualPath() {
         final String path1 = keepingPath.toString();
-        final String path2 = keepingPath.resolve("(moved)").toString();
+        final String path2 = keepingPath.toString() + ".moved";
         ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
         Keeping.job(SILENT, Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
 
         Keeping.job(VERBOSE, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
 
-        assertEquals(TextIO.read(KeepingTest.class, "KeepingRunDPExpected.txt"), FileInfo.of(keepingPath).toString());
+        assertEquals(expectedInfo("KeepingRunDPExpected.txt"), keepingInfo());
     }
 }
