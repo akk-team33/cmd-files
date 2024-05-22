@@ -45,7 +45,7 @@ class ListingTest implements Context {
         final String result = Redirected.outputOf(() -> Listing.job(this,
                                                                     Arrays.asList("files", "list", "n",
                                                                                   listingPath.toString(),
-                                                                                  "*reg"))
+                                                                                  ":reg"))
                                                                .run());
         //printf("%s%n", result);
 
@@ -67,16 +67,44 @@ class ListingTest implements Context {
     }
 
     @Test
+    final void run_NX() throws IOException {
+        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+
+        final String result = Redirected.outputOf(() -> Listing.job(this,
+                                                                    Arrays.asList("files", "list", "nx",
+                                                                                  listingPath.toString(),
+                                                                                  "jpg,jpe,jpeg"))
+                                                               .run());
+        //printf("%s%n", result);
+
+        assertEquals(expected("ListingRunNX.txt"), result);
+    }
+
+    @Test
     final void run_X_REG() throws IOException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
         final String result = Redirected.outputOf(() -> Listing.job(this,
                                                                     Arrays.asList("files", "list", "x",
                                                                                   listingPath.toString(),
-                                                                                  "*reg"))
+                                                                                  ":reg"))
                                                                .run());
         //printf("%s%n", result);
 
         assertEquals(expected("ListingRunXREG.txt"), result);
+    }
+
+    @Test
+    final void run_NX_REG() throws IOException {
+        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+
+        final String result = Redirected.outputOf(() -> Listing.job(this,
+                                                                    Arrays.asList("files", "list", "nx",
+                                                                                  listingPath.toString(),
+                                                                                  ":reg"))
+                                                               .run());
+        //printf("%s%n", result);
+
+        assertEquals(expected("ListingRunNXREG.txt"), result);
     }
 }

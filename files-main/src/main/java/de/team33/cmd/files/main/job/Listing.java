@@ -7,10 +7,7 @@ import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.io.phobos.FileEntry;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -30,6 +27,7 @@ public class Listing implements Runnable {
                                 .stream()
                                 .filter(type::isTypeOf)
                                 .map(mapping)
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
@@ -53,7 +51,8 @@ public class Listing implements Runnable {
     private enum Aspect {
 
         N(fileType -> fileType::toPureName),
-        X(fileType -> path -> path.getFileName().toString());
+        X(fileType -> fileType::toExtension),
+        NX(fileType -> path -> path.getFileName().toString());
 
         private static final EnumTool<Aspect> TOOL = EnumTool.of(Aspect.class);
 

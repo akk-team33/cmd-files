@@ -18,10 +18,10 @@ public abstract class FileType {
     public static FileType parse(final String csvExtensions) {
         final String csvLower = csvExtensions.toLowerCase();
         return switch (csvLower) {
-            case "*dir" -> ByFile.DIR;
-            case "*reg" -> ByFile.REG;
-            case "*sym" -> ByFile.SYM;
-            case "*all" -> ByFile.ALL;
+            case ":dir" -> ByFile.DIR;
+            case ":reg" -> ByFile.REG;
+            case ":sym" -> ByFile.SYM;
+            case ":all" -> ByFile.ALL;
             default -> new ByExtensions(csvLower.split(","));
         };
     }
@@ -29,6 +29,8 @@ public abstract class FileType {
     public abstract boolean isTypeOf(Path path);
 
     public abstract String toPureName(Path path);
+
+    public abstract String toExtension(Path path);
 
     private static class ByFile extends FileType {
 
@@ -49,10 +51,17 @@ public abstract class FileType {
         }
 
         @Override
-        public String toPureName(final Path path) {
+        public final String toPureName(final Path path) {
             final String name = path.getFileName().toString();
             final int dotIndex = name.indexOf('.');
             return (0 > dotIndex) ? name : name.substring(0, dotIndex);
+        }
+
+        @Override
+        public final String toExtension(final Path path) {
+            final String name = path.getFileName().toString();
+            final int dotIndex = name.indexOf('.');
+            return (0 > dotIndex) ? null : name.substring(dotIndex).toLowerCase();
         }
     }
 
@@ -78,6 +87,15 @@ public abstract class FileType {
                              .filter(ext -> fullName.toLowerCase().endsWith(ext))
                              .findAny()
                              .map(ext -> fullName.substring(0, fullName.length() - ext.length()))
+                             .orElse(null);
+        }
+
+        @Override
+        public String toExtension(Path path) {
+            final String fullName = path.getFileName().toString();
+            return extensions.stream()
+                             .filter(ext -> fullName.toLowerCase().endsWith(ext))
+                             .findAny()
                              .orElse(null);
         }
     }
