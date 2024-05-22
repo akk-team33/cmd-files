@@ -15,16 +15,24 @@ Parameters:
              n : the pure file name without extension
              x : the full file name including extension
     PATH   - The path of the working directory
-    TYPE   - a comma separated list of file extensions specifying a file type
-             (case-insensitive)
+    TYPE   - One of {*dir, *reg, *sym, *all} or a comma separated list of
+             file extensions specifying the desired file type (case-insensitive)
              e.g. jpg,jpe,jpeg
                   -> specifies a file type consisting of three file extensions
+             *dir : type = directories
+             *reg : type = regular files
+             *sym : type = symbolic links
+             *all : type = all files
 
 Example:
 
-    %2$s list n . jpg,jpe,jpeg
+[1] MainTest list n path/to/images jpg,jpe,jpeg
 
-    ... to list the pure file name without extension of all regular files in
-        the current working directory that are matching the type that is
+    ... to list the pure file name without extension of all files in
+        the relative directory <path/to/images> that are matching the type that is
         represented by the extensions .jpg, .jpe or .jpeg
-%n
+
+[2] MainTest list x . *reg
+
+    ... to list the full file name including extension of all regular files
+        in the current working directory (.)%n
