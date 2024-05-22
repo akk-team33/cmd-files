@@ -10,27 +10,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Listing implements Runnable {
 
     public static final String EXCERPT = "List names of files of a specific type";
 
     private final Context context;
-    private final List<String> list;
+    private final Set<String> aspects;
 
     private Listing(final Context context, final Aspect aspect, final Path path, final FileType type) {
         final Function<Path, String> mapping = aspect.mapping(type);
         this.context = context;
-        this.list = FileEntry.evaluated(path)
-                             .content()
-                             .stream()
-                             .filter(Files::isRegularFile)
-                             .filter(type::isTypeOf)
-                             .map(mapping)
-                             .sorted()
-                             .toList();
+        this.aspects = FileEntry.evaluated(path)
+                                .content()
+                                .stream()
+                                .filter(Files::isRegularFile)
+                                .filter(type::isTypeOf)
+                                .map(mapping)
+                                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static Runnable job(final Context context, final List<String> args) {
@@ -49,7 +51,7 @@ public class Listing implements Runnable {
 
     @Override
     public void run() {
-        list.forEach(line -> context.printf("%s%n", line));
+        aspects.forEach(line -> context.printf("%s%n", line));
     }
 
     private enum Aspect {
