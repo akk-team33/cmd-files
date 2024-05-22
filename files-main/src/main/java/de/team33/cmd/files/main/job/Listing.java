@@ -29,7 +29,6 @@ public class Listing implements Runnable {
         this.aspects = FileEntry.evaluated(path)
                                 .content()
                                 .stream()
-                                .filter(Files::isRegularFile)
                                 .filter(type::isTypeOf)
                                 .map(mapping)
                                 .collect(Collectors.toCollection(TreeSet::new));

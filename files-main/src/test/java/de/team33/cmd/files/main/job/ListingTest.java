@@ -39,6 +39,20 @@ class ListingTest implements Context {
     }
 
     @Test
+    final void run_N_REG() throws IOException {
+        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+
+        final String result = Redirected.outputOf(() -> Listing.job(this,
+                                                                    Arrays.asList("files", "list", "n",
+                                                                                  listingPath.toString(),
+                                                                                  "*reg"))
+                                                               .run());
+        //printf("%s%n", result);
+
+        assertEquals(expected("ListingRunNREG.txt"), result);
+    }
+
+    @Test
     final void run_X() throws IOException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
@@ -50,5 +64,19 @@ class ListingTest implements Context {
         //printf("%s%n", result);
 
         assertEquals(expected("ListingRunX.txt"), result);
+    }
+
+    @Test
+    final void run_X_REG() throws IOException {
+        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+
+        final String result = Redirected.outputOf(() -> Listing.job(this,
+                                                                    Arrays.asList("files", "list", "x",
+                                                                                  listingPath.toString(),
+                                                                                  "*reg"))
+                                                               .run());
+        //printf("%s%n", result);
+
+        assertEquals(expected("ListingRunXREG.txt"), result);
     }
 }
