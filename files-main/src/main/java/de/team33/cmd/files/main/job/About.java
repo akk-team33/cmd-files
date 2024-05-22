@@ -7,6 +7,8 @@ import java.util.List;
 
 public class About implements Runnable {
 
+    public static final String EXCERPT = "Get basic info about this application.";
+
     private final Context context;
     private final String format;
     private final String cmdLine;

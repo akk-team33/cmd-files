@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MainTest {
 
-    private static final String SHELL_CMD_NAME = MainTest.class.getSimpleName();
+    private static final String CMD_NAME = MainTest.class.getSimpleName();
     private static final String NEWLINE = String.format("%n");
 
     @Test
@@ -31,7 +31,7 @@ class MainTest {
         final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_oneArg.txt"),
                                               Regular.excerpt());
 
-        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME));
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME));
         // System.out.println(result);
 
         assertEquals(expected, result);
@@ -41,7 +41,7 @@ class MainTest {
     final void main_about() throws Exception {
         final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_about.txt"));
 
-        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME, "about"))
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "about"))
                                         .lines()
                                         .map(line -> line.startsWith("| Build Timestamp:")
                                                      ? "| Build Timestamp: N/A"
@@ -56,7 +56,17 @@ class MainTest {
     final void main_keep() throws Exception {
         final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_keep.txt"));
 
-        final String result = Redirected.outputOf(() -> Main.main(SHELL_CMD_NAME, "keep"));
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "keep"));
+        // System.out.println(result);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    final void main_list() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_list.txt"));
+
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "list"));
         // System.out.println(result);
 
         assertEquals(expected, result);

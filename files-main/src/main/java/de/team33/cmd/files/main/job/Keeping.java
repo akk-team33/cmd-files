@@ -18,6 +18,9 @@ import static java.util.function.Predicate.not;
 
 public class Keeping implements Runnable {
 
+    public static final String EXCERPT = "Compare files of different types and strike a balance " +
+                                         "based on their file names.";
+
     private final Context context;
     private final Set<Path> toBeMoved;
     private final Path movePath;

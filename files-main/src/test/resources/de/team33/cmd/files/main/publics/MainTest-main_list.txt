@@ -1,0 +1,30 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest list
+
+Expected request scheme:
+
+    MainTest list ASPECT PATH TYPE
+
+Parameters:
+
+    ASPECT - One of {n,x} (case-insensitive)
+             n : the pure file name without extension
+             x : the full file name including extension
+    PATH   - The path of the working directory
+    TYPE   - a comma separated list of file extensions specifying a file type
+             (case-insensitive)
+             e.g. jpg,jpe,jpeg
+                  -> specifies a file type consisting of three file extensions
+
+Example:
+
+    MainTest list n . jpg,jpe,jpeg
+
+    ... to list the pure file name without extension of all regular files in
+        the current working directory that are matching the type that is
+        represented by the extensions .jpg, .jpe or .jpeg
+%n

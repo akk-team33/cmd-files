@@ -11,8 +11,9 @@ import java.util.stream.Collectors;
 
 public enum Regular {
 
-    ABOUT(About::job, "Get basic info about this application."),
-    KEEP(Keeping::job, "Compare files of different types and strike a balance based on their file names.");
+    ABOUT(About::job, About.EXCERPT),
+    LIST(Listing::job, Listing.EXCERPT),
+    KEEP(Keeping::job, Keeping.EXCERPT);
 
     private static final EnumTool<Regular> TOOL = EnumTool.of(Regular.class);
     private static final String NEWLINE = String.format("%n    ");

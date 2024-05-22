@@ -1,0 +1,81 @@
+package de.team33.cmd.files.main.job;
+
+import de.team33.cmd.files.main.common.Context;
+import de.team33.cmd.files.main.common.FileType;
+import de.team33.patterns.enums.alpha.EnumTool;
+import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.phobos.FileEntry;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+public class Listing implements Runnable {
+
+    public static final String EXCERPT = "List names of files of a specific type";
+
+    private final Context context;
+    private final List<String> list;
+
+    private Listing(final Context context, final Aspect aspect, final Path path, final FileType type) {
+        final Function<Path, String> mapping = aspect.mapping(type);
+        this.context = context;
+        this.list = FileEntry.evaluated(path)
+                             .content()
+                             .stream()
+                             .filter(Files::isRegularFile)
+                             .filter(type::isTypeOf)
+                             .map(mapping)
+                             .sorted()
+                             .toList();
+    }
+
+    public static Runnable job(final Context context, final List<String> args) {
+        assert 1 < args.size();
+        assert Regular.LIST.name().equalsIgnoreCase(args.get(1));
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        final int size = args.size();
+        if (5 == size) {
+            return new Listing(context, Aspect.of(args.get(2)), Path.of(args.get(3)), FileType.parse(args.get(4)));
+        } else {
+            final String format = TextIO.read(Listing.class, "Listing.txt");
+            final String cmdLine = String.join(" ", args);
+            return () -> context.printf(format, cmdLine, args.get(0));
+        }
+    }
+
+    @Override
+    public void run() {
+        list.forEach(line -> context.printf("%s%n", line));
+    }
+
+    private enum Aspect {
+
+        N(fileType -> fileType::toPureName),
+        X(fileType -> path -> path.getFileName().toString());
+
+        private static final EnumTool<Aspect> TOOL = EnumTool.of(Aspect.class);
+
+        private final Function<FileType, Function<Path, String>> toExtraction;
+
+        Aspect(Function<FileType, Function<Path, String>> toExtraction) {
+            this.toExtraction = toExtraction;
+        }
+
+        private static Supplier<RuntimeException> newNoSuchElementException(final String value) {
+            return () -> new NoSuchElementException("no Aspect specified for '" + value + "'");
+        }
+
+        private static Aspect of(final String value) {
+            return TOOL.failing(newNoSuchElementException(value))
+                       .findAny(item -> value.equalsIgnoreCase(item.name()));
+        }
+
+        public Function<Path, String> mapping(final FileType type) {
+            return toExtraction.apply(type);
+        }
+    }
+}
