@@ -6,7 +6,6 @@ import de.team33.patterns.enums.alpha.EnumTool;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.io.phobos.FileEntry;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -42,9 +41,7 @@ public class Listing implements Runnable {
         if (5 == size) {
             return new Listing(context, Aspect.of(args.get(2)), Path.of(args.get(3)), FileType.parse(args.get(4)));
         } else {
-            final String format = TextIO.read(Listing.class, "Listing.txt");
-            final String cmdLine = String.join(" ", args);
-            return () -> context.printf(format, cmdLine, args.get(0));
+            return new InfoJob(context, args, TextIO.read(Listing.class, "Listing.txt"));
         }
     }
 

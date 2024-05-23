@@ -67,7 +67,7 @@ class MainTest {
         final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_list.txt"));
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "list"));
-        // System.out.println(result);
+        System.out.println(result);
 
         assertEquals(expected, result);
     }

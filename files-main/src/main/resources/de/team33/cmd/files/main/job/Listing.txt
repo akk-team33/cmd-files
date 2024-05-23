@@ -35,4 +35,4 @@ Example:
 [2] MainTest list x . *reg
 
     ... to list the full file name including extension of all regular files
-        in the current working directory (.)%n
+        in the current working directory (.)%n%n

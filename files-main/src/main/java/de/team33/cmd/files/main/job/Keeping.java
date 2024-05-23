@@ -74,9 +74,7 @@ public class Keeping implements Runnable {
         } else if (6 == size) {
             return new Keeping(context, args.get(2), args.get(3), args.get(4), args.get(5));
         } else {
-            final String format = TextIO.read(Keeping.class, "Keeping.txt");
-            final String cmdLine = String.join(" ", args);
-            return () -> context.printf(format, cmdLine, args.get(0));
+            return new InfoJob(context, args, TextIO.read(Keeping.class, "Keeping.txt"));
         }
     }
 
