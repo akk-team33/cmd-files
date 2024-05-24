@@ -39,7 +39,7 @@ public class Listing implements Runnable {
         if (5 == size) {
             return new Listing(context, Aspect.of(args.get(2)), Path.of(args.get(3)), FileType.parse(args.get(4)));
         } else {
-            return new InfoJob(context, args, TextIO.read(Listing.class, "Listing.txt"));
+            return new InfoJob(context, args).printf(TextIO.read(Listing.class, "Listing.txt"));
         }
     }
 
