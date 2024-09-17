@@ -3,8 +3,8 @@ package de.team33.cmd.files.main.job;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.deimos.TextIO;
-import de.team33.patterns.testing.titan.io.Redirected;
-import de.team33.patterns.testing.titan.io.ZipIO;
+import de.team33.testing.io.hydra.ZipIO;
+import de.team33.testing.stdio.ersa.Redirected;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
