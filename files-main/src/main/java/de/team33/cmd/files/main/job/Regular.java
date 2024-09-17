@@ -1,13 +1,16 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Context;
-import de.team33.patterns.enums.alpha.EnumTool;
+import de.team33.cmd.files.main.common.Output;
+import de.team33.cmd.files.main.common.RequestException;
+import de.team33.patterns.enums.alpha.Values;
+import de.team33.patterns.exceptional.dione.XBiFunction;
 
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static de.team33.cmd.files.main.job.Util.cmdLine;
+import static de.team33.cmd.files.main.job.Util.cmdName;
 
 public enum Regular {
 
@@ -15,36 +18,52 @@ public enum Regular {
     LIST(Listing::job, Listing.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 
-    private static final EnumTool<Regular> TOOL = EnumTool.of(Regular.class);
-    private static final String NEWLINE = String.format("%n    ");
+    private static final Values<Regular> VALUES = Values.of(Regular.class);
 
-    private final BiFunction<Context, List<String>, Runnable> toJob;
+    private final XBiFunction<Output, List<String>, Runnable, RequestException> toJob;
     private final String excerpt;
 
-    Regular(final BiFunction<Context, List<String>, Runnable> toJob, final String excerpt) {
+    Regular(final XBiFunction<Output, List<String>, Runnable, RequestException> toJob, final String excerpt) {
         this.toJob = toJob;
         this.excerpt = excerpt;
     }
 
-    public static boolean test(final List<String> args) {
-        return (1 < args.size()) && TOOL.stream().anyMatch(toFilter(args));
+    public static String excerpts() {
+        final int maxLength = VALUES.mapAll(value -> value.name().length())
+                                    .reduce(0, Math::max);
+        final String format = String.format("    %%-%ds : %%s%%n", maxLength);
+        return VALUES.mapAll(regular -> String.format(format, regular.name(), regular.excerpt))
+                     .collect(Collectors.joining())
+                     .trim();
     }
 
-    public static Runnable job(final Context context, final List<String> args) {
-        return TOOL.mapFirst(toFilter(args), toJob(context, args));
+    private static RequestException newBadArgsException(final List<String> args) {
+        return RequestException.format(Regular.class, "BadArgs.txt",
+                                       cmdLine(args), cmdName(args), excerpts());
     }
 
-    private static Predicate<Regular> toFilter(final List<String> args) {
-        return item -> item.name().equalsIgnoreCase(args.get(1));
+    private static Optional<Regular> ofAmbiguous(final List<String> args) {
+        if (1 < args.size()) {
+            return VALUES.findAny(regular -> regular.name().equalsIgnoreCase(args.get(1)));
+        } else {
+            return Optional.empty();
+        }
     }
 
-    private static Function<Regular, Runnable> toJob(final Context context, final List<String> args) {
-        return item -> item.toJob.apply(context, args);
+    private static Runnable ofCharged(final Output out, final List<String> args) throws RequestException {
+        return ofAmbiguous(args).orElseThrow(() -> newBadArgsException(args))
+                                .runnable(out, args);
     }
 
-    public static String excerpt() {
-        return TOOL.stream()
-                   .map(regular -> String.format("%s : %s", regular.name(), regular.excerpt))
-                   .collect(Collectors.joining(NEWLINE));
+    public static Runnable job(final Output out, final List<String> args) throws RequestException {
+        if (args.isEmpty()) {
+            throw RequestException.read(Regular.class, "NoArgs.txt");
+        } else {
+            return ofCharged(out, args);
+        }
+    }
+
+    private Runnable runnable(final Output out, final List<String> args) throws RequestException {
+        return toJob.apply(out, args);
     }
 }

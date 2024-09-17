@@ -1,15 +1,17 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Context;
+import de.team33.cmd.files.main.common.Output;
 import de.team33.patterns.io.deimos.TextIO;
 
 import java.util.List;
 
-public class About {
+import static de.team33.cmd.files.main.job.Util.cmdLine;
 
-    public static final String EXCERPT = "Get basic info about this application.";
+class About {
 
-    public static Runnable job(final Context context, final List<String> args) {
-        return new InfoJob(context, args).printf(TextIO.read(About.class, "About.txt"));
+    static final String EXCERPT = "Get basic info about this application.";
+
+    static Runnable job(final Output out, final List<String> args) {
+        return () -> out.printLines(String.format(TextIO.read(About.class, "About.txt"), cmdLine(args)));
     }
 }

@@ -29,7 +29,7 @@ class MainTest {
     @Test
     final void main_oneArg() throws Exception {
         final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_oneArg.txt"),
-                                              Regular.excerpt());
+                                              Regular.excerpts());
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME));
         // System.out.println(result);

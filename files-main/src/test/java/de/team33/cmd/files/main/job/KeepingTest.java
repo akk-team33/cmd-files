@@ -1,6 +1,7 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Context;
+import de.team33.cmd.files.main.common.Output;
+import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.testing.titan.io.FileInfo;
 import de.team33.patterns.testing.titan.io.ZipIO;
@@ -15,13 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class KeepingTest {
 
     private static final Path TEST_PATH = Path.of("target", "testing", KeepingTest.class.getSimpleName());
-    private static final Context VERBOSE = new Context(){
-    };
-    private static final Context SILENT = new Context() {
-        @Override
-        public void printf(final String format, final Object... args) {
-        }
-    };
 
     private final String uuid = UUID.randomUUID().toString();
     private final Path keepingPath = TEST_PATH.resolve(uuid).resolve("keeping");
@@ -35,23 +29,23 @@ class KeepingTest {
     }
 
     @Test
-    final void run_singlePath() {
+    final void run_singlePath() throws RequestException {
         ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
         assertEquals(expectedInfo("KeepingRunInitial.txt"), keepingInfo());
 
-        Keeping.job(VERBOSE, Arrays.asList("files", "keep", keepingPath.toString(), "jpg,jpe,jpeg", "tif,tiff")).run();
+        Keeping.job(Output.SYSTEM, Arrays.asList("files", "keep", keepingPath.toString(), "jpg,jpe,jpeg", "tif,tiff")).run();
 
         assertEquals(expectedInfo("KeepingRunExpected.txt"), keepingInfo());
     }
 
     @Test
-    final void run_dualPath() {
+    final void run_dualPath() throws RequestException {
         final String path1 = keepingPath.toString();
         final String path2 = keepingPath.toString() + ".moved";
         ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
-        Keeping.job(SILENT, Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
+        Keeping.job(((format, args) -> {}), Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
 
-        Keeping.job(VERBOSE, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
+        Keeping.job(Output.SYSTEM, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
 
         assertEquals(expectedInfo("KeepingRunDPExpected.txt"), keepingInfo());
     }

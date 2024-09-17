@@ -8,7 +8,7 @@ class RegularTest {
 
     @Test
     void excerpt() {
-        final String result = Regular.excerpt();
+        final String result = Regular.excerpts();
         // System.out.println(result);
         for (final Regular item : Regular.values()) {
             assertTrue(result.contains(item.name()));

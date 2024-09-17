@@ -1,8 +1,8 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Context;
 import de.team33.cmd.files.main.common.FileType;
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.cmd.files.main.common.Output;
+import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.phobos.FileEntry;
 
 import java.io.IOException;
@@ -14,33 +14,35 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static de.team33.cmd.files.main.job.Util.cmdLine;
+import static de.team33.cmd.files.main.job.Util.cmdName;
 import static java.util.function.Predicate.not;
 
-public class Keeping implements Runnable {
+class Keeping implements Runnable {
 
-    public static final String EXCERPT = "Compare files of different types and strike a balance " +
+    static final String EXCERPT = "Compare files of different types and strike a balance " +
                                          "based on their file names.";
 
-    private final Context context;
+    private final Output out;
     private final Set<Path> toBeMoved;
     private final Path movePath;
 
-    private Keeping(final Context context, final String path, final String type1, final String type2) {
-        this(context, path, type1, path, type2);
+    private Keeping(final Output out, final String path, final String type1, final String type2) {
+        this(out, path, type1, path, type2);
     }
 
-    private Keeping(final Context context,
+    private Keeping(final Output out,
                     final String path1, final String type1,
                     final String path2, final String type2) {
-        this(context, Path.of(path1), FileType.parse(type1), Path.of(path2), FileType.parse(type2));
+        this(out, Path.of(path1), FileType.parse(type1), Path.of(path2), FileType.parse(type2));
     }
 
-    private Keeping(final Context context,
+    private Keeping(final Output out,
                     final Path path1, final FileType type1,
                     final Path path2, final FileType type2) {
         final Set<String> nameToKeep = pureNamesOf(path1, type1);
-        context.printf("[names to keep]%n%s%n", String.format(String.join("%n", nameToKeep)));
-        this.context = context;
+        out.printf("[names to keep]%n%s%n", String.format(String.join("%n", nameToKeep)));
+        this.out = out;
         this.toBeMoved = toBeMoved(path2, type2, nameToKeep);
         this.movePath = Path.of(path2.toString() + ".moved");
     }
@@ -64,17 +66,17 @@ public class Keeping implements Runnable {
                         .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    public static Runnable job(final Context context, final List<String> args) {
+    static Runnable job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
         assert Regular.KEEP.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         final int size = args.size();
         if (5 == size) {
-            return new Keeping(context, args.get(2), args.get(3), args.get(4));
+            return new Keeping(out, args.get(2), args.get(3), args.get(4));
         } else if (6 == size) {
-            return new Keeping(context, args.get(2), args.get(3), args.get(4), args.get(5));
+            return new Keeping(out, args.get(2), args.get(3), args.get(4), args.get(5));
         } else {
-            return new InfoJob(context, args).printf(TextIO.read(Keeping.class, "Keeping.txt"));
+            throw RequestException.format(Keeping.class, "Keeping.txt", cmdLine(args), cmdName(args));
         }
     }
 
@@ -86,13 +88,13 @@ public class Keeping implements Runnable {
     private void move(final Path path) {
         final Path fileName = path.getFileName();
         final Path target = movePath.resolve(fileName);
-        context.printf("moving %s%n-> %s ...", path, target);
+        out.printf("moving %s%n-> %s ...", path, target);
         try {
             Files.createDirectories(movePath);
             Files.move(path, target);
-            context.printf(" ok%n");
+            out.printf(" ok%n");
         } catch (final IOException e) {
-            context.printf(" failed%n");
+            out.printf(" failed%n");
             throw new IllegalStateException(e.getMessage(), e);
         }
     }

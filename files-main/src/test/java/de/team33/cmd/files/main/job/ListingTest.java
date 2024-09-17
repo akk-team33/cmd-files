@@ -1,6 +1,7 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Context;
+import de.team33.cmd.files.main.common.Output;
+import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.testing.titan.io.Redirected;
 import de.team33.patterns.testing.titan.io.ZipIO;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ListingTest implements Context {
+class ListingTest {
 
     private static final Path TEST_PATH = Path.of("target", "testing", ListingTest.class.getSimpleName());
 
@@ -25,10 +26,10 @@ class ListingTest implements Context {
     }
 
     @Test
-    final void run_N() throws IOException {
+    final void run_N() throws IOException, RequestException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
-        final String result = Redirected.outputOf(() -> Listing.job(this,
+        final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "n",
                                                                                   listingPath.toString(),
                                                                                   "jpg,jpe,jpeg"))
@@ -39,10 +40,10 @@ class ListingTest implements Context {
     }
 
     @Test
-    final void run_N_REG() throws IOException {
+    final void run_N_REG() throws IOException, RequestException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
-        final String result = Redirected.outputOf(() -> Listing.job(this,
+        final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "n",
                                                                                   listingPath.toString(),
                                                                                   ":reg"))
@@ -53,10 +54,10 @@ class ListingTest implements Context {
     }
 
     @Test
-    final void run_X() throws IOException {
+    final void run_X() throws IOException, RequestException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
-        final String result = Redirected.outputOf(() -> Listing.job(this,
+        final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "x",
                                                                                   listingPath.toString(),
                                                                                   "jpg,jpe,jpeg"))
@@ -67,10 +68,10 @@ class ListingTest implements Context {
     }
 
     @Test
-    final void run_NX() throws IOException {
+    final void run_NX() throws IOException, RequestException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
-        final String result = Redirected.outputOf(() -> Listing.job(this,
+        final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "nx",
                                                                                   listingPath.toString(),
                                                                                   "jpg,jpe,jpeg"))
@@ -81,10 +82,10 @@ class ListingTest implements Context {
     }
 
     @Test
-    final void run_X_REG() throws IOException {
+    final void run_X_REG() throws IOException, RequestException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
-        final String result = Redirected.outputOf(() -> Listing.job(this,
+        final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "x",
                                                                                   listingPath.toString(),
                                                                                   ":reg"))
@@ -95,10 +96,10 @@ class ListingTest implements Context {
     }
 
     @Test
-    final void run_NX_REG() throws IOException {
+    final void run_NX_REG() throws IOException, RequestException {
         ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
 
-        final String result = Redirected.outputOf(() -> Listing.job(this,
+        final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "nx",
                                                                                   listingPath.toString(),
                                                                                   ":reg"))

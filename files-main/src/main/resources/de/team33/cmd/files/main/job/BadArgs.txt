@@ -1,6 +1,3 @@
-+------------------------------------------------------------------------------
-| ${project.groupId} - ${project.artifactId} - version ${project.version}
-+------------------------------------------------------------------------------
 Your request:
 
     %1$s
@@ -17,4 +14,4 @@ Type ...
 
     %2$s TASK
 
-... to get more information about the specified TASK.%n%n
+... to get more information about the specified TASK.

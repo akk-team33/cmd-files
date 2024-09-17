@@ -19,6 +19,10 @@
     <dependencies>
         <dependency>
             <groupId>de.team33.patterns</groupId>
+            <artifactId>exceptional-dione</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
             <artifactId>io-deimos</artifactId>
         </dependency>
         <dependency>
