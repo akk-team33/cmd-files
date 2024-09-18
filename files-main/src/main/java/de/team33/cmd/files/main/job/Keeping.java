@@ -50,18 +50,19 @@ class Keeping implements Runnable {
 
     private static Set<Path> toBeMoved(final Path parent, final FileType type, final Set<String> names) {
         return FileEntry.of(parent, FilePolicy.RESOLVE_SYMLINKS)
-                        .content()
+                        .entries()
                         .stream()
                         .filter(type::isTypeOf)
                         .filter(not(path -> isMatching(path, names)))
+                        .map(FileEntry::path)
                         .collect(Collectors.toCollection(TreeSet::new));
     }
 
     private static Set<String> pureNamesOf(final Path parent, final FileType type) {
         return FileEntry.of(parent, FilePolicy.RESOLVE_SYMLINKS)
-                        .content()
+                        .entries()
                         .stream()
-                        .filter(Files::isRegularFile)
+                        .filter(FileEntry::isRegularFile)
                         .map(type::toPureName)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toCollection(TreeSet::new));
@@ -100,10 +101,8 @@ class Keeping implements Runnable {
         }
     }
 
-    private static boolean isMatching(final Path path, final Set<String> names) {
+    private static boolean isMatching(final FileEntry entry, final Set<String> names) {
         return names.stream()
-                    .anyMatch(name -> path.getFileName()
-                                          .toString()
-                                          .startsWith(name));
+                    .anyMatch(name -> entry.name().startsWith(name));
     }
 }

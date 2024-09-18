@@ -20,6 +20,7 @@ Parameters:
              :dir : type = directories
              :reg : type = regular files
              :sym : type = symbolic links
+             :spc : type = special file
              :all : type = all files
 
 Example:

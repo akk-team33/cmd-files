@@ -24,10 +24,10 @@ class Listing implements Runnable {
     private final Set<String> aspects;
 
     private Listing(final Output context, final Aspect aspect, final Path path, final FileType type) {
-        final Function<Path, String> mapping = aspect.mapping(type);
+        final Function<FileEntry, String> mapping = aspect.mapping(type);
         this.context = context;
         this.aspects = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS)
-                                .content()
+                                .entries()
                                 .stream()
                                 .filter(type::isTypeOf)
                                 .map(mapping)
@@ -56,13 +56,13 @@ class Listing implements Runnable {
 
         N(fileType -> fileType::toPureName),
         X(fileType -> fileType::toExtension),
-        NX(fileType -> path -> path.getFileName().toString());
+        NX(fileType -> FileEntry::name);
 
-        private static final Values<Aspect> TOOL = Values.of(Aspect.class);
+        private static final Values<Aspect> VALUES = Values.of(Aspect.class);
 
-        private final Function<FileType, Function<Path, String>> toExtraction;
+        private final Function<FileType, Function<FileEntry, String>> toExtraction;
 
-        Aspect(Function<FileType, Function<Path, String>> toExtraction) {
+        Aspect(Function<FileType, Function<FileEntry, String>> toExtraction) {
             this.toExtraction = toExtraction;
         }
 
@@ -71,11 +71,11 @@ class Listing implements Runnable {
         }
 
         private static Aspect of(final String value) {
-            return TOOL.findAny(item -> value.equalsIgnoreCase(item.name()))
-                       .orElseThrow(newNoSuchElementException(value));
+            return VALUES.findAny(item -> value.equalsIgnoreCase(item.name()))
+                         .orElseThrow(newNoSuchElementException(value));
         }
 
-        Function<Path, String> mapping(final FileType type) {
+        Function<FileEntry, String> mapping(final FileType type) {
             return toExtraction.apply(type);
         }
     }

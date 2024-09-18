@@ -1,7 +1,7 @@
 package de.team33.cmd.files.main.common;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import de.team33.patterns.io.alpha.FileEntry;
+
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -21,45 +21,47 @@ public abstract class FileType {
             case ":dir" -> ByFile.DIR;
             case ":reg" -> ByFile.REG;
             case ":sym" -> ByFile.SYM;
+            case ":spc" -> ByFile.SPC;
             case ":all" -> ByFile.ALL;
             default -> new ByExtensions(csvLower.split(","));
         };
     }
 
-    public abstract boolean isTypeOf(Path path);
+    public abstract boolean isTypeOf(FileEntry entry);
 
-    public abstract String toPureName(Path path);
+    public abstract String toPureName(FileEntry entry);
 
-    public abstract String toExtension(Path path);
+    public abstract String toExtension(FileEntry entry);
 
     private static class ByFile extends FileType {
 
-        private static final ByFile DIR = new ByFile(Files::isDirectory);
-        private static final ByFile REG = new ByFile(Files::isRegularFile);
-        private static final ByFile SYM = new ByFile(Files::isSymbolicLink);
+        private static final ByFile DIR = new ByFile(FileEntry::isDirectory);
+        private static final ByFile REG = new ByFile(FileEntry::isRegularFile);
+        private static final ByFile SYM = new ByFile(FileEntry::isSymbolicLink);
+        private static final ByFile SPC = new ByFile(FileEntry::isSpecial);
         private static final ByFile ALL = new ByFile(path -> true);
 
-        private final Predicate<Path> testing;
+        private final Predicate<FileEntry> testing;
 
-        private ByFile(final Predicate<Path> testing) {
+        private ByFile(final Predicate<FileEntry> testing) {
             this.testing = testing;
         }
 
         @Override
-        public boolean isTypeOf(final Path path) {
-            return testing.test(path);
+        public boolean isTypeOf(final FileEntry entry) {
+            return testing.test(entry);
         }
 
         @Override
-        public final String toPureName(final Path path) {
-            final String name = path.getFileName().toString();
+        public final String toPureName(final FileEntry entry) {
+            final String name = entry.name();
             final int dotIndex = name.indexOf('.');
             return (0 > dotIndex) ? name : name.substring(0, dotIndex);
         }
 
         @Override
-        public final String toExtension(final Path path) {
-            final String name = path.getFileName().toString();
+        public final String toExtension(final FileEntry entry) {
+            final String name = entry.name();
             final int dotIndex = name.indexOf('.');
             return (0 > dotIndex) ? null : name.substring(dotIndex).toLowerCase();
         }
@@ -75,14 +77,14 @@ public abstract class FileType {
                                                     .collect(COLLECTOR));
         }
 
-        public final boolean isTypeOf(final Path path) {
-            final String normalName = path.getFileName().toString().toLowerCase();
+        public final boolean isTypeOf(final FileEntry entry) {
+            final String normalName = entry.name().toLowerCase();
             return extensions.stream()
                              .anyMatch(normalName::endsWith);
         }
 
-        public final String toPureName(final Path path) {
-            final String fullName = path.getFileName().toString();
+        public final String toPureName(final FileEntry entry) {
+            final String fullName = entry.name();
             return extensions.stream()
                              .filter(ext -> fullName.toLowerCase().endsWith(ext))
                              .findAny()
@@ -91,8 +93,8 @@ public abstract class FileType {
         }
 
         @Override
-        public String toExtension(Path path) {
-            final String fullName = path.getFileName().toString();
+        public String toExtension(final FileEntry entry) {
+            final String fullName = entry.name();
             return extensions.stream()
                              .filter(ext -> fullName.toLowerCase().endsWith(ext))
                              .findAny()
