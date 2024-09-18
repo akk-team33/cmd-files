@@ -1,54 +1,53 @@
 package de.team33.patterns.io.alpha;
 
-import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class FileIndex {
 
-    private static final Predicate<File> NEVER = file -> false;
+    private static final Predicate<FileEntry> NEVER = file -> false;
 
-    private final Path path;
-    private final FilePolicy policy;
-    private Predicate<File> skipCondition = NEVER;
+    private final FileEntry root;
+    private Predicate<FileEntry> skipCondition = NEVER;
 
     private FileIndex(final Path path, final FilePolicy policy) {
-        this.path = path.toAbsolutePath().normalize();
-        this.policy = policy;
+        this.root = FileEntry.of(path, policy);
     }
 
     public static FileIndex of(final Path path, final FilePolicy policy) {
         return new FileIndex(path, policy);
     }
 
-    public final Stream<File> files() {
-        return streamAll(path.toFile());
+    public final Stream<FileEntry> entries() {
+        return streamAll(root);
     }
 
-    private Stream<File> streamAll(final File[] files) {
-        return Stream.of(files)
-                     .flatMap(this::streamAll);
+    private Stream<FileEntry> streamAll(final List<FileEntry> entries) {
+        return entries.stream()
+                      .flatMap(this::streamAll);
     }
 
-    private Stream<File> streamAll(final File file) {
-        if (skipCondition.test(file)) {
+    private Stream<FileEntry> streamAll(final FileEntry entry) {
+        if (skipCondition.test(entry)) {
             return Stream.empty();
         }
-        final Stream<File> head = Stream.of(file);
-        if (file.isDirectory()) {
-            return Stream.concat(head, streamAll(file.listFiles()));
+
+        final Stream<FileEntry> head = Stream.of(entry);
+        if (entry.isDirectory()) {
+            return Stream.concat(head, streamAll(entry.entries()));
         } else {
             return head;
         }
     }
 
-    public final FileIndex skipFiles(final Predicate<File> condition) {
+    public final FileIndex skipEntries(final Predicate<FileEntry> condition) {
         this.skipCondition = condition;
         return this;
     }
 
     public final FileIndex skipPaths(final Predicate<Path> condition) {
-        return skipFiles(file -> condition.test(file.toPath()));
+        return skipEntries(file -> condition.test(file.path()));
     }
 }

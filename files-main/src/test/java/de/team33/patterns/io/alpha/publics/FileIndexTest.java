@@ -1,5 +1,6 @@
 package de.team33.patterns.io.alpha.publics;
 
+import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
 import de.team33.patterns.io.deimos.TextIO;
@@ -7,7 +8,6 @@ import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
@@ -34,8 +34,8 @@ class FileIndexTest {
                                           .toList();
         final FileIndex index = FileIndex.of(TEST_PATH, FilePolicy.DISTINCT_SYMLINKS);
 
-        final List<Path> result = index.files()
-                                       .map(File::toPath)
+        final List<Path> result = index.entries()
+                                       .map(FileEntry::path)
                                        .sorted(comparing(Path::toString))
                                        .toList();
 
@@ -49,10 +49,10 @@ class FileIndexTest {
                                           .map(line -> TEST_PATH.resolve(line).toAbsolutePath().normalize())
                                           .toList();
         final FileIndex index = FileIndex.of(TEST_PATH, FilePolicy.DISTINCT_SYMLINKS)
-                                         .skipFiles(file -> file.getName().equals("patterns"));
+                                         .skipEntries(entry -> entry.name().equals("patterns"));
 
-        final List<Path> result = index.files()
-                                       .map(File::toPath)
+        final List<Path> result = index.entries()
+                                       .map(FileEntry::path)
                                        .sorted(comparing(Path::toString))
                                        .toList();
 
