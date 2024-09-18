@@ -1,0 +1,173 @@
+package de.team33.patterns.io.alpha.publics;
+
+import de.team33.patterns.io.alpha.FileEntry;
+import de.team33.patterns.io.alpha.FilePolicy;
+import de.team33.patterns.io.alpha.FileType;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class FileEntryTest {
+
+    private static final Path DEV_NULL = Paths.get("/", "dev", "null"); // special file
+    private static final Path ROOT = Paths.get("/", "root"); // unreadable directory
+
+    static Stream<Path> paths() {
+        return Stream.of(
+                Paths.get("file", "is", "missing"),
+                Paths.get("src", "main", "java"),
+                Paths.get("pom.xml"),
+                DEV_NULL,
+                ROOT);
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void path(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        assertTrue(entry.path().isAbsolute());
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void name(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        assertEquals(path.getFileName().toString(), entry.name());
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void testToString(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        assertEquals(path.toAbsolutePath().normalize().toString(), entry.toString());
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void type(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        if (entry.isDirectory()) {
+            assertEquals(FileType.DIRECTORY, entry.type());
+        } else if (entry.isSymbolicLink()) {
+            assertEquals(FileType.SYMBOLIC, entry.type());
+        } else if (entry.isRegularFile()) {
+            assertEquals(FileType.REGULAR, entry.type());
+        } else if (entry.isSpecial()) {
+            assertEquals(FileType.SPECIAL, entry.type());
+        } else {
+            assertEquals(FileType.MISSING, entry.type());
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void isDirectory(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        assertEquals(Files.isDirectory(path), entry.isDirectory());
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void isRegularFile(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        assertEquals(Files.isRegularFile(path), entry.isRegularFile());
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void isSymbolicLink(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        assertEquals(Files.isSymbolicLink(path), entry.isSymbolicLink());
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void isSpecial(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        if (entry.isSpecial()) {
+            assertEquals(DEV_NULL, path);
+        } else {
+            assertNotEquals(DEV_NULL, path);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void exists(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        assertEquals(Files.exists(path), entry.exists());
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void lastModified(final Path path) throws IOException {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        if (entry.exists()) {
+            assertEquals(Files.getLastModifiedTime(path).toInstant(), entry.lastModified());
+        } else {
+            assertThrows(UnsupportedOperationException.class, entry::lastModified);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void lastAccess(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        if (entry.exists()) {
+            assertNotNull(entry.lastAccess());
+        } else {
+            assertThrows(UnsupportedOperationException.class, entry::lastAccess);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void creation(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        if (entry.exists()) {
+            assertNotNull(entry.creation());
+        } else {
+            assertThrows(UnsupportedOperationException.class, entry::creation);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void size(final Path path) throws IOException {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        if (entry.exists()) {
+            assertEquals(Files.size(path), entry.size());
+        } else {
+            assertThrows(UnsupportedOperationException.class, entry::size);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void content(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        if (entry.isDirectory()) {
+            assertNotNull(entry.content());
+        } else {
+            assertThrows(UnsupportedOperationException.class, entry::content);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paths")
+    final void entries(final Path path) {
+        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        if (entry.isDirectory()) {
+            assertNotNull(entry.entries());
+        } else {
+            assertThrows(UnsupportedOperationException.class, entry::entries);
+        }
+    }
+}

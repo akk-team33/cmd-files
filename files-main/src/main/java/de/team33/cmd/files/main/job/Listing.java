@@ -4,8 +4,8 @@ import de.team33.cmd.files.main.common.FileType;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.enums.alpha.Values;
-import de.team33.patterns.io.deimos.TextIO;
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.alpha.FileEntry;
+import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -26,7 +26,7 @@ class Listing implements Runnable {
     private Listing(final Output context, final Aspect aspect, final Path path, final FileType type) {
         final Function<Path, String> mapping = aspect.mapping(type);
         this.context = context;
-        this.aspects = FileEntry.evaluated(path)
+        this.aspects = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS)
                                 .content()
                                 .stream()
                                 .filter(type::isTypeOf)
