@@ -151,17 +151,6 @@ class FileEntryTest {
 
     @ParameterizedTest
     @MethodSource("paths")
-    final void content(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
-        if (entry.isDirectory()) {
-            assertNotNull(entry.content());
-        } else {
-            assertThrows(UnsupportedOperationException.class, entry::content);
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource("paths")
     final void entries(final Path path) {
         final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
         if (entry.isDirectory()) {

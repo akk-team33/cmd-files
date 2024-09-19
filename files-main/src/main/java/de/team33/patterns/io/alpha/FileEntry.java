@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,8 +27,8 @@ public abstract class FileEntry {
     private final Path path;
     private final FileType type;
 
-    FileEntry(final Path path, final boolean reUse, final FileType type) {
-        this.path = reUse ? path : path.toAbsolutePath().normalize();
+    FileEntry(final Path path, final Normality normal, final FileType type) {
+        this.path = normal.of(path);
         this.type = type;
     }
 
@@ -38,24 +39,24 @@ public abstract class FileEntry {
      * @param policy a {@link FilePolicy} that specifies how symbolic links should be treated.
      */
     public static FileEntry of(final Path path, final FilePolicy policy) {
-        return of(path, false, policy);
+        return of(path, Normality.UNKNOWN, policy);
     }
 
-    private static FileEntry of(final Path path, final boolean reUse, final FilePolicy policy) {
+    private static FileEntry of(final Path path, final Normality normal, final FilePolicy policy) {
         try {
             final BasicFileAttributes attributes = //
                     Files.readAttributes(path, BasicFileAttributes.class, policy.linkOptions());
-            return of(path, reUse, policy, attributes);
+            return of(path, normal, policy, attributes);
         } catch (final IOException e) {
-            return new Missing(path, reUse, e);
+            return new Missing(path, normal, e);
         }
     }
 
-    private static FileEntry of(final Path path, final boolean reUse,
+    private static FileEntry of(final Path path, final Normality normal,
                                 final FilePolicy policy, final BasicFileAttributes attributes) {
         return attributes.isDirectory()
-               ? new Directory(path, reUse, policy, attributes)
-               : new NoDirectory(path, reUse, attributes);
+               ? new Directory(path, normal, policy, attributes)
+               : new NoDirectory(path, normal, attributes);
     }
 
     /**
@@ -140,13 +141,6 @@ public abstract class FileEntry {
      *
      * @throws UnsupportedOperationException if the represented file is not a directory.
      */
-    public abstract List<Path> content();
-
-    /**
-     * Returns the content of the represented file if it {@link #isDirectory() is a directory}.
-     *
-     * @throws UnsupportedOperationException if the represented file is not a directory.
-     */
     public abstract List<FileEntry> entries();
 
     @Override
@@ -156,13 +150,8 @@ public abstract class FileEntry {
 
     private static class NoDirectory extends Existing {
 
-        NoDirectory(final Path path, final boolean reUse, final BasicFileAttributes attributes) {
-            super(path, reUse, attributes);
-        }
-
-        @Override
-        public final List<Path> content() {
-            throw new UnsupportedOperationException("not a directory: " + path());
+        NoDirectory(final Path path, final Normality normal, final BasicFileAttributes attributes) {
+            super(path, normal, attributes);
         }
 
         @Override
@@ -175,8 +164,8 @@ public abstract class FileEntry {
 
         private final BasicFileAttributes attributes;
 
-        Existing(final Path path, final boolean reUse, final BasicFileAttributes attributes) {
-            super(path, reUse, FileType.map(attributes));
+        Existing(final Path path, final Normality normal, final BasicFileAttributes attributes) {
+            super(path, normal, FileType.map(attributes));
             this.attributes = attributes;
         }
 
@@ -229,34 +218,22 @@ public abstract class FileEntry {
     private static class Directory extends Existing {
 
         private final FilePolicy policy;
-        private final Lazy<List<Path>> lazyContent;
         private final Lazy<List<FileEntry>> lazyEntries;
 
-        private Directory(final Path path, final boolean reUse,
+        private Directory(final Path path, final Normality normal,
                           final FilePolicy policy, final BasicFileAttributes attributes) {
-            super(path, reUse, attributes);
+            super(path, normal, attributes);
             this.policy = policy;
-            this.lazyContent = Lazy.init(this::newContent);
             this.lazyEntries = Lazy.init(this::newEntries);
         }
 
         private List<FileEntry> newEntries() {
-            return content().stream()
-                            .map(path -> FileEntry.of(path, true, policy))
-                            .collect(Collectors.toList());
-        }
-
-        private List<Path> newContent() {
             try (final Stream<Path> stream = Files.list(path())) {
-                return stream.collect(Collectors.toList());
+                return stream.map(path -> FileEntry.of(path, Normality.NORMAL, policy))
+                             .collect(Collectors.toList());
             } catch (final IOException ignored) {
                 return Collections.emptyList();
             }
-        }
-
-        @Override
-        public final List<Path> content() {
-            return lazyContent.get();
         }
 
         @Override
@@ -269,8 +246,8 @@ public abstract class FileEntry {
 
         private final IOException cause;
 
-        Missing(final Path path, final boolean reUse, final IOException cause) {
-            super(path, reUse, FileType.MISSING);
+        Missing(final Path path, final Normality normal, final IOException cause) {
+            super(path, normal, FileType.MISSING);
             this.cause = cause;
         }
 
@@ -320,13 +297,23 @@ public abstract class FileEntry {
         }
 
         @Override
-        public final List<Path> content() {
-            throw new UnsupportedOperationException("not existing: " + path(), cause);
-        }
-
-        @Override
         public final List<FileEntry> entries() {
             throw new UnsupportedOperationException("not existing: " + path(), cause);
+        }
+    }
+
+    private enum Normality {
+        UNKNOWN(path -> path.toAbsolutePath().normalize()),
+        NORMAL(Function.identity());
+
+        private final Function<Path, Path> toNormal;
+
+        Normality(Function<Path, Path> toNormal) {
+            this.toNormal = toNormal;
+        }
+
+        final Path of(final Path path) {
+            return toNormal.apply(path);
         }
     }
 }
