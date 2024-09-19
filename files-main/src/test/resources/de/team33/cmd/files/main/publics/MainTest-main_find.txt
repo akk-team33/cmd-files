@@ -7,13 +7,20 @@ Your request:
 
 Expected request scheme:
 
-    MainTest find REGEXP PATH [PATH [...]]
+    MainTest find REGEXP [OPTION] PATH [PATH [...]]
 
 Parameters:
 
     REGEXP - A regular expression that matches the filenames of the file(s)
-             being searched for (case-insensitive).
-    PATH   - A path to be examined recursively.
+             being searched for.
+    OPTION - One of {cs, ci} (case-insensitive)
+             cs : the regular expression will be interpreted as
+                  case-sensitive.
+             ci : the regular expression will be interpreted as
+                  case-insensitive.
+             Optional - ci is the default if no OPTION is present.
+    PATH   - A path to be examined. Subdirectories are included if existing.
+             Multiple PATHs can be examined.
 
 Example:
 

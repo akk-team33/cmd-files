@@ -45,4 +45,9 @@ class Finder implements Runnable {
              .forEach(entry -> out.printf("%s%n", entry.path()));
         out.printf("%n");
     }
+
+    private enum Option {
+        CI,
+        CS;
+    }
 }
