@@ -49,7 +49,7 @@ class FileIndexTest {
                                           .map(line -> TEST_PATH.resolve(line).toAbsolutePath().normalize())
                                           .toList();
         final FileIndex index = FileIndex.of(TEST_PATH, FilePolicy.DISTINCT_SYMLINKS)
-                                         .skipEntries(entry -> entry.name().equals("patterns"));
+                                         .skipEntry(entry -> entry.name().equals("patterns"));
 
         final List<Path> result = index.entries()
                                        .map(FileEntry::path)

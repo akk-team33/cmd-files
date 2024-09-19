@@ -1,27 +1,35 @@
 package de.team33.patterns.io.alpha;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileIndex {
 
     private static final Predicate<FileEntry> NEVER = file -> false;
 
-    private final FileEntry root;
+    private final List<FileEntry> roots;
     private Predicate<FileEntry> skipCondition = NEVER;
 
-    private FileIndex(final Path path, final FilePolicy policy) {
-        this.root = FileEntry.of(path, policy);
+    private FileIndex(final Collection<? extends Path> paths, final FilePolicy policy) {
+        this.roots = paths.stream()
+                          .map(path -> FileEntry.of(path, policy))
+                          .collect(Collectors.toList());
+    }
+
+    public static FileIndex of(final Collection<? extends Path> paths, final FilePolicy policy) {
+        return new FileIndex(paths, policy);
     }
 
     public static FileIndex of(final Path path, final FilePolicy policy) {
-        return new FileIndex(path, policy);
+        return of(List.of(path), policy);
     }
 
     public final Stream<FileEntry> entries() {
-        return streamAll(root);
+        return streamAll(roots);
     }
 
     private Stream<FileEntry> streamAll(final List<FileEntry> entries) {
@@ -42,12 +50,12 @@ public class FileIndex {
         }
     }
 
-    public final FileIndex skipEntries(final Predicate<FileEntry> condition) {
+    public final FileIndex skipEntry(final Predicate<FileEntry> condition) {
         this.skipCondition = condition;
         return this;
     }
 
-    public final FileIndex skipPaths(final Predicate<Path> condition) {
-        return skipEntries(file -> condition.test(file.path()));
+    public final FileIndex skipPath(final Predicate<Path> condition) {
+        return skipEntry(file -> condition.test(file.path()));
     }
 }
