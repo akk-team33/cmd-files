@@ -15,6 +15,7 @@ import static de.team33.cmd.files.main.job.Util.cmdName;
 public enum Regular {
 
     ABOUT(About::job, About.EXCERPT),
+    FIND(Finder::job, Finder.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 

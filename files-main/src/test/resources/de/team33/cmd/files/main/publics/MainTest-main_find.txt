@@ -1,0 +1,27 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest find
+
+Expected request scheme:
+
+    MainTest find REGEXP PATH [PATH [...]]
+
+Parameters:
+
+    REGEXP - A regular expression that matches the filenames of the file(s)
+             being searched for (case-insensitive).
+    PATH   - A path to be examined recursively.
+
+Example:
+
+[1] MainTest find 'myFile\.jpg' path/to/images
+
+    ... to find files named "myFile.jpg" in the directory "path/to/images".
+
+[2] MainTest find '.*\.(jpg|jpe|jpeg)' images other/images more/images
+
+    ... to find files with any of the extensions {"jpg", "jpe", "jpeg"}
+        within the directories "images", "other/images" and "more/images".%n%n
