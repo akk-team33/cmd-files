@@ -4,28 +4,46 @@ Your request:
 
 Expected request scheme:
 
-    %2$s find REGEXP [OPTION] PATH [PATH [...]]
+    %2$s find PATTERN PATH [PATH [...]]
+
+    ... to find files whose file names match a specific search pattern.
 
 Parameters:
 
-    REGEXP - A regular expression that matches the filenames of the file(s)
-             being searched for.
-    OPTION - One of {cs, ci} (case-insensitive)
-             cs : the regular expression will be interpreted as
-                  case-sensitive.
-             ci : the regular expression will be interpreted as
-                  case-insensitive.
-             Optional - ci is the default if no OPTION is present.
+    PATTERN - Consists of [METHOD[/OPTION]:]VALUE
+              METHOD - One of {rx, wc} (case-insensitive)
+                       rx : the VALUE is treated as a regular expression.
+                       wc : the VALUE is treated as the full file name,
+                            but allows the use of the usual wildcards (?*).
+                     - Default: wc
+              OPTION - One of {cs, ci} (case-insensitive)
+                       cs : the PATTERN will be applied case-sensitive.
+                       ci : the PATTERN will be applied case-insensitive.
+                     - Default: ci
+              VALUE  - A (constant) value to be applied to the METHOD along
+                       with the (variable) filenames in question.
     PATH   - A path to be examined. Subdirectories are included if existing.
              Multiple PATHs can be examined.
 
-Example:
+Examples:
 
-[1] %2$s find 'myFile\.jpg' path/to/images
+[1] %2$s find 'myFile.jpg' path/to/images
 
-    ... to find files named "myFile.jpg" in the directory "path/to/images".
+    ... to find files named "myFile.jpg" in the directory "path/to/images"
+        and its subdirectories.
 
-[2] %2$s find '.*\.(jpg|jpe|jpeg)' images other/images more/images
+[2] %2$s find '*.jpg' path/to/images
+
+    ... to find files whose names end with ".jpg" in the directory
+        "path/to/images" and its subdirectories.
+
+[3] %2$s find 'myFile.*' path/to/images
+
+    ... to find files whose names start with "myFile." in the directory
+        "path/to/images" and its subdirectories.
+
+[4] %2$s find 'rx:.*\.(jpg|jpe|jpeg)' images other/images more/images
 
     ... to find files with any of the extensions {"jpg", "jpe", "jpeg"}
-        within the directories "images", "other/images" and "more/images".
+        within the directories "images", "other/images" and "more/images"
+        and their subdirectories.
