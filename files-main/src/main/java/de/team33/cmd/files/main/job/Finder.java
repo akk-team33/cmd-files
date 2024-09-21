@@ -2,12 +2,12 @@ package de.team33.cmd.files.main.job;
 
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
+import de.team33.cmd.files.main.finder.Pattern;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
 import static de.team33.cmd.files.main.job.Util.cmdName;
@@ -22,7 +22,7 @@ class Finder implements Runnable {
 
     public Finder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
-        this.pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
+        this.pattern = Pattern.parse(expression);
         this.index = FileIndex.of(paths.get(0), FilePolicy.DISTINCT_SYMLINKS); // TODO: index of all paths!
     }
 
@@ -41,7 +41,7 @@ class Finder implements Runnable {
     @Override
     public final void run() {
         index.entries()
-             .filter(entry -> pattern.matcher(entry.name()).matches())
+             .filter(entry -> pattern.matcher().test(entry.name()))
              .forEach(entry -> out.printf("%s%n", entry.path()));
         out.printf("%n");
     }

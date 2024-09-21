@@ -41,7 +41,7 @@ class FinderTest {
         ZipIO.unzip(FinderTest.class, "Keeping.zip", finderPath);
 
         final Set<String> result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
-                                                                        Arrays.asList("files", "find", ".*",
+                                                                        Arrays.asList("files", "find", "*",
                                                                                       finderPath.toString()))
                                                                    .run())
                                              .lines()
@@ -57,7 +57,7 @@ class FinderTest {
         ZipIO.unzip(FinderTest.class, "Keeping.zip", finderPath);
 
         final Set<String> result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
-                                                                        Arrays.asList("files", "find", ".*_0001.*",
+                                                                        Arrays.asList("files", "find", "*_0001.*",
                                                                                       finderPath.toString()))
                                                                    .run())
                                              .lines()
@@ -74,7 +74,7 @@ class FinderTest {
 
         final Set<String> result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
                                                                         Arrays.asList("files", "find",
-                                                                                      ".*\\.TIFF",
+                                                                                      "rx:.*\\.TIFF",
                                                                                       finderPath.toString()))
                                                                    .run())
                                              .lines()
