@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,7 +73,7 @@ public abstract class FileEntry {
      * Returns the simple name of the represented file.
      */
     public final String name() {
-        return path.getFileName().toString();
+        return Optional.ofNullable(path.getFileName()).orElse(path).toString();
     }
 
     /**
