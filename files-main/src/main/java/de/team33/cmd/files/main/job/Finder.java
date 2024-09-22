@@ -26,7 +26,7 @@ class Finder implements Runnable {
     public Finder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.pattern = Pattern.parse(expression);
-        this.index = FileIndex.of(paths.get(0), FilePolicy.DISTINCT_SYMLINKS); // TODO: index of all paths!
+        this.index = FileIndex.of(paths, FilePolicy.DISTINCT_SYMLINKS);
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
