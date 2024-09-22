@@ -1,4 +1,10 @@
-DSC_0001.TIFF
-DSC_0004.TIFF
-DSC_0006.tiff
-DSC_0009.tiff
+[PATH]/DSC_0009.tiff
+[PATH]/DSC_0004.TIFF
+[PATH]/DSC_0006.tiff
+[PATH]/DSC_0001.TIFF
+
+           4 entries found.
+           1 directories and a total of
+          18 entries examined.
+
+

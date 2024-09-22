@@ -24,7 +24,9 @@ class FinderTest {
     private static final Path TEST_PATH = Path.of("target", "testing", FinderTest.class.getSimpleName());
 
     private final String uuid = UUID.randomUUID().toString();
-    private final Path finderPath = TEST_PATH.resolve(uuid).resolve("finder");
+    private final Path finderPath = TEST_PATH.resolve(uuid).resolve("finder")
+                                             .toAbsolutePath()
+                                             .normalize();
 
     private Set<String> expected(final String rsrcName) {
         return TextIO.read(getClass(), rsrcName)
@@ -40,48 +42,42 @@ class FinderTest {
     final void run_All() throws IOException, RequestException {
         ZipIO.unzip(FinderTest.class, "Keeping.zip", finderPath);
 
-        final Set<String> result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
-                                                                        Arrays.asList("files", "find", "*",
-                                                                                      finderPath.toString()))
-                                                                   .run())
-                                             .lines()
-                                             .filter(not(String::isBlank))
-                                             .collect(Collectors.toCollection(TreeSet::new));
-        // result.forEach(System.out::println);
+        final String result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
+                                                                   Arrays.asList("files", "find", "*",
+                                                                                 finderPath.toString()))
+                                                              .run())
+                                        .replace(finderPath.toString(), "[PATH]");
+        // System.out.println(result);
 
-        assertEquals(expected("Finder-run-All.txt"), result);
+        assertEquals(TextIO.read(getClass(), "Finder-run-All.txt"), result);
     }
 
     @Test
     final void run_DSC_0001() throws IOException, RequestException {
         ZipIO.unzip(FinderTest.class, "Keeping.zip", finderPath);
 
-        final Set<String> result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
-                                                                        Arrays.asList("files", "find", "*_0001.*",
-                                                                                      finderPath.toString()))
-                                                                   .run())
-                                             .lines()
-                                             .filter(not(String::isBlank))
-                                             .collect(Collectors.toCollection(TreeSet::new));
+        final String result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
+                                                                   Arrays.asList("files", "find", "*_0001.*",
+                                                                                 finderPath.toString()))
+                                                              .run())
+                                        .replace(finderPath.toString(), "[PATH]");
         // result.forEach(System.out::println);
 
-        assertEquals(expected("Finder-run-DSC_0001.txt"), result);
+        assertEquals(TextIO.read(getClass(), "Finder-run-DSC_0001.txt"), result);
     }
 
     @Test
     final void run_TIFF() throws IOException, RequestException {
         ZipIO.unzip(FinderTest.class, "Keeping.zip", finderPath);
 
-        final Set<String> result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
-                                                                        Arrays.asList("files", "find",
-                                                                                      "rx:.*\\.TIFF",
-                                                                                      finderPath.toString()))
-                                                                   .run())
-                                             .lines()
-                                             .filter(not(String::isBlank))
-                                             .collect(Collectors.toCollection(TreeSet::new));
+        final String result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
+                                                                   Arrays.asList("files", "find",
+                                                                                 "rx:.*\\.TIFF",
+                                                                                 finderPath.toString()))
+                                                              .run())
+                                        .replace(finderPath.toString(), "[PATH]");
         // result.forEach(System.out::println);
 
-        assertEquals(expected("Finder-run-TIFF.txt"), result);
+        assertEquals(TextIO.read(getClass(), "Finder-run-TIFF.txt"), result);
     }
 }

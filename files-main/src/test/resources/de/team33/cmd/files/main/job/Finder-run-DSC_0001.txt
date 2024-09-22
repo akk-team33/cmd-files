@@ -1,2 +1,8 @@
-DSC_0001.TIFF
-DSC_0001.jpg
+[PATH]/DSC_0001.TIFF
+[PATH]/DSC_0001.jpg
+
+           2 entries found.
+           1 directories and a total of
+          18 entries examined.
+
+
