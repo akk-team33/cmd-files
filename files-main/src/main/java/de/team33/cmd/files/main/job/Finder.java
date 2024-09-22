@@ -49,7 +49,7 @@ class Finder implements Runnable {
         index.entries()
              .peek(total::add)
              .peek(directories::add)
-             .filter(entry -> pattern.matcher().test(entry.name()))
+             .filter(pattern.matcher())
              .peek(found::add)
              .forEach(entry -> out.printf("%s%n", entry.path()));
         out.printf("%n" +

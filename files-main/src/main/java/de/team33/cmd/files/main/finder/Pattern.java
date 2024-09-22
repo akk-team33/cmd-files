@@ -1,17 +1,15 @@
 package de.team33.cmd.files.main.finder;
 
+import de.team33.patterns.io.alpha.FileEntry;
+
 import java.util.function.Predicate;
 
 public class Pattern {
 
-    private final Method method;
-    private final CaseSensitivity sensitivity;
-    private final String value;
+    private final java.util.regex.Pattern rxPattern;
 
     private Pattern(final Method method, final CaseSensitivity sensitivity, final String value) {
-        this.method = method;
-        this.sensitivity = sensitivity;
-        this.value = value;
+        this.rxPattern = sensitivity.toPattern(method.toRegEx(value));
     }
 
     public static Pattern parse(final String pattern) {
@@ -40,8 +38,7 @@ public class Pattern {
         return new Pattern(Method.parse(method), CaseSensitivity.parse(sensitivity), value);
     }
 
-    public final Predicate<String> matcher() {
-        return sensitivity.toPattern(method.toRegEx(value))
-                          .asMatchPredicate();
+    public final Predicate<FileEntry> matcher() {
+        return entry -> rxPattern.matcher(entry.name()).matches();
     }
 }
