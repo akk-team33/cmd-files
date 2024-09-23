@@ -1,7 +1,7 @@
-[PATH]/DSC_0009.tiff
+[PATH]/DSC_0001.TIFF
 [PATH]/DSC_0004.TIFF
 [PATH]/DSC_0006.tiff
-[PATH]/DSC_0001.TIFF
+[PATH]/DSC_0009.tiff
 
            4 entries found.
            1 directories and a total of

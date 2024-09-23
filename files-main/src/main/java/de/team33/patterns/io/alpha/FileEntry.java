@@ -8,11 +8,14 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Comparator.*;
 
 /**
  * Represents an entry from the virtual file index.
@@ -218,6 +221,10 @@ public abstract class FileEntry {
 
     private static class Directory extends Existing {
 
+        private static final Comparator<String> PRIMARY = String::compareToIgnoreCase;
+        private static final Comparator<String> SECONDARY = String::compareTo;
+        private static final Comparator<FileEntry> ENTRY_ORDER = comparing(FileEntry::name,
+                                                                           PRIMARY.thenComparing(SECONDARY));
         private final FilePolicy policy;
         private final Lazy<List<FileEntry>> lazyEntries;
 
@@ -231,6 +238,7 @@ public abstract class FileEntry {
         private List<FileEntry> newEntries() {
             try (final Stream<Path> stream = Files.list(path())) {
                 return stream.map(path -> FileEntry.of(path, Normality.NORMAL, policy))
+                             .sorted(ENTRY_ORDER)
                              .collect(Collectors.toList());
             } catch (final IOException ignored) {
                 return Collections.emptyList();

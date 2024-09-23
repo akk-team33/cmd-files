@@ -1,5 +1,5 @@
-[PATH]/DSC_0001.TIFF
 [PATH]/DSC_0001.jpg
+[PATH]/DSC_0001.TIFF
 
            2 entries found.
            1 directories and a total of
