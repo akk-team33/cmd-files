@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -29,6 +27,7 @@ class Copying implements Runnable {
     private final Set<Strategy> strategies;
     private final Path source;
     private final Path target;
+    private final Map<String, Exception> problems = new TreeMap<>();
 
     public Copying(final Output out, final Set<Strategy> strategies, final Path source, final Path target) {
         this.out = out;
@@ -59,35 +58,40 @@ class Copying implements Runnable {
 
     private void copy(final FileEntry srcEntry) {
         final Path relative = source.relativize(srcEntry.path());
+        out.printf("%s ...", relative);
         if (srcEntry.isDirectory()) {
-            createTargetDir(relative);
+            out.printf(" %s%n", createTargetDir(relative));
         } else if (srcEntry.isRegularFile()) {
-            copyRegular(srcEntry, relative);
+            out.printf(" %s%n", copyRegular(srcEntry, relative));
         }
     }
 
-    private void copyRegular(final FileEntry srcEntry, Path relative) {
+    private String copyRegular(final FileEntry srcEntry, Path relative) {
         final FileEntry tgtEntry = FileEntry.of(target.resolve(relative), FilePolicy.DISTINCT_SYMLINKS);
         if (strategies.stream().anyMatch(strategy -> strategy.canCopy(srcEntry, tgtEntry))) {
-            copyRegular(srcEntry.path(), tgtEntry.path(), relative);
+            return copyRegular(srcEntry.path(), tgtEntry.path(), relative);
+        } else {
+            return "skipped";
         }
     }
 
-    private void copyRegular(final Path srcPath, final Path tgtPath, final Path relative) {
-        out.printf("%s ...", relative);
+    private String copyRegular(final Path srcPath, final Path tgtPath, final Path relative) {
         try {
             Files.copy(srcPath, tgtPath, StandardCopyOption.REPLACE_EXISTING);
-            out.printf(" ok%n");
+            return "ok";
         } catch (final IOException e) {
-            out.printf(" failed: %s%n", e.getMessage());
+            problems.put(relative.toString(), e);
+            return String.format("failed: %s", e.getMessage());
         }
     }
 
-    private void createTargetDir(final Path relative) {
+    private String createTargetDir(final Path relative) {
         try {
             Files.createDirectories(target.resolve(relative));
+            return "ok";
         } catch (final IOException e) {
-            out.printf("%s - failed: %s%n", relative, e.getMessage());
+            problems.put(relative.toString(), e);
+            return String.format("failed: %s", e.getMessage());
         }
     }
 

@@ -32,14 +32,28 @@ class CopyingTest {
     final void run_C() throws IOException, RequestException {
         ZipIO.unzip(CopyingTest.class, "LeftFiles.zip", srcPath);
 
-        final String result = Redirected.outputOf(() -> Copying.job(Output.SYSTEM,
-                                                                    Arrays.asList("files", "copy", "C",
-                                                                                  srcPath.toString(),
-                                                                                  tgtPath.toString()))
-                                                              .run())/*
-                                        .replace(testPath.toString(), "[PATH]")*/;
-        // System.out.println(result);
+        // first
+        {
+            final String result = Redirected.outputOf(() -> Copying.job(Output.SYSTEM,
+                                                                        Arrays.asList("files", "copy", "C",
+                                                                                      srcPath.toString(),
+                                                                                      tgtPath.toString()))
+                                                                   .run());
+            // System.out.println(result);
 
-        assertEquals(TextIO.read(getClass(), "Copying-run-C.txt"), result);
+            assertEquals(TextIO.read(getClass(), "Copying-run-C.txt"), result);
+        }
+
+        // second
+        {
+            final String result = Redirected.outputOf(() -> Copying.job(Output.SYSTEM,
+                                                                        Arrays.asList("files", "copy", "C",
+                                                                                      srcPath.toString(),
+                                                                                      tgtPath.toString()))
+                                                                   .run());
+            // System.out.println(result);
+
+            assertEquals(TextIO.read(getClass(), "Copying-run-C-second.txt"), result);
+        }
     }
 }
