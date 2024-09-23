@@ -26,7 +26,7 @@ class DirFinder implements Runnable {
     private final Pattern pattern;
     private final FileIndex index;
 
-    public DirFinder(final Output out, final String expression, final List<Path> paths) {
+    private DirFinder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.pattern = Pattern.parse(expression);
         this.index = FileIndex.of(paths, FilePolicy.DISTINCT_SYMLINKS);

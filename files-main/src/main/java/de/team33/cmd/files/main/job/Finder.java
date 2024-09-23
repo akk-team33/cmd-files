@@ -23,7 +23,7 @@ class Finder implements Runnable {
     private final Pattern pattern;
     private final FileIndex index;
 
-    public Finder(final Output out, final String expression, final List<Path> paths) {
+    private Finder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.pattern = Pattern.parse(expression);
         this.index = FileIndex.of(paths, FilePolicy.DISTINCT_SYMLINKS);

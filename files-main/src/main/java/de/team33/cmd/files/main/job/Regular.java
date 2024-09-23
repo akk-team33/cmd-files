@@ -17,6 +17,7 @@ public enum Regular {
     ABOUT(About::job, About.EXCERPT),
     FIND(Finder::job, Finder.EXCERPT),
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
+    COPY(Copying::job, Copying.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 

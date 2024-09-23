@@ -1,0 +1,44 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest copy
+
+Expected request scheme:
+
+    MainTest copy STRATEGY SRC_PATH TGT_PATH
+
+    ... to recursively copy regular files and their relative file structure
+        from a source directory to a target directory.
+
+Parameters:
+
+    STRATEGY - A combination of {C, U, R, D} (case-insensitive)
+               C - 'create': Copy an existing source file if it does not already
+                             exist in the target directory.
+               U - 'update': Copy a source file if it is newer than the
+                             corresponding target file.
+               R - 'revert': Copy a source file if it is older than or the same
+                             age as the corresponding target file.
+               D - 'delete': Delete an existing target file if it does not
+                             exist in the source directory.
+    SRC_PATH - The path to the source directory.
+    TGT_PATH - The path to the target directory.
+
+Examples:
+
+[1] MainTest copy cu path/to/source path/to/target
+
+    ... to recursively copy regular files and their relative file structure
+        from 'path/to/source' to 'path/to/target' if they do not already exist
+        in the target directory or if they are newer than the corresponding
+        target file.
+
+[2] MainTest copy UCDR path/to/source path/to/target
+
+    ... to recursively copy regular files and their relative file structure
+        from 'path/to/source' to 'path/to/target', regardless of whether
+        corresponding files exist in the destination or not, as well as to
+        delete files from 'path/to/target' if no corresponding files exist in
+        the source.%n%n

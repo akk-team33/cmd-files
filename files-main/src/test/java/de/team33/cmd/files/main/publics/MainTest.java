@@ -91,4 +91,14 @@ class MainTest {
 
         assertEquals(expected, result);
     }
+
+    @Test
+    final void main_copy() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_copy.txt"));
+
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "copy"));
+        // System.out.println(result);
+
+        assertEquals(expected, result);
+    }
 }
