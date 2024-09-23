@@ -2,23 +2,24 @@ package de.team33.cmd.files.main.job;
 
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
-import de.team33.cmd.files.main.finder.Pattern;
 import de.team33.patterns.enums.alpha.Values;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
 import static de.team33.cmd.files.main.job.Util.cmdName;
-import static java.util.Objects.requireNonNullElse;
 
 class Copying implements Runnable {
 
@@ -51,22 +52,68 @@ class Copying implements Runnable {
 
     @Override
     public final void run() {
-        throw new UnsupportedOperationException("not yet implemented");
+        FileIndex.of(source, FilePolicy.RESOLVE_SYMLINKS)
+                 .entries()
+                 .forEach(this::copy);
+    }
+
+    private void copy(final FileEntry srcEntry) {
+        final Path relative = source.relativize(srcEntry.path());
+        if (srcEntry.isDirectory()) {
+            createTargetDir(relative);
+        } else if (srcEntry.isRegularFile()) {
+            copyRegular(srcEntry, relative);
+        }
+    }
+
+    private void copyRegular(final FileEntry srcEntry, Path relative) {
+        final FileEntry tgtEntry = FileEntry.of(target.resolve(relative), FilePolicy.DISTINCT_SYMLINKS);
+        if (strategies.stream().anyMatch(strategy -> strategy.canCopy(srcEntry, tgtEntry))) {
+            copyRegular(srcEntry.path(), tgtEntry.path(), relative);
+        }
+    }
+
+    private void copyRegular(final Path srcPath, final Path tgtPath, final Path relative) {
+        out.printf("%s ...", relative);
+        try {
+            Files.copy(srcPath, tgtPath, StandardCopyOption.REPLACE_EXISTING);
+            out.printf(" ok%n");
+        } catch (final IOException e) {
+            out.printf(" failed: %s%n", e.getMessage());
+        }
+    }
+
+    private void createTargetDir(final Path relative) {
+        try {
+            Files.createDirectories(target.resolve(relative));
+        } catch (final IOException e) {
+            out.printf("%s - failed: %s%n", relative, e.getMessage());
+        }
     }
 
     private enum Strategy {
-        C,
-        U,
-        R,
-        D;
+        C((left, right) -> !right.exists()),
+        U((left, right) -> right.isRegularFile() && left.lastModified().compareTo(right.lastAccess()) > 0),
+        R((left, right) -> false), // TODO
+        D((left, right) -> false);
 
         private static final Values<Strategy> VALUES = Values.of(Strategy.class);
         private static final Supplier<EnumSet<Strategy>> NEW_SET = () -> EnumSet.noneOf(Strategy.class);
+
+        private final BiPredicate<FileEntry, FileEntry> ability;
+
+        Strategy(BiPredicate<FileEntry, FileEntry> ability) {
+            this.ability = ability;
+        }
 
         private static Set<Strategy> of(final String combo) {
             final String upperCombo = combo.toUpperCase();
             return VALUES.findAll(value -> upperCombo.contains(value.name()))
                          .collect(Collectors.toCollection(NEW_SET));
+        }
+
+        private boolean canCopy(final FileEntry srcEntry, final FileEntry tgtEntry) {
+            return ability.test(srcEntry, tgtEntry);
         }
     }
 }
