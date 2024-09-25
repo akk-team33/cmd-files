@@ -58,4 +58,8 @@ public class FileIndex {
     public final FileIndex skipPath(final Predicate<Path> condition) {
         return skipEntry(file -> condition.test(file.path()));
     }
+
+    public final List<FileEntry> roots() {
+        return roots;
+    }
 }
