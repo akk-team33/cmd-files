@@ -2,58 +2,52 @@ package de.team33.cmd.files.main.job;
 
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
+import de.team33.cmd.files.main.copying.Relative;
 import de.team33.patterns.io.deimos.TextIO;
+import de.team33.testing.io.hydra.FileInfo;
 import de.team33.testing.io.hydra.ZipIO;
-import de.team33.testing.stdio.ersa.Redirected;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CopyingTest {
 
-    private static final Path TEST_PATH = Path.of("target", "testing", CopyingTest.class.getSimpleName())
-                                              .toAbsolutePath()
-                                              .normalize();
+    private static final String CLASS_NAME = CopyingTest.class.getSimpleName();
+    private static final Path TEST_PATH = Path.of("target", "testing", CLASS_NAME);
+    private static final Output MUTE = (format, args) -> {};
 
-    private final String uuid = UUID.randomUUID().toString();
-    private final Path srcPath = TEST_PATH.resolve(uuid)
-                                          .resolve("left");
-    private final Path tgtPath = TEST_PATH.resolve(uuid)
-                                          .resolve("right");
+    private Path leftPath;
+    private Path rightPath;
+
+    @BeforeEach
+    final void init() {
+        final Path testPath = TEST_PATH.resolve(UUID.randomUUID().toString())
+                                       .toAbsolutePath()
+                                       .normalize();
+        leftPath = testPath.resolve("left");
+        rightPath = testPath.resolve("right");
+
+        ZipIO.unzip(Relative.class, "leftFiles.zip", leftPath);
+        assertEquals(TextIO.read(Relative.class, "leftFiles.txt"),
+                     FileInfo.of(leftPath).toString());
+        ZipIO.unzip(Relative.class, "rightFiles.zip", rightPath);
+        assertEquals(TextIO.read(Relative.class, "rightFiles.txt"),
+                     FileInfo.of(rightPath).toString());
+    }
 
     @Test
-    final void run_C() throws IOException, RequestException {
-        ZipIO.unzip(CopyingTest.class, "LeftFiles.zip", srcPath);
-
-        // first
-        {
-            final String result = Redirected.outputOf(() -> Copying.job(Output.SYSTEM,
-                                                                        Arrays.asList("files", "copy", "C",
-                                                                                      srcPath.toString(),
-                                                                                      tgtPath.toString()))
-                                                                   .run());
-            // System.out.println(result);
-
-            assertEquals(TextIO.read(getClass(), "Copying-run-C.txt"), result);
-        }
-
-        // second
-        {
-            final String result = Redirected.outputOf(() -> Copying.job(Output.SYSTEM,
-                                                                        Arrays.asList("files", "copy", "C",
-                                                                                      srcPath.toString(),
-                                                                                      tgtPath.toString()))
-                                                                   .run());
-            // System.out.println(result);
-
-            assertEquals(TextIO.read(getClass(), "Copying-run-C-second.txt"), result);
-        }
+    final void test_() throws RequestException {
+        Copying.job(Output.SYSTEM,
+                    Arrays.asList("files", "copy", "C",
+                                  leftPath.toString(),
+                                  rightPath.toString()))
+               .run();
+        assertEquals(TextIO.read(CopyingTest.class, "CopyingTest-copy-C.txt"),
+                     FileInfo.of(rightPath).toString());
     }
 }

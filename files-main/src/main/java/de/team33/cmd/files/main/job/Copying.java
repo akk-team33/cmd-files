@@ -2,6 +2,7 @@ package de.team33.cmd.files.main.job;
 
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
+import de.team33.cmd.files.main.copying.Relative;
 import de.team33.patterns.enums.alpha.Values;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
@@ -9,9 +10,13 @@ import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,33 +60,40 @@ class Copying implements Runnable {
 
     @Override
     public final void run() {
-        FileIndex.of(source, FilePolicy.RESOLVE_SYMLINKS)
-                 .entries()
-                 .forEach(this::copy);
+        Relative.collect(source, target)
+                .forEach(this::copy);
     }
 
-    private void copy(final FileEntry srcEntry) {
-        final Path relative = source.relativize(srcEntry.path());
+    private void copy(final Path relative) {
         out.printf("%s ...", relative);
-        if (srcEntry.isDirectory()) {
-            out.printf(" %s%n", createTargetDir(relative));
-        } else if (srcEntry.isRegularFile()) {
+        final FileEntry srcEntry = FileEntry.of(source.resolve(relative),
+                                                FilePolicy.DISTINCT_SYMLINKS);
+        if (srcEntry.isRegularFile()) {
             out.printf(" %s%n", copyRegular(srcEntry, relative));
+        } else {
+            out.printf(" source is %s%n", srcEntry.type());
         }
     }
 
     private String copyRegular(final FileEntry srcEntry, Path relative) {
         final FileEntry tgtEntry = FileEntry.of(target.resolve(relative), FilePolicy.DISTINCT_SYMLINKS);
         if (strategies.stream().anyMatch(strategy -> strategy.canCopy(srcEntry, tgtEntry))) {
-            return copyRegular(srcEntry.path(), tgtEntry.path(), relative);
+            return copyRegular(srcEntry, tgtEntry.path(), relative);
         } else {
             return "skipped";
         }
     }
 
-    private String copyRegular(final Path srcPath, final Path tgtPath, final Path relative) {
+    private final Set<Path> directories = new HashSet<>(0);
+
+    private String copyRegular(final FileEntry srcEntry, final Path tgtPath, final Path relative) {
         try {
-            Files.copy(srcPath, tgtPath, StandardCopyOption.REPLACE_EXISTING);
+            final Path tgtParent = tgtPath.getParent();
+            if (directories.add(tgtParent)) {
+                Files.createDirectories(tgtParent);
+            }
+            Files.copy(srcEntry.path(), tgtPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.setLastModifiedTime(tgtPath, FileTime.from(srcEntry.lastModified()));
             return "ok";
         } catch (final IOException e) {
             problems.put(relative.toString(), e);
