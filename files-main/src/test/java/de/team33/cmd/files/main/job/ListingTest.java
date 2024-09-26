@@ -1,5 +1,6 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.Main;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.deimos.TextIO;
@@ -27,7 +28,7 @@ class ListingTest {
 
     @Test
     final void run_N() throws IOException, RequestException {
-        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", listingPath);
 
         final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "n",
@@ -41,7 +42,7 @@ class ListingTest {
 
     @Test
     final void run_N_REG() throws IOException, RequestException {
-        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", listingPath);
 
         final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "n",
@@ -55,7 +56,7 @@ class ListingTest {
 
     @Test
     final void run_X() throws IOException, RequestException {
-        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", listingPath);
 
         final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "x",
@@ -69,7 +70,7 @@ class ListingTest {
 
     @Test
     final void run_NX() throws IOException, RequestException {
-        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", listingPath);
 
         final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "nx",
@@ -83,7 +84,7 @@ class ListingTest {
 
     @Test
     final void run_X_REG() throws IOException, RequestException {
-        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", listingPath);
 
         final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "x",
@@ -97,7 +98,7 @@ class ListingTest {
 
     @Test
     final void run_NX_REG() throws IOException, RequestException {
-        ZipIO.unzip(ListingTest.class, "Keeping.zip", listingPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", listingPath);
 
         final String result = Redirected.outputOf(() -> Listing.job(Output.SYSTEM,
                                                                     Arrays.asList("files", "list", "nx",

@@ -1,5 +1,6 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.Main;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.deimos.TextIO;
@@ -27,7 +28,7 @@ class FinderTest {
 
     @Test
     final void run_All() throws IOException, RequestException {
-        ZipIO.unzip(FinderTest.class, "Keeping.zip", testPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", testPath);
 
         final String result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
                                                                    Arrays.asList("files", "find", "*",
@@ -41,7 +42,7 @@ class FinderTest {
 
     @Test
     final void run_DSC_0001() throws IOException, RequestException {
-        ZipIO.unzip(FinderTest.class, "Keeping.zip", testPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", testPath);
 
         final String result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
                                                                    Arrays.asList("files", "find", "*_0001.*",
@@ -55,7 +56,7 @@ class FinderTest {
 
     @Test
     final void run_TIFF() throws IOException, RequestException {
-        ZipIO.unzip(FinderTest.class, "Keeping.zip", testPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", testPath);
 
         final String result = Redirected.outputOf(() -> Finder.job(Output.SYSTEM,
                                                                    Arrays.asList("files", "find",

@@ -1,8 +1,8 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.Main;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
-import de.team33.cmd.files.main.copying.Relative;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.io.hydra.FileInfo;
 import de.team33.testing.io.hydra.ZipIO;
@@ -32,11 +32,11 @@ class CopyingTest {
         leftPath = testPath.resolve("left");
         rightPath = testPath.resolve("right");
 
-        ZipIO.unzip(Relative.class, "leftFiles.zip", leftPath);
-        assertEquals(TextIO.read(Relative.class, "leftFiles.txt"),
+        ZipIO.unzip(Main.class, "zips/leftFiles.zip", leftPath);
+        assertEquals(TextIO.read(Main.class, "zips/leftFiles.txt"),
                      FileInfo.of(leftPath).toString());
-        ZipIO.unzip(Relative.class, "rightFiles.zip", rightPath);
-        assertEquals(TextIO.read(Relative.class, "rightFiles.txt"),
+        ZipIO.unzip(Main.class, "zips/rightFiles.zip", rightPath);
+        assertEquals(TextIO.read(Main.class, "zips/rightFiles.txt"),
                      FileInfo.of(rightPath).toString());
     }
 

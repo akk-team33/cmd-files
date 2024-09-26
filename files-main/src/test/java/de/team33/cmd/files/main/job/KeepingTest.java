@@ -1,5 +1,6 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.Main;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.deimos.TextIO;
@@ -30,8 +31,8 @@ class KeepingTest {
 
     @Test
     final void run_singlePath() throws RequestException {
-        ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
-        assertEquals(expectedInfo("KeepingRunInitial.txt"), keepingInfo());
+        ZipIO.unzip(Main.class, "zips/keeping.zip", keepingPath);
+        assertEquals(TextIO.read(Main.class, "zips/keeping.txt"), keepingInfo());
 
         Keeping.job(Output.SYSTEM, Arrays.asList("files", "keep", keepingPath.toString(), "jpg,jpe,jpeg", "tif,tiff")).run();
 
@@ -42,7 +43,7 @@ class KeepingTest {
     final void run_dualPath() throws RequestException {
         final String path1 = keepingPath.toString();
         final String path2 = keepingPath.toString() + ".moved";
-        ZipIO.unzip(KeepingTest.class, "Keeping.zip", keepingPath);
+        ZipIO.unzip(Main.class, "zips/keeping.zip", keepingPath);
         Keeping.job(((format, args) -> {}), Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
 
         Keeping.job(Output.SYSTEM, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
