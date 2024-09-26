@@ -41,13 +41,57 @@ class CopyingTest {
     }
 
     @Test
-    final void test_() throws RequestException {
+    final void copy_C() throws RequestException {
         Copying.job(Output.SYSTEM,
                     Arrays.asList("files", "copy", "C",
                                   leftPath.toString(),
                                   rightPath.toString()))
                .run();
         assertEquals(TextIO.read(CopyingTest.class, "CopyingTest-copy-C.txt"),
+                     FileInfo.of(rightPath).toString());
+    }
+
+    @Test
+    final void copy_U() throws RequestException {
+        Copying.job(Output.SYSTEM,
+                    Arrays.asList("files", "copy", "U",
+                                  leftPath.toString(),
+                                  rightPath.toString()))
+               .run();
+        assertEquals(TextIO.read(CopyingTest.class, "CopyingTest-copy-U.txt"),
+                     FileInfo.of(rightPath).toString());
+    }
+
+    @Test
+    final void copy_O() throws RequestException {
+        Copying.job(Output.SYSTEM,
+                    Arrays.asList("files", "copy", "O",
+                                  leftPath.toString(),
+                                  rightPath.toString()))
+               .run();
+        assertEquals(TextIO.read(CopyingTest.class, "CopyingTest-copy-O.txt"),
+                     FileInfo.of(rightPath).toString());
+    }
+
+    @Test
+    final void copy_R() throws RequestException {
+        Copying.job(Output.SYSTEM,
+                    Arrays.asList("files", "copy", "R",
+                                  leftPath.toString(),
+                                  rightPath.toString()))
+               .run();
+        assertEquals(TextIO.read(CopyingTest.class, "CopyingTest-copy-R.txt"),
+                     FileInfo.of(rightPath).toString());
+    }
+
+    @Test
+    final void copy_D() throws RequestException {
+        Copying.job(Output.SYSTEM,
+                    Arrays.asList("files", "copy", "D",
+                                  leftPath.toString(),
+                                  rightPath.toString()))
+               .run();
+        assertEquals(TextIO.read(CopyingTest.class, "CopyingTest-copy-D.txt"),
                      FileInfo.of(rightPath).toString());
     }
 }

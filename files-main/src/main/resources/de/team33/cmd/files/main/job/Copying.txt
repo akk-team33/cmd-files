@@ -11,15 +11,18 @@ Expected request scheme:
 
 Parameters:
 
-    STRATEGY - A combination of {C, U, R, D} (case-insensitive)
-               C - 'create': Copy an existing source file if it does not already
-                             exist in the target directory.
-               U - 'update': Copy a source file if it is newer than the
-                             corresponding target file.
-               R - 'revert': Copy a source file if it is older than or the same
-                             age as the corresponding target file.
-               D - 'delete': Delete an existing target file if it does not
-                             exist in the source directory.
+    STRATEGY - A combination of {C, U, O, R, D} (case-insensitive)
+               C - 'create':   Copy an existing source file if it does not
+                               already exist in the target directory.
+               U - 'update':   Copy a source file if it is newer than the
+                               corresponding target file.
+               O - 'override': Copy a source file if it is the same age as the
+                               corresponding target file but their size is
+                               different (implies different content).
+               R - 'revert':   Copy a source file though it is older than the
+                               corresponding target file.
+               D - 'delete':   Delete an existing target file if it does not
+                               exist in the source directory.
     SRC_PATH - The path to the source directory.
     TGT_PATH - The path to the target directory.
 
@@ -32,7 +35,7 @@ Examples:
         in the target directory or if they are newer than the corresponding
         target file.
 
-[2] %2$s copy UCDR path/to/source path/to/target
+[2] %2$s copy UcDRo path/to/source path/to/target
 
     ... to recursively copy regular files and their relative file structure
         from 'path/to/source' to 'path/to/target', regardless of whether

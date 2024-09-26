@@ -1,24 +1,26 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.balancing.Relative;
+import de.team33.cmd.files.main.balancing.Relatives;
+import de.team33.cmd.files.main.balancing.State;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.enums.alpha.Values;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.function.BiPredicate;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
 import static de.team33.cmd.files.main.job.Util.cmdName;
@@ -26,7 +28,7 @@ import static de.team33.cmd.files.main.job.Util.cmdName;
 class Copying implements Runnable {
 
     static final String EXCERPT = "Copy files and their relative file structure.";
-    private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
+    private static final Action NO_ACTION = relative -> " ignored (" + relative.state() + ")";
 
     private final Output out;
     private final Set<Strategy> strategies;
@@ -54,76 +56,94 @@ class Copying implements Runnable {
         throw RequestException.format(Listing.class, "Copying.txt", cmdLine(args), cmdName(args));
     }
 
-    private Stream<Path> relatives(final Path path) {
-        return Stream.of(source, target)
-                     .filter(path::startsWith)
-                     .map(root -> root.relativize(path));
-    }
-
     @Override
     public final void run() {
-        FileIndex.of(List.of(source, target), POLICY)
-                 .entries()
-                 .parallel()
-                 .filter(FileEntry::isRegularFile)
-                 .map(FileEntry::path)
-                 .flatMap(this::relatives)
-                 .map(Path::toString)
-                 .collect(Collectors.toCollection(TreeSet::new))
-                 .forEach(this::copy);
+        Relatives.stream(source, target)
+                 .forEach(this::process);
     }
 
-    private void copy(final String relative) {
-        out.printf("%s ...", relative);
-        final FileEntry srcEntry = FileEntry.of(source.resolve(relative), POLICY);
-        if (srcEntry.isRegularFile()) {
-            out.printf(" %s%n", copyRegular(srcEntry, relative));
-        } else {
-            out.printf(" source is %s%n", srcEntry.type());
-        }
+    private void process(final Relative relative) {
+        out.printf("%s ...", relative.path());
+        final Action action = availableAction(relative.state());
+        final String result = action.run(relative);
+        out.printf(" %s%n", result);
     }
 
-    private String copyRegular(final FileEntry srcEntry, final String relative) {
-        final FileEntry tgtEntry = FileEntry.of(target.resolve(relative), FilePolicy.DISTINCT_SYMLINKS);
-        if (strategies.stream().anyMatch(strategy -> strategy.canCopy(srcEntry, tgtEntry))) {
-            return copyRegular(srcEntry, tgtEntry.path(), relative);
-        } else {
-            return "skipped";
-        }
+    private Action availableAction(final State state) {
+        return strategies.stream()
+                         .filter(strategy -> strategy.supports(state))
+                         .findAny()
+                         .map(strategy -> strategy.toAction(this))
+                         .orElse(NO_ACTION);
     }
 
-    private final Set<Path> directories = new HashSet<>(0);
+    private String create(final Relative relative) {
+        return copy(relative, " created");
+    }
 
-    private String copyRegular(final FileEntry srcEntry, final Path tgtPath, final String relative) {
+    private String update(final Relative relative) {
+        return copy(relative, " updated");
+    }
+
+    private String override(final Relative relative) {
+        return copy(relative, " balanced");
+    }
+
+    private String revert(final Relative relative) {
+        return copy(relative, " reverted");
+    }
+
+    private String delete(final Relative relative) {
         try {
-            final Path tgtParent = tgtPath.getParent();
-            if (directories.add(tgtParent)) {
-                Files.createDirectories(tgtParent);
-            }
-            Files.copy(srcEntry.path(), tgtPath, StandardCopyOption.REPLACE_EXISTING);
-            Files.setLastModifiedTime(tgtPath, FileTime.from(srcEntry.lastModified()));
-            return "ok";
+            Files.delete(relative.target().path());
+            return " deleted";
         } catch (final IOException e) {
-            problems.put(relative, e);
-            return String.format("failed:%n" +
-                                 "   exception : %s%n" +
-                                 "   message   : %s", e.getClass().getCanonicalName(), e.getMessage());
+            problems.put(relative.path(), e);
+            return String.format(" failed deletion:%n" +
+                                         "    Message   : %s%n" +
+                                         "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
         }
+    }
+
+    private final Set<Path> targetDirs = new HashSet<>();
+
+    private String copy(final Relative relative, final String okText) {
+        try {
+            final Path targetDir = relative.target().path().getParent();
+            if (targetDirs.add(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+            Files.copy(relative.source().path(), relative.target().path(), StandardCopyOption.REPLACE_EXISTING);
+            Files.setLastModifiedTime(relative.target().path(), FileTime.from(relative.source().lastModified()));
+            return okText;
+        } catch (final IOException e) {
+            problems.put(relative.path(), e);
+            return String.format(" failed copying:%n" +
+                                 "    Message   : %s%n" +
+                                 "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
+        }
+    }
+
+    private interface Action {
+        String run(Relative relative);
     }
 
     private enum Strategy {
-        C((left, right) -> !right.exists()),
-        U((left, right) -> right.isRegularFile() && left.lastModified().compareTo(right.lastAccess()) > 0),
-        R((left, right) -> false), // TODO
-        D((left, right) -> false);
+        C(copying -> copying::create, State.TARGET_IS_MISSING),
+        U(copying -> copying::update, State.SOURCE_IS_MORE_RECENT),
+        O(copying -> copying::override, State.AMBIGUOUS),
+        R(copying -> copying::revert, State.AMBIGUOUS, State.TARGET_IS_MORE_RECENT),
+        D(copying -> copying::delete, State.SOURCE_IS_MISSING);
 
         private static final Values<Strategy> VALUES = Values.of(Strategy.class);
         private static final Supplier<EnumSet<Strategy>> NEW_SET = () -> EnumSet.noneOf(Strategy.class);
 
-        private final BiPredicate<FileEntry, FileEntry> ability;
+        private final Set<State> supported;
+        private final Function<Copying, Action> toAction;
 
-        Strategy(BiPredicate<FileEntry, FileEntry> ability) {
-            this.ability = ability;
+        Strategy(final Function<Copying, Action> toAction, final State... supported) {
+            this.toAction = toAction;
+            this.supported = Set.of(supported);
         }
 
         private static Set<Strategy> parse(final String strategy) {
@@ -132,8 +152,12 @@ class Copying implements Runnable {
                          .collect(Collectors.toCollection(NEW_SET));
         }
 
-        private boolean canCopy(final FileEntry srcEntry, final FileEntry tgtEntry) {
-            return ability.test(srcEntry, tgtEntry);
+        private Action toAction(final Copying copying) {
+            return toAction.apply(copying);
+        }
+
+        private boolean supports(final State state) {
+            return supported.contains(state);
         }
     }
 }
