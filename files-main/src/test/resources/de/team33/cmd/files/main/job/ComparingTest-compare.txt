@@ -1,0 +1,40 @@
+de/team33/cmd/files/main/Main.java ... TODO
+de/team33/cmd/files/main/common/FileType.java ... TODO
+de/team33/cmd/files/main/common/Output.java ... TODO
+de/team33/cmd/files/main/common/RequestException.java ... TODO
+de/team33/cmd/files/main/copying/Relative.java ... TODO
+de/team33/cmd/files/main/finder/CaseSensitivity.java ... TODO
+de/team33/cmd/files/main/finder/Method.java ... TODO
+de/team33/cmd/files/main/finder/Pattern.java ... TODO
+de/team33/cmd/files/main/finder/WildcardString.java ... TODO
+de/team33/cmd/files/main/job/About.java ... TODO
+de/team33/cmd/files/main/job/Copying.java ... TODO
+de/team33/cmd/files/main/job/DirFinder.java ... TODO
+de/team33/cmd/files/main/job/Finder.java ... TODO
+de/team33/cmd/files/main/job/Keeping.java ... TODO
+de/team33/cmd/files/main/job/Listing.java ... TODO
+de/team33/cmd/files/main/job/Regular.java ... TODO
+de/team33/cmd/files/main/job/Regulary.java ... TODO
+de/team33/cmd/files/main/job/Util.java ... TODO
+de/team33/cmd/files/main/shared/FileType.java ... TODO
+de/team33/cmd/files/main/shared/Output.java ... TODO
+de/team33/cmd/files/main/shared/RequestException.java ... TODO
+de/team33/patterns/enums/alpha/Values.java ... TODO
+de/team33/patterns/io/alpha/FileEntry.java ... TODO
+de/team33/patterns/io/alpha/FileIndex.java ... TODO
+de/team33/patterns/io/alpha/FilePolicy.java ... TODO
+de/team33/patterns/io/alpha/FileType.java ... TODO
+
+          States ...
+               4 TARGET_IS_MISSING
+               4 SOURCE_IS_MISSING
+               3 TARGET_IS_MORE_RECENT
+               2 SOURCE_IS_MORE_RECENT
+              13 BALANCED
+
+         Results ...
+              26 TODO
+
+              26 entries processed in total.
+
+
