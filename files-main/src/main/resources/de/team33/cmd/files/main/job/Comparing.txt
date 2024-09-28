@@ -1,0 +1,15 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    %2$s cmp SRC_PATH TGT_PATH
+
+    ... to recursively compare regular files and their relative file structure
+        between a potential source directory and a potential target directory.
+
+Parameters:
+
+    SRC_PATH - The path to the potential source directory.
+    TGT_PATH - The path to the potential target directory.

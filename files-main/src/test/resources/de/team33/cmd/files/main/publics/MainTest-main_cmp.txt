@@ -1,0 +1,18 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest cmp
+
+Expected request scheme:
+
+    MainTest cmp SRC_PATH TGT_PATH
+
+    ... to recursively compare regular files and their relative file structure
+        between a potential source directory and a potential target directory.
+
+Parameters:
+
+    SRC_PATH - The path to the potential source directory.
+    TGT_PATH - The path to the potential target directory.%n%n
