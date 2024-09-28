@@ -28,13 +28,13 @@ import static de.team33.cmd.files.main.job.Util.cmdName;
 class Copying implements Runnable {
 
     static final String EXCERPT = "Copy files and their relative file structure.";
-    private static final Action NO_ACTION = relative -> " ignored (" + relative.state() + ")";
+    private static final Action NO_ACTION = relative -> "ignored (" + relative.state() + ")";
 
     private final Output out;
     private final Set<Strategy> strategies;
     private final Path source;
     private final Path target;
-    private final Map<String, Exception> problems = new TreeMap<>();
+    // private final Map<String, Exception> problems = new TreeMap<>();
 
     private Copying(final Output out, final Set<Strategy> strategies, final Path source, final Path target) {
         this.out = out;
@@ -56,16 +56,28 @@ class Copying implements Runnable {
         throw RequestException.format(Listing.class, "Copying.txt", cmdLine(args), cmdName(args));
     }
 
+    private final Stats stats = new Stats();
+
     @Override
     public final void run() {
+        stats.reset();
         Relatives.stream(source, target)
                  .forEach(this::process);
+        out.printf("%n%16s ...%n", "States");
+        stats.stateCounters.forEach(
+                (state, counter) -> out.printf("%16d %s%n", counter.value, state));
+        out.printf("%n%16s ...%n", "Results");
+        stats.resultCounters.forEach(
+                (result, counter) -> out.printf("%16d %s%n", counter.value, result));
+        out.printf("%n%16d entries processed in total.%n%n", stats.totalCounter.value);
     }
 
     private void process(final Relative relative) {
         out.printf("%s ...", relative.path());
-        final Action action = availableAction(relative.state());
+        final State state = relative.state();
+        final Action action = availableAction(state);
         final String result = action.run(relative);
+        stats.add(state, result);
         out.printf(" %s%n", result);
     }
 
@@ -78,19 +90,19 @@ class Copying implements Runnable {
     }
 
     private String create(final Relative relative) {
-        return copy(relative, " created");
+        return copy(relative, "created");
     }
 
     private String update(final Relative relative) {
-        return copy(relative, " updated");
+        return copy(relative, "updated");
     }
 
     private String override(final Relative relative) {
-        return copy(relative, " balanced");
+        return copy(relative, "balanced");
     }
 
     private String revert(final Relative relative) {
-        return copy(relative, " reverted");
+        return copy(relative, "reverted");
     }
 
     private String delete(final Relative relative) {
@@ -98,8 +110,8 @@ class Copying implements Runnable {
             Files.delete(relative.target().path());
             return " deleted";
         } catch (final IOException e) {
-            problems.put(relative.path(), e);
-            return String.format(" failed deletion:%n" +
+            //problems.put(relative.path(), e);
+            return String.format("failed deletion:%n" +
                                          "    Message   : %s%n" +
                                          "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
         }
@@ -117,10 +129,10 @@ class Copying implements Runnable {
             Files.setLastModifiedTime(relative.target().path(), FileTime.from(relative.source().lastModified()));
             return okText;
         } catch (final IOException e) {
-            problems.put(relative.path(), e);
-            return String.format(" failed copying:%n" +
-                                 "    Message   : %s%n" +
-                                 "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
+            //problems.put(relative.path(), e);
+            return String.format("failed copying:%n" +
+                                         "    Message   : %s%n" +
+                                         "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
         }
     }
 
@@ -158,6 +170,29 @@ class Copying implements Runnable {
 
         private boolean supports(final State state) {
             return supported.contains(state);
+        }
+    }
+
+    private static class Counter {
+        private int value = 0;
+    }
+
+    private static class Stats {
+
+        private final Counter totalCounter = new Counter();
+        private final Map<State, Counter> stateCounters = new TreeMap<>();
+        private final Map<String, Counter> resultCounters = new TreeMap<>();
+
+        private synchronized void add(final State state, final String result) {
+            totalCounter.value += 1;
+            stateCounters.computeIfAbsent(state, any -> new Counter()).value += 1;
+            resultCounters.computeIfAbsent(result, any -> new Counter()).value += 1;
+        }
+
+        private void reset() {
+            totalCounter.value = 0;
+            stateCounters.clear();
+            resultCounters.clear();
         }
     }
 }
