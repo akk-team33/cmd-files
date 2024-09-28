@@ -51,18 +51,13 @@ class Comparing implements Runnable {
         out.printf("%n%16s ...%n", "States");
         stats.stateCounters.forEach(
                 (state, counter) -> out.printf("%16d %s%n", counter.value, state));
-        out.printf("%n%16s ...%n", "Results");
-        stats.resultCounters.forEach(
-                (result, counter) -> out.printf("%16d %s%n", counter.value, result));
         out.printf("%n%16d entries processed in total.%n%n", stats.totalCounter.value);
     }
 
     private void process(final Relative relative) {
-        out.printf("%s ...", relative.path());
         final State state = relative.state();
-        final String result = "TODO";
-        stats.add(state, result);
-        out.printf(" %s%n", result);
+        stats.add(state);
+        out.printf("%s - %s%n", relative.path(), state);
     }
 
     private static class Counter {
@@ -73,18 +68,15 @@ class Comparing implements Runnable {
 
         private final Counter totalCounter = new Counter();
         private final Map<State, Counter> stateCounters = new TreeMap<>();
-        private final Map<String, Counter> resultCounters = new TreeMap<>();
 
-        private synchronized void add(final State state, final String result) {
+        private synchronized void add(final State state) {
             totalCounter.value += 1;
             stateCounters.computeIfAbsent(state, any -> new Counter()).value += 1;
-            resultCounters.computeIfAbsent(result, any -> new Counter()).value += 1;
         }
 
         private void reset() {
             totalCounter.value = 0;
             stateCounters.clear();
-            resultCounters.clear();
         }
     }
 }
