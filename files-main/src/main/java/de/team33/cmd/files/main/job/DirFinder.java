@@ -10,6 +10,7 @@ import de.team33.patterns.io.alpha.FilePolicy;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -53,13 +54,11 @@ class DirFinder implements Runnable {
              .peek(total::add)
              .peek(directories::add)
              .filter(pattern.matcher())
-             .forEach(entry -> {
-                 final Path parent = Optional.ofNullable(entry.path().getParent())
-                                             .orElseGet(entry::path);
-                 if (found.add(parent)) {
-                     out.printf("%s%n", parent);
-                 }
-             });
+             .map(FileEntry::path)
+             .map(Path::getParent)
+             .filter(Objects::nonNull)
+             .filter(found::add)
+             .forEach(parent -> out.printf("%s%n", parent));
         out.printf("%n" +
                    "%,12d directories found.%n" +
                    "%,12d directories and a total of%n" +

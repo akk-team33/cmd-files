@@ -1,0 +1,13 @@
+[PATH]/de/team33/cmd/files/main/common
+[PATH]/de/team33/cmd/files/main/copying
+[PATH]/de/team33/cmd/files/main/finder
+[PATH]/de/team33/cmd/files/main/job
+[PATH]/de/team33/cmd/files/main
+[PATH]/de/team33/patterns/enums/alpha
+[PATH]/de/team33/patterns/io/alpha
+
+           7 directories found.
+          15 directories and a total of
+          37 entries examined.
+
+
