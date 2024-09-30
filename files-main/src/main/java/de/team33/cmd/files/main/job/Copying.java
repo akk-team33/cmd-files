@@ -3,6 +3,7 @@ package de.team33.cmd.files.main.job;
 import de.team33.cmd.files.main.balancing.Relative;
 import de.team33.cmd.files.main.balancing.Relatives;
 import de.team33.cmd.files.main.balancing.State;
+import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.enums.alpha.Values;
@@ -65,11 +66,11 @@ class Copying implements Runnable {
                  .forEach(this::process);
         out.printf("%n%16s ...%n", "States");
         stats.stateCounters.forEach(
-                (state, counter) -> out.printf("%16d %s%n", counter.value, state));
+                (state, counter) -> out.printf("%16d %s%n", counter.value(), state));
         out.printf("%n%16s ...%n", "Results");
         stats.resultCounters.forEach(
-                (result, counter) -> out.printf("%16d %s%n", counter.value, result));
-        out.printf("%n%16d entries processed in total.%n%n", stats.totalCounter.value);
+                (result, counter) -> out.printf("%16d %s%n", counter.value(), result));
+        out.printf("%n%16d entries processed in total.%n%n", stats.totalCounter.value());
     }
 
     private void process(final Relative relative) {
@@ -173,10 +174,6 @@ class Copying implements Runnable {
         }
     }
 
-    private static class Counter {
-        private int value = 0;
-    }
-
     private static class Stats {
 
         private final Counter totalCounter = new Counter();
@@ -184,13 +181,15 @@ class Copying implements Runnable {
         private final Map<String, Counter> resultCounters = new TreeMap<>();
 
         private synchronized void add(final State state, final String result) {
-            totalCounter.value += 1;
-            stateCounters.computeIfAbsent(state, any -> new Counter()).value += 1;
-            resultCounters.computeIfAbsent(result, any -> new Counter()).value += 1;
+            totalCounter.increment();
+            stateCounters.computeIfAbsent(state, any -> new Counter())
+                         .increment();
+            resultCounters.computeIfAbsent(result, any -> new Counter())
+                          .increment();
         }
 
         private void reset() {
-            totalCounter.value = 0;
+            totalCounter.reset();
             stateCounters.clear();
             resultCounters.clear();
         }

@@ -3,6 +3,7 @@ package de.team33.cmd.files.main.job;
 import de.team33.cmd.files.main.balancing.Relative;
 import de.team33.cmd.files.main.balancing.Relatives;
 import de.team33.cmd.files.main.balancing.State;
+import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 
@@ -50,8 +51,8 @@ class Comparing implements Runnable {
                  .forEach(this::process);
         out.printf("%n%16s ...%n", "States");
         stats.stateCounters.forEach(
-                (state, counter) -> out.printf("%16d %s%n", counter.value, state));
-        out.printf("%n%16d entries processed in total.%n%n", stats.totalCounter.value);
+                (state, counter) -> out.printf("%16d %s%n", counter.value(), state));
+        out.printf("%n%16d entries processed in total.%n%n", stats.totalCounter.value());
     }
 
     private void process(final Relative relative) {
@@ -60,22 +61,19 @@ class Comparing implements Runnable {
         out.printf("%s - %s%n", relative.path(), state);
     }
 
-    private static class Counter {
-        private int value = 0;
-    }
-
     private static class Stats {
 
         private final Counter totalCounter = new Counter();
         private final Map<State, Counter> stateCounters = new TreeMap<>();
 
         private synchronized void add(final State state) {
-            totalCounter.value += 1;
-            stateCounters.computeIfAbsent(state, any -> new Counter()).value += 1;
+            totalCounter.increment();
+            stateCounters.computeIfAbsent(state, any -> new Counter())
+                         .increment();
         }
 
         private void reset() {
-            totalCounter.value = 0;
+            totalCounter.reset();
             stateCounters.clear();
         }
     }

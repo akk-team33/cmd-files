@@ -1,5 +1,6 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.cmd.files.main.finder.Pattern;
@@ -54,20 +55,10 @@ class Finder implements Runnable {
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +
                    "%,12d entries found%n",
-                   stats.totalDirCounter.value, stats.totalCounter.value, stats.foundCounter.value);
-        stats.foundTypeCounters.forEach((fileType, counter) -> {
-            out.printf("    %,12d of type %s%n", counter.value, fileType);
-        });
+                   stats.totalDirCounter.value(), stats.totalCounter.value(), stats.foundCounter.value());
+        stats.foundTypeCounters.forEach(
+                (fileType, counter) -> out.printf("    %,12d of type %s%n", counter.value(), fileType));
         out.printf("%n");
-    }
-
-    private static class Counter {
-
-        private long value = 0;
-
-        private void add(final FileEntry entry) {
-            value += 1;
-        }
     }
 
     private static class Stats {
@@ -78,15 +69,15 @@ class Finder implements Runnable {
         private final Map<FileType, Counter> foundTypeCounters = new TreeMap<>();
 
         private void addTotal(final FileEntry entry) {
-            totalCounter.value += 1;
+            totalCounter.increment();
             if (entry.isDirectory()) {
-                totalDirCounter.value += 1;
+                totalDirCounter.increment();
             }
         }
 
         private void addFound(final FileEntry entry) {
-            foundCounter.value += 1;
-            foundTypeCounters.computeIfAbsent(entry.type(), any -> new Counter()).value += 1;
+            foundCounter.increment();
+            foundTypeCounters.computeIfAbsent(entry.type(), any -> new Counter()).increment();
         }
     }
 }
