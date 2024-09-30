@@ -1,0 +1,46 @@
+[PATH]
+[PATH]/de
+[PATH]/de/team33
+[PATH]/de/team33/cmd
+[PATH]/de/team33/cmd/files
+[PATH]/de/team33/cmd/files/main
+[PATH]/de/team33/cmd/files/main/common
+[PATH]/de/team33/cmd/files/main/common/FileType.java
+[PATH]/de/team33/cmd/files/main/common/Output.java
+[PATH]/de/team33/cmd/files/main/common/RequestException.java
+[PATH]/de/team33/cmd/files/main/copying
+[PATH]/de/team33/cmd/files/main/copying/Relative.java
+[PATH]/de/team33/cmd/files/main/finder
+[PATH]/de/team33/cmd/files/main/finder/CaseSensitivity.java
+[PATH]/de/team33/cmd/files/main/finder/Method.java
+[PATH]/de/team33/cmd/files/main/finder/Pattern.java
+[PATH]/de/team33/cmd/files/main/finder/WildcardString.java
+[PATH]/de/team33/cmd/files/main/job
+[PATH]/de/team33/cmd/files/main/job/About.java
+[PATH]/de/team33/cmd/files/main/job/Copying.java
+[PATH]/de/team33/cmd/files/main/job/DirFinder.java
+[PATH]/de/team33/cmd/files/main/job/Finder.java
+[PATH]/de/team33/cmd/files/main/job/Keeping.java
+[PATH]/de/team33/cmd/files/main/job/Listing.java
+[PATH]/de/team33/cmd/files/main/job/Regular.java
+[PATH]/de/team33/cmd/files/main/job/Util.java
+[PATH]/de/team33/cmd/files/main/Main.java
+[PATH]/de/team33/patterns
+[PATH]/de/team33/patterns/enums
+[PATH]/de/team33/patterns/enums/alpha
+[PATH]/de/team33/patterns/enums/alpha/Values.java
+[PATH]/de/team33/patterns/io
+[PATH]/de/team33/patterns/io/alpha
+[PATH]/de/team33/patterns/io/alpha/FileEntry.java
+[PATH]/de/team33/patterns/io/alpha/FileIndex.java
+[PATH]/de/team33/patterns/io/alpha/FilePolicy.java
+[PATH]/de/team33/patterns/io/alpha/FileType.java
+
+          15 directories and a total of
+          37 entries examined.
+
+          37 entries found
+              15 of type DIRECTORY
+              22 of type REGULAR
+
+

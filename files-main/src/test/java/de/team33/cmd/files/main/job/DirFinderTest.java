@@ -17,9 +17,9 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class FinderTest {
+class DirFinderTest {
 
-    private static final String CLASS_NAME = FinderTest.class.getSimpleName();
+    private static final String CLASS_NAME = DirFinderTest.class.getSimpleName();
     private static final Path TEST_PATH = Path.of("target", "testing", CLASS_NAME);
 
     private Path testPath;
@@ -36,38 +36,20 @@ class FinderTest {
     }
 
     @Test
-    final void run_rxALL() throws RequestException, IOException {
-        final Runnable job = Finder.job(Output.SYSTEM,
-                                        Arrays.asList("files", "find", "rx:.*", testPath.toString()));
-        final String result = Redirected.outputOf(job::run)
-                                        .replace(testPath.toString(), "[PATH]");
-        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL.txt"), result);
-    }
-
-    @Test
-    final void run_wcALL() throws RequestException, IOException {
-        final Runnable job = Finder.job(Output.SYSTEM,
-                                        Arrays.asList("files", "find", "*", testPath.toString()));
-        final String result = Redirected.outputOf(job::run)
-                                        .replace(testPath.toString(), "[PATH]");
-        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL.txt"), result);
-    }
-
-    @Test
     final void run_java() throws RequestException, IOException {
-        final Runnable job = Finder.job(Output.SYSTEM,
-                                        Arrays.asList("files", "find", "*.java", testPath.toString()));
+        final Runnable job = DirFinder.job(Output.SYSTEM,
+                                        Arrays.asList("files", "findir", "*.java", testPath.toString()));
         final String result = Redirected.outputOf(job::run)
                                         .replace(testPath.toString(), "[PATH]");
-        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_java.txt"), result);
+        assertEquals(TextIO.read(DirFinderTest.class, "DirFinderTest-run_java.txt"), result);
     }
 
     @Test
     final void run_56() throws RequestException, IOException {
-        final Runnable job = Finder.job(Output.SYSTEM,
-                                        Arrays.asList("files", "find", "rx:.{5,6}", testPath.toString()));
+        final Runnable job = DirFinder.job(Output.SYSTEM,
+                                        Arrays.asList("files", "findir", "rx:.{5,6}", testPath.toString()));
         final String result = Redirected.outputOf(job::run)
                                         .replace(testPath.toString(), "[PATH]");
-        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_56.txt"), result);
+        assertEquals(TextIO.read(DirFinderTest.class, "DirFinderTest-run_56.txt"), result);
     }
 }
