@@ -19,6 +19,7 @@ public enum Regular {
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
     COPY(Copying::job, Copying.EXCERPT),
     CMP(Comparing::job, Comparing.EXCERPT),
+    CLEAN(Cleaning::job, Cleaning.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 

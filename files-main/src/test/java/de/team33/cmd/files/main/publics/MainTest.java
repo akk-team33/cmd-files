@@ -111,4 +111,14 @@ class MainTest {
 
         assertEquals(expected, result);
     }
+
+    @Test
+    final void main_clean() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_clean.txt"));
+
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "clean"));
+        // System.out.println(result);
+
+        assertEquals(expected, result);
+    }
 }

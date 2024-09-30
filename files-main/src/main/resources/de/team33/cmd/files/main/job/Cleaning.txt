@@ -1,0 +1,14 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    %2$s clean PATH [PATH [...]]
+
+    ... to remove given directories if they are empty after cleaning
+        all their subdirectories.
+
+Parameters:
+
+    PATH   - A path to be examined. Multiple PATHs can be examined.
