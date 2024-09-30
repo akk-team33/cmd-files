@@ -1,0 +1,15 @@
+[PATH]/de/team33
+[PATH]/de/team33/cmd/files
+[PATH]/de/team33/cmd/files/main/common
+[PATH]/de/team33/cmd/files/main/finder
+[PATH]/de/team33/patterns/enums
+[PATH]/de/team33/patterns/enums/alpha
+[PATH]/de/team33/patterns/io/alpha
+
+          15 directories and a total of
+          37 entries examined.
+
+           7 entries found
+               7 of type DIRECTORY
+
+
