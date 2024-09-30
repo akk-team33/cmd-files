@@ -1,5 +1,6 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.cmd.files.main.finder.Pattern;
@@ -47,39 +48,37 @@ class DirFinder implements Runnable {
 
     @Override
     public final void run() {
-        final Counter total = new Counter(null);
-        final Counter directories = new Counter(FileEntry::isDirectory);
-        final Set<Path> found = new HashSet<>();
+        final Stats stats = new Stats();
         index.entries()
-             .peek(total::add)
-             .peek(directories::add)
+             .peek(stats::addTotal)
              .filter(pattern.matcher())
              .map(FileEntry::path)
              .map(Path::getParent)
              .filter(Objects::nonNull)
-             .filter(found::add)
+             .filter(stats::addFound)
              .forEach(parent -> out.printf("%s%n", parent));
         out.printf("%n" +
                    "%,12d directories found.%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n",
-                   found.size(), directories.value, total.value);
+                   stats.found.size(), stats.directories.value(), stats.total.value());
     }
 
-    private static class Counter {
-        static final Predicate<? super FileEntry> EACH = any -> true;
+    private static class Stats {
 
-        private long value;
-        private final Predicate<? super FileEntry> filter;
+        final Counter total = new Counter();
+        final Counter directories = new Counter();
+        final Set<Path> found = new HashSet<>();
 
-        private Counter(Predicate<? super FileEntry> filter) {
-            this.filter = requireNonNullElse(filter, EACH);
+        final void addTotal(final FileEntry entry) {
+            total.increment();
+            if (entry.isDirectory()) {
+                directories.increment();
+            }
         }
 
-        private void add(final FileEntry entry) {
-            if (filter.test(entry)) {
-                value += 1;
-            }
+        final boolean addFound(final Path path) {
+            return found.add(path);
         }
     }
 }
