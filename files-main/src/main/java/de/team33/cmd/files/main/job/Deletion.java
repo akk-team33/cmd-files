@@ -1,6 +1,5 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.cmd.files.main.finder.Pattern;
@@ -11,8 +10,9 @@ import de.team33.patterns.io.alpha.FilePolicy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
 import static de.team33.cmd.files.main.job.Util.cmdName;
@@ -24,6 +24,7 @@ class Deletion implements Runnable {
     private final Output out;
     private final Pattern pattern;
     private final FileIndex index;
+    private final Stats stats = new Stats();
 
     private Deletion(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
@@ -45,63 +46,67 @@ class Deletion implements Runnable {
 
     @Override
     public final void run() {
-        final Stats stats = new Stats();
-        final List<FileEntry> postponed = new LinkedList<>();
         index.entries()
-             .peek(stats::addTotal)
              .filter(pattern.matcher())
-             .forEach(entry -> {
-                 if (entry.isDirectory()) {
-                     postponed.add(0, entry);
-                 } else {
-                     delete(entry, stats);
-                 }
-             });
-        postponed.forEach(entry -> delete(entry, stats));
+             .forEach(entry -> delete(entry, Cause.EXPLICIT));
         out.printf("%n" +
-                   "%,12d directories and a total of%n" +
-                   "%,12d entries examined.%n%n" +
-                   "%,12d entries deleted%n" +
+                   "%,12d entries deleted explicit%n" +
+                   "%,12d entries deleted implicit%n" +
                    "%,12d entries failed%n",
-                   stats.totalDirCounter.value(), stats.totalCounter.value(),
-                   stats.deletedCounter.value(), stats.failedCounter.value());
+                   stats.explicit, stats.implicit, stats.failed);
         out.printf("%n");
     }
 
-    private void delete(final FileEntry entry, final Stats stats) {
-        out.printf("%s ...", entry.path());
-        try {
-            Files.delete(entry.path());
-            out.printf(" deleted%n");
-            stats.addDeleted();
-        } catch (final IOException e) {
-            out.printf(" failed:%n" +
-                               "    Message: %s%n" +
-                               "    Exception: %s%n", e.getMessage(), e.getClass().getCanonicalName());
-            stats.addFailed();
+    private void delete(final FileEntry entry, final Cause cause) {
+        if (stats.addCandidate(entry.path())) {
+            if (entry.isDirectory()) {
+                delete(entry.entries());
+            }
+            out.printf("%s ...", entry.path());
+            try {
+                Files.delete(entry.path());
+                out.printf(" deleted%n");
+                stats.addDeleted(cause);
+            } catch (final IOException e) {
+                out.printf(" failed:%n" +
+                           "    Message: %s%n" +
+                           "    Exception: %s%n", e.getMessage(), e.getClass().getCanonicalName());
+                stats.addFailed();
+            }
         }
+    }
+
+    private void delete(final List<FileEntry> entries) {
+        for (final FileEntry entry : entries) {
+            delete(entry, Cause.IMPLICIT);
+        }
+    }
+
+    private enum Cause {
+        EXPLICIT,
+        IMPLICIT;
     }
 
     private static class Stats {
 
-        private final Counter totalCounter = new Counter();
-        private final Counter totalDirCounter = new Counter();
-        private final Counter deletedCounter = new Counter();
-        private final Counter failedCounter = new Counter();
+        private final Set<Path> candidates = new HashSet<>();
+        private int explicit = 0;
+        private int implicit = 0;
+        private int failed = 0;
 
-        private void addTotal(final FileEntry entry) {
-            totalCounter.increment();
-            if (entry.isDirectory()) {
-                totalDirCounter.increment();
-            }
-        }
-
-        private void addDeleted() {
-            deletedCounter.increment();
+        private boolean addCandidate(final Path path) {
+            return candidates.add(path);
         }
 
         private void addFailed() {
-            failedCounter.increment();
+            failed += 1;
+        }
+
+        private void addDeleted(final Cause cause) {
+            switch (cause) {
+                case IMPLICIT -> implicit += 1;
+                case EXPLICIT -> explicit += 1;
+            }
         }
     }
 }

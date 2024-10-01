@@ -69,10 +69,10 @@ class DeletionTest {
     }
 
     @Test
-    final void delete_abc() throws RequestException {
-        final String expected = String.format(TextIO.read(DeletionTest.class, "DeletionTest-delete_abc.txt"), uuid);
+    final void delete_MPsi() throws RequestException {
+        final String expected = String.format(TextIO.read(DeletionTest.class, "DeletionTest-delete_MPsi.txt"), uuid);
         Deletion.job(Output.SYSTEM,
-                     Arrays.asList("files", "delete", "rx:[abcfor].*",
+                     Arrays.asList("files", "delete", "rx/cs:[MPsi].*",
                                    leftPath.toString(),
                                    rightPath.toString()))
                 .run();
