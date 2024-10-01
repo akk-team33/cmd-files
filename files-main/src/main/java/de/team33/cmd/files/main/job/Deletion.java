@@ -7,12 +7,12 @@ import de.team33.cmd.files.main.finder.Pattern;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
-import de.team33.patterns.io.alpha.FileType;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
 import static de.team33.cmd.files.main.job.Util.cmdName;
@@ -40,33 +40,54 @@ class Deletion implements Runnable {
             final List<Path> paths = args.stream().skip(3).map(Path::of).toList();
             return new Deletion(out, expression, paths);
         }
-        throw RequestException.format(Listing.class, "Deletion.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(Deletion.class, "Deletion.txt", cmdLine(args), cmdName(args));
     }
 
     @Override
     public final void run() {
         final Stats stats = new Stats();
+        final List<FileEntry> postponed = new LinkedList<>();
         index.entries()
              .peek(stats::addTotal)
              .filter(pattern.matcher())
-             .peek(stats::addFound)
-             .forEach(entry -> out.printf("%s%n", entry.path()));
+             .forEach(entry -> {
+                 if (entry.isDirectory()) {
+                     postponed.add(0, entry);
+                 } else {
+                     delete(entry, stats);
+                 }
+             });
+        postponed.forEach(entry -> delete(entry, stats));
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +
-                   "%,12d entries found%n",
-                   stats.totalDirCounter.value(), stats.totalCounter.value(), stats.foundCounter.value());
-        stats.foundTypeCounters.forEach(
-                (fileType, counter) -> out.printf("    %,12d of type %s%n", counter.value(), fileType));
+                   "%,12d entries deleted%n" +
+                   "%,12d entries failed%n",
+                   stats.totalDirCounter.value(), stats.totalCounter.value(),
+                   stats.deletedCounter.value(), stats.failedCounter.value());
         out.printf("%n");
+    }
+
+    private void delete(final FileEntry entry, final Stats stats) {
+        out.printf("%s ...", entry.path());
+        try {
+            Files.delete(entry.path());
+            out.printf(" deleted%n");
+            stats.addDeleted();
+        } catch (final IOException e) {
+            out.printf(" failed:%n" +
+                               "    Message: %s%n" +
+                               "    Exception: %s%n", e.getMessage(), e.getClass().getCanonicalName());
+            stats.addFailed();
+        }
     }
 
     private static class Stats {
 
         private final Counter totalCounter = new Counter();
         private final Counter totalDirCounter = new Counter();
-        private final Counter foundCounter = new Counter();
-        private final Map<FileType, Counter> foundTypeCounters = new TreeMap<>();
+        private final Counter deletedCounter = new Counter();
+        private final Counter failedCounter = new Counter();
 
         private void addTotal(final FileEntry entry) {
             totalCounter.increment();
@@ -75,9 +96,12 @@ class Deletion implements Runnable {
             }
         }
 
-        private void addFound(final FileEntry entry) {
-            foundCounter.increment();
-            foundTypeCounters.computeIfAbsent(entry.type(), any -> new Counter()).increment();
+        private void addDeleted() {
+            deletedCounter.increment();
+        }
+
+        private void addFailed() {
+            failedCounter.increment();
         }
     }
 }

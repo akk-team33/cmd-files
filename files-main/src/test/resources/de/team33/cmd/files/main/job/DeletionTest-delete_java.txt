@@ -1,0 +1,50 @@
+%s : DIRECTORY {
+    left : DIRECTORY {
+        de : DIRECTORY {
+            team33 : DIRECTORY {
+                cmd : DIRECTORY {
+                    files : DIRECTORY {
+                        main : DIRECTORY {
+                            common : DIRECTORY {};
+                            copying : DIRECTORY {};
+                            finder : DIRECTORY {};
+                            job : DIRECTORY {};
+                        };
+                    };
+                };
+                patterns : DIRECTORY {
+                    enums : DIRECTORY {
+                        alpha : DIRECTORY {};
+                    };
+                    io : DIRECTORY {
+                        alpha : DIRECTORY {};
+                    };
+                };
+            };
+        };
+    };
+    right : DIRECTORY {
+        de : DIRECTORY {
+            team33 : DIRECTORY {
+                cmd : DIRECTORY {
+                    files : DIRECTORY {
+                        main : DIRECTORY {
+                            copying : DIRECTORY {};
+                            finder : DIRECTORY {};
+                            job : DIRECTORY {};
+                            shared : DIRECTORY {};
+                        };
+                    };
+                };
+                patterns : DIRECTORY {
+                    enums : DIRECTORY {
+                        alpha : DIRECTORY {};
+                    };
+                    io : DIRECTORY {
+                        alpha : DIRECTORY {};
+                    };
+                };
+            };
+        };
+    };
+};

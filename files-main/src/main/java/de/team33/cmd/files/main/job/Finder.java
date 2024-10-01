@@ -40,7 +40,7 @@ class Finder implements Runnable {
             final List<Path> paths = args.stream().skip(3).map(Path::of).toList();
             return new Finder(out, expression, paths);
         }
-        throw RequestException.format(Listing.class, "Finder.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(Finder.class, "Finder.txt", cmdLine(args), cmdName(args));
     }
 
     @Override
