@@ -3,16 +3,15 @@
 +------------------------------------------------------------------------------
 Your request:
 
-    MainTest cmp
+    MainTest clean
 
 Expected request scheme:
 
-    MainTest cmp SRC_PATH TGT_PATH
+    MainTest clean PATH [PATH [...]]
 
-    ... to recursively compare regular files and their relative file structure
-        between a potential source directory and a potential target directory.
+    ... to remove given directories if they are empty
+        after cleaning all their subdirectories.
 
 Parameters:
 
-    SRC_PATH - The path to the potential source directory.
-    TGT_PATH - The path to the potential target directory.%n%n
+    PATH   - A directory path to be examined. Multiple PATHs are possible.%n%n

@@ -1,30 +1,31 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
-import de.team33.cmd.files.main.finder.Pattern;
 import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
 import static de.team33.cmd.files.main.job.Util.cmdName;
-import static java.util.Objects.requireNonNullElse;
 
 class Cleaning implements Runnable {
 
     static final String EXCERPT = "Remove empty directories within given directories.";
+    private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
     private final Output out;
-    private final FileIndex index;
+    private final List<FileEntry> entries;
+    private final Stats stats = new Stats();
 
-    private Cleaning(final Output out, final List<Path> paths) {
+    private Cleaning(final Output out, final List<FileEntry> entries) {
         this.out = out;
-        this.index = FileIndex.of(paths, FilePolicy.DISTINCT_SYMLINKS);
+        this.entries = entries;
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
@@ -32,43 +33,83 @@ class Cleaning implements Runnable {
         assert Regular.CLEAN.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (2 < args.size()) {
-            final List<Path> paths = args.stream().skip(2).map(Path::of).toList();
-            return new Cleaning(out, paths);
+            final List<FileEntry> entries = args.stream()
+                                                .skip(2)
+                                                .map(Path::of)
+                                                .map(path -> FileEntry.of(path, POLICY))
+                                                .toList();
+            return new Cleaning(out, entries);
         }
-        throw RequestException.format(Listing.class, "Finder.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(Listing.class, "Cleaning.txt", cmdLine(args), cmdName(args));
     }
 
     @Override
     public final void run() {
-        final Counter total = new Counter(null);
-        final Counter directories = new Counter(FileEntry::isDirectory);
-        final Counter found = new Counter(null);
-        index.entries()
-             .peek(total::add)
-             .peek(directories::add)
-             .peek(found::add)
-             .forEach(entry -> out.printf("%s%n", entry.path()));
+        stats.reset();
+        clean(entries);
         out.printf("%n" +
-                   "%,12d entries found.%n" +
                    "%,12d directories and a total of%n" +
-                   "%,12d entries examined.%n%n",
-                   found.value, directories.value, total.value);
+                   "%,12d entries examined.%n%n" +
+                   "%,12d directories deleted%n" +
+                   "%,12d attempts failed%n%n",
+                   stats.totalDirs.value(), stats.total.value(), stats.deleted.value(), stats.failed.value());
     }
 
-    private static class Counter {
-        static final Predicate<? super FileEntry> EACH = any -> true;
+    private boolean clean(final List<FileEntry> entries) {
+        return entries.stream()
+                      .map(this::clean)
+                      .reduce(true, Boolean::logicalAnd);
+    }
 
-        private long value;
-        private final Predicate<? super FileEntry> filter;
+    private boolean clean(final FileEntry entry) {
+        stats.addTotal(entry);
+        if (entry.isDirectory() && clean(entry.entries())) {
+            final Path path = entry.path();
+            out.printf("%s ...", path);
+            try {
+                Files.delete(path);
+                out.printf(" deleted%n");
+                stats.addDeleted();
+                return true;
+            } catch (final IOException e) {
+                out.printf(" failed:%n" +
+                           "    Message: %s%n" +
+                           "    Exception: %s%n", e.getMessage(), e.getClass().getCanonicalName());
+                stats.addFailed();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 
-        private Counter(Predicate<? super FileEntry> filter) {
-            this.filter = requireNonNullElse(filter, EACH);
+    private static class Stats {
+
+        private final Counter total = new Counter();
+        private final Counter totalDirs = new Counter();
+        private final Counter deleted = new Counter();
+        private final Counter failed = new Counter();
+
+        final void reset() {
+            total.reset();
+            totalDirs.reset();
+            deleted.reset();
+            failed.reset();
         }
 
-        private void add(final FileEntry entry) {
-            if (filter.test(entry)) {
-                value += 1;
+        final void addTotal(final FileEntry entry) {
+            total.increment();
+            if (entry.isDirectory()) {
+                totalDirs.increment();
             }
+        }
+
+        final void addDeleted() {
+            deleted.increment();
+        }
+
+        final void addFailed() {
+            failed.increment();
         }
     }
 }
