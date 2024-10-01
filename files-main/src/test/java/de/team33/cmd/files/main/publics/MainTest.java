@@ -121,4 +121,14 @@ class MainTest {
 
         assertEquals(expected, result);
     }
+
+    @Test
+    final void main_delete() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_delete.txt"));
+
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "delete"));
+        // System.out.println(result);
+
+        assertEquals(expected, result);
+    }
 }

@@ -1,0 +1,55 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest delete
+
+Expected request scheme:
+
+    MainTest delete PATTERN PATH [PATH [...]]
+
+    ... to delete files whose file names match a specific search pattern.
+
+    You may first use FIND to determine which files would be affected by
+    deletion.
+
+Parameters:
+
+    PATTERN - Consists of [METHOD[/OPTION]:]VALUE
+              METHOD - One of {rx, wc} (case-insensitive)
+                       rx : the VALUE is treated as a regular expression.
+                       wc : the VALUE is treated as the full file name,
+                            but allows the use of the usual wildcards (?*).
+                     - Default: wc
+              OPTION - One of {cs, ci} (case-insensitive)
+                       cs : the PATTERN will be applied case-sensitive.
+                       ci : the PATTERN will be applied case-insensitive.
+                     - Default: ci
+              VALUE  - A (constant) value to be applied to the METHOD along
+                       with the (variable) filenames in question.
+    PATH   - A path to be examined. Subdirectories are included if existing.
+             Multiple PATHs can be examined.
+
+Examples:
+
+[1] MainTest delete 'myFile.jpg' path/to/images
+
+    ... to delete files named "myFile.jpg" in the directory "path/to/images"
+        and its subdirectories.
+
+[2] MainTest delete '*.jpg' path/to/images
+
+    ... to delete files whose names end with ".jpg" in the directory
+        "path/to/images" and its subdirectories.
+
+[3] MainTest delete 'myFile.*' path/to/images
+
+    ... to delete files whose names start with "myFile." in the directory
+        "path/to/images" and its subdirectories.
+
+[4] MainTest delete 'rx:.*\.(jpg|jpe|jpeg)' images other/images more/images
+
+    ... to delete files with any of the extensions {"jpg", "jpe", "jpeg"}
+        within the directories "images", "other/images" and "more/images"
+        and their subdirectories.%n%n

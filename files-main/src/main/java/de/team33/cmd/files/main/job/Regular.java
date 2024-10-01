@@ -20,6 +20,7 @@ public enum Regular {
     COPY(Copying::job, Copying.EXCERPT),
     CMP(Comparing::job, Comparing.EXCERPT),
     CLEAN(Cleaning::job, Cleaning.EXCERPT),
+    DELETE(Deletion::job, Deletion.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 
