@@ -15,12 +15,13 @@ import static de.team33.cmd.files.main.job.Util.cmdName;
 public enum Regular {
 
     ABOUT(About::job, About.EXCERPT),
+    CLEAN(Cleaning::job, Cleaning.EXCERPT),
+    CMP(Comparing::job, Comparing.EXCERPT),
+    COPY(Copying::job, Copying.EXCERPT),
+    DCOPY(DirCopying::job, DirCopying.EXCERPT),
+    DELETE(Deletion::job, Deletion.EXCERPT),
     FIND(Finder::job, Finder.EXCERPT),
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
-    COPY(Copying::job, Copying.EXCERPT),
-    CMP(Comparing::job, Comparing.EXCERPT),
-    CLEAN(Cleaning::job, Cleaning.EXCERPT),
-    DELETE(Deletion::job, Deletion.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 

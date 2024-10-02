@@ -131,4 +131,14 @@ class MainTest {
 
         assertEquals(expected, result);
     }
+
+    @Test
+    final void main_dcopy() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_dcopy.txt"));
+
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "dcopy"));
+        // System.out.println(result);
+
+        assertEquals(expected, result);
+    }
 }

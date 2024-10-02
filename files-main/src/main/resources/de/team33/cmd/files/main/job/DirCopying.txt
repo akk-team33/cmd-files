@@ -1,0 +1,15 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    %2$s dcopy SRC_PATH TGT_PATH
+
+    ... to recursively copy the (empty) directory structure
+    from a source directory to a target directory.
+
+Parameters:
+
+    SRC_PATH - The path to the source directory.
+    TGT_PATH - The path to the target directory.

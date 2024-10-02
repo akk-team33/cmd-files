@@ -1,0 +1,18 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest dcopy
+
+Expected request scheme:
+
+    MainTest dcopy SRC_PATH TGT_PATH
+
+    ... to recursively copy the (empty) directory structure
+    from a source directory to a target directory.
+
+Parameters:
+
+    SRC_PATH - The path to the source directory.
+    TGT_PATH - The path to the target directory.%n%n

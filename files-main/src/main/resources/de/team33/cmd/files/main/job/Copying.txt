@@ -7,7 +7,7 @@ Expected request scheme:
     %2$s copy STRATEGY SRC_PATH TGT_PATH
 
     ... to recursively copy regular files and their relative file structure
-        from a source directory to a target directory.
+    from a source directory to a target directory.
 
 Parameters:
 

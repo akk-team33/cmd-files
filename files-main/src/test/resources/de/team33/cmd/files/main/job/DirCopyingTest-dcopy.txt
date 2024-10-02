@@ -1,0 +1,24 @@
+right : DIRECTORY {
+    de : DIRECTORY {
+        team33 : DIRECTORY {
+            cmd : DIRECTORY {
+                files : DIRECTORY {
+                    main : DIRECTORY {
+                        common : DIRECTORY {};
+                        copying : DIRECTORY {};
+                        finder : DIRECTORY {};
+                        job : DIRECTORY {};
+                    };
+                };
+            };
+            patterns : DIRECTORY {
+                enums : DIRECTORY {
+                    alpha : DIRECTORY {};
+                };
+                io : DIRECTORY {
+                    alpha : DIRECTORY {};
+                };
+            };
+        };
+    };
+};
