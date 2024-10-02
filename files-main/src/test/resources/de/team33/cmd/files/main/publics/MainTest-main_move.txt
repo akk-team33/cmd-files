@@ -1,0 +1,49 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest move
+
+Expected request scheme:
+
+    MainTest move [-r] PATH RULE
+
+    ... to relocate all regular files located directly* in a given
+    processing directory.
+
+    *Optionally, regular files located in subdirectories are also processed.
+    Empty subdirectories will finally be removed (see CLEAN).
+
+Parameters:
+
+    -r   - 'recursive' : A switch to also process normal files in
+           subdirectories, if present. (case-insensitive)
+    PATH - A path to the processing directory.
+    RULE - A processing rule that has a similar structure to a relative path,
+           but which can contain TOKENs that are interpreted during
+           processing. A resulting relative path will be resolved from the
+           processing directory!
+
+           Tokens (case sensitive!):
+
+           @Y -> the year the file in question was last modified.
+           @M -> the month the file in question was last modified.
+           @D -> the day the file in question was last modified.
+           @h -> the hour the file in question was last modified.
+           @m -> the minute the file in question was last modified.
+           @s -> the second the file in question was last modified.
+           @X -> the current filename extension of the file in question.
+           @N -> the current filename without extension of the file in question.
+           @F -> the current filename with extension of the file in question.
+           @P -> the actual filename of the processing directory.
+           @p -> the filename of the current parent directory of the file in
+                 question.
+           @# -> a hex encoded SHA1 hash value over the content of the file
+                 in question. If the actual file name already contains such a
+                 hash value, that value is used instead of recalculating it.
+           @! -> a hex encoded time stamp of the last modification of the file
+                 in question, accurate to a second. If the actual file name
+                 already contains such a timestamp, that value is used instead
+                 of recalculating it.
+           @@ -> The `at` symbol%n%n

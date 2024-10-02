@@ -54,7 +54,7 @@ class Copying implements Runnable {
             final Path target = Path.of(args.get(4));
             return new Copying(out, strategies, source, target);
         }
-        throw RequestException.format(Listing.class, "Copying.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(Copying.class, "Copying.txt", cmdLine(args), cmdName(args));
     }
 
     private final Stats stats = new Stats();
