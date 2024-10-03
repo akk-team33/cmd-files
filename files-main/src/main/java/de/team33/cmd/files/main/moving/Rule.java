@@ -11,11 +11,17 @@ enum Rule {
     FILE_YEAR("@Y"::equals, rule -> FileInfo::getLastModifiedYear),
     FILE_MONTH("@M"::equals, rule -> FileInfo::getLastModifiedMonth),
     FILE_DAY("@D"::equals, rule -> FileInfo::getLastModifiedDay),
+    FILE_HOUR("@h"::equals, rule -> FileInfo::getLastModifiedHour),
+    FILE_MINUTE("@m"::equals, rule -> FileInfo::getLastModifiedMinute),
+    FILE_SECOND("@s"::equals, rule -> FileInfo::getLastModifiedSecond),
     FILE_NAME("@N"::equals, rule -> FileInfo::getFileName),
     FULL_NAME("@F"::equals, rule -> FileInfo::getFullName),
     EXTENSION("@X"::equals, rule -> FileInfo::getExtensionLC),
-    REL_PATH("@P"::equals, rule -> FileInfo::getRelativePath),
+    PROCESSING_DIR("@P"::equals, rule -> FileInfo::getProcessingDir),
+    PARENT_DIR("@p"::equals, rule -> FileInfo::getParentDir),
+    REL_PATH("@R"::equals, rule -> FileInfo::getRelativePath),
     HASH("@#"::equals, rule -> FileInfo::getHash),
+    TIMESTAMP("@!"::equals, rule -> FileInfo::getTimestamp),
     AT("@@"::equals, rule -> fileInfo -> "@"),
     PLAIN(not(rule -> rule.startsWith("@")), rule -> fileInfo -> rule);
 
