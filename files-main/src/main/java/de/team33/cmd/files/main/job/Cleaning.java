@@ -28,7 +28,7 @@ class Cleaning implements Runnable {
         this.entries = entries;
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
+    public static Cleaning job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
         assert Regular.CLEAN.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
