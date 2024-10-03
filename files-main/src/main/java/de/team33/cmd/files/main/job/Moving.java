@@ -83,7 +83,6 @@ class Moving implements Runnable {
     public void run() {
         stats.reset();
         stream().filter(FileEntry::isRegularFile)
-                .map(FileEntry::path)
                 .forEach(this::move);
         clean(list());
         out.printf("%n" +
@@ -121,9 +120,10 @@ class Moving implements Runnable {
         }
     }
 
-    private void move(final Path path) {
+    private void move(final FileEntry entry) {
+        final Path path = entry.path();
         out.printf("%s ...%n", mainPath.relativize(path));
-        final Path newPath = mainPath.resolve(resolver.resolve(mainPath, path)).normalize();
+        final Path newPath = mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
         out.printf("--> %s ... ", mainPath.relativize(newPath));
 
         if (path.equals(newPath)) {

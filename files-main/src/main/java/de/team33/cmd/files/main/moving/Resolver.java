@@ -1,5 +1,7 @@
 package de.team33.cmd.files.main.moving;
 
+import de.team33.patterns.io.alpha.FileEntry;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -20,8 +22,8 @@ public class Resolver {
                                    .toList());
     }
 
-    public Path resolve(final Path cwd, final Path path) {
-        final FileInfo fileInfo = new FileInfo(cwd, path);
+    public Path resolve(final Path cwd, final FileEntry entry) {
+        final FileInfo fileInfo = new FileInfo(cwd, entry);
         return segments.stream()
                        .map(segment -> segment.map(fileInfo))
                        .map(Path::of)

@@ -1,65 +1,52 @@
 package de.team33.cmd.files.main.moving;
 
+import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.lazy.narvi.Lazy;
+import de.team33.tools.io.FileHashing;
 import de.team33.tools.io.LazyHashing;
 import de.team33.tools.io.StrictHashing;
-import de.team33.tools.io.FileHashing;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
-import static java.nio.file.LinkOption.*;
-
 class FileInfo {
 
-    private final Path path;
+    private final FileEntry entry;
     private final Path relativePath;
     private final Path processingDir;
     private final String fullName;
     private final int dotIndex;
     private final Lazy<String> fileName;
     private final Lazy<String> extension;
-    private final Lazy<Instant> lastModifiedInstant;
     private final Lazy<LocalDateTime> lastModified;
     private final Lazy<String> hash;
     private final FileHashing hashing = LazyHashing.of(StrictHashing.SHA_1);
 
-    FileInfo(final Path cwd, final Path path) {
-        assert path.isAbsolute();
-        // - - - - - - - - - - - - - - - - - - - - - - - -
-        this.path = path;
-        this.relativePath = cwd.relativize(path.getParent());
+    FileInfo(final Path cwd, final FileEntry entry) {
+        this.entry = entry;
+        this.relativePath = cwd.relativize(entry.path().getParent());
         this.processingDir = cwd.getFileName();
-        this.fullName = path.getFileName().toString();
+        this.fullName = entry.name();
         this.dotIndex = fullName.lastIndexOf('.');
 
         this.fileName = Lazy.init(() -> (dotIndex < 0) ? fullName : fullName.substring(0, dotIndex));
         this.extension = Lazy.init(() -> (dotIndex < 0) ? "" : fullName.substring(dotIndex + 1));
-        this.lastModifiedInstant = Lazy.initEx(this::newLastModifiedInstant);
-        this.lastModified = Lazy.initEx(this::newLastModified);
+        this.lastModified = Lazy.init(this::newLastModified);
         this.hash = Lazy.init(this::newHash);
     }
 
     private String newHash() {
-        return hashing.hash(path);
+        return hashing.hash(entry.path());
     }
 
-    private Instant newLastModifiedInstant() throws IOException {
-        return Files.getLastModifiedTime(path, NOFOLLOW_LINKS)
-                    .toInstant();
-    }
-
-    private LocalDateTime newLastModified() throws IOException {
-        return LocalDateTime.ofInstant(lastModifiedInstant.get(), ZoneId.systemDefault());
+    private LocalDateTime newLastModified() {
+        return LocalDateTime.ofInstant(entry.lastModified(), ZoneId.systemDefault());
     }
 
     final String getTimestamp() {
-        return String.format("[%x]", lastModifiedInstant.get().truncatedTo(ChronoUnit.SECONDS).toEpochMilli());
+        return String.format("[%x]", entry.lastModified().truncatedTo(ChronoUnit.SECONDS).toEpochMilli());
     }
 
     final String getLastModifiedYear() {
