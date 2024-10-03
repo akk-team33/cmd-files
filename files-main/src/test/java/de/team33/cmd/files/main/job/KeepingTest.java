@@ -1,7 +1,6 @@
 package de.team33.cmd.files.main.job;
 
 import de.team33.cmd.files.main.Main;
-import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.io.hydra.FileInfo;
@@ -12,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.UUID;
 
+import static de.team33.cmd.files.main.testing.ModifyingTestBase.MUTE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class KeepingTest {
@@ -34,7 +34,7 @@ class KeepingTest {
         ZipIO.unzip(Main.class, "zips/keeping.zip", keepingPath);
         assertEquals(TextIO.read(Main.class, "zips/keeping.txt"), keepingInfo());
 
-        Keeping.job(Output.SYSTEM, Arrays.asList("files", "keep", keepingPath.toString(), "jpg,jpe,jpeg", "tif,tiff")).run();
+        Keeping.job(MUTE, Arrays.asList("files", "keep", keepingPath.toString(), "jpg,jpe,jpeg", "tif,tiff")).run();
 
         assertEquals(expectedInfo("KeepingRunExpected.txt"), keepingInfo());
     }
@@ -46,7 +46,7 @@ class KeepingTest {
         ZipIO.unzip(Main.class, "zips/keeping.zip", keepingPath);
         Keeping.job(((format, args) -> {}), Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
 
-        Keeping.job(Output.SYSTEM, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
+        Keeping.job(MUTE, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
 
         assertEquals(expectedInfo("KeepingRunDPExpected.txt"), keepingInfo());
     }
