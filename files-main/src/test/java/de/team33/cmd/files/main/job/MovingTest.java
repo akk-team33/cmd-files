@@ -59,6 +59,9 @@ class MovingTest extends ModifyingTestBase {
         Moving.job(Output.SYSTEM,
                    Arrays.asList("files", "move", "-r", leftPath().toString(), "@R/@#@!.@X"))
               .run();
+        Moving.job(Output.SYSTEM,
+                   Arrays.asList("files", "move", "-r", leftPath().toString(), "@R/@#@!.@X"))
+              .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
     }

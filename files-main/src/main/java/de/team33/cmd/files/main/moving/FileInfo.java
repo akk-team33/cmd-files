@@ -2,7 +2,9 @@ package de.team33.cmd.files.main.moving;
 
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.lazy.narvi.Lazy;
+import de.team33.tools.io.FileDating;
 import de.team33.tools.io.FileHashing;
+import de.team33.tools.io.LazyDating;
 import de.team33.tools.io.LazyHashing;
 import de.team33.tools.io.StrictHashing;
 
@@ -23,6 +25,7 @@ class FileInfo {
     private final Lazy<LocalDateTime> lastModified;
     private final Lazy<String> hash;
     private final FileHashing hashing = LazyHashing.of(StrictHashing.SHA_1);
+    private final FileDating dating = LazyDating.of("[");
 
     FileInfo(final Path cwd, final FileEntry entry) {
         this.entry = entry;
@@ -46,7 +49,7 @@ class FileInfo {
     }
 
     final String getTimestamp() {
-        return String.format("[%x]", entry.lastModified().truncatedTo(ChronoUnit.SECONDS).toEpochMilli());
+        return String.format("[%s]", dating.timestamp(entry));
     }
 
     final String getLastModifiedYear() {
