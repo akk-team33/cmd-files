@@ -1,5 +1,7 @@
 package de.team33.cmd.files.main.moving;
 
+import de.team33.cmd.files.main.common.HashId;
+import de.team33.cmd.files.main.common.TimeId;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.lazy.narvi.Lazy;
 
@@ -30,7 +32,7 @@ class FileInfo {
         this.fileName = Lazy.init(() -> (dotIndex < 0) ? fullName : fullName.substring(0, dotIndex));
         this.extension = Lazy.init(() -> (dotIndex < 0) ? "" : fullName.substring(dotIndex + 1));
         this.lastModified = Lazy.init(this::newLastModified);
-        this.hash = Lazy.init(() -> Hash.valueOf(entry.path()));
+        this.hash = Lazy.init(() -> HashId.valueOf(entry.path()));
         this.timeId = Lazy.init(() -> TimeId.valueOf(entry));
     }
 
