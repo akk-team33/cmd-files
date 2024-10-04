@@ -1,6 +1,6 @@
 %s : DIRECTORY {
     left : DIRECTORY {
-        (deduped).txt : REGULAR (1.250, 2024-01-01T00:00:00Z);
+        (deduped-post).txt : REGULAR (1.025, 2024-01-01T00:00:00Z);
         de : DIRECTORY {
             team33 : DIRECTORY {
                 cmd : DIRECTORY {
@@ -57,6 +57,37 @@
                     cmd : DIRECTORY {
                         files : DIRECTORY {
                             main : DIRECTORY {
+                                copying : DIRECTORY {};
+                                finder : DIRECTORY {
+                                    Pattern.java : REGULAR (1.439, 2024-09-24T10:11:44Z);
+                                };
+                                job : DIRECTORY {
+                                    Copying.java : REGULAR (4.633, 2024-09-24T10:12:34Z);
+                                    Keeping.java : REGULAR (4.196, 2024-09-24T10:12:34Z);
+                                };
+                                shared : DIRECTORY {};
+                            };
+                        };
+                    };
+                    patterns : DIRECTORY {
+                        enums : DIRECTORY {
+                            alpha : DIRECTORY {};
+                        };
+                        io : DIRECTORY {
+                            alpha : DIRECTORY {};
+                        };
+                    };
+                };
+            };
+        };
+    };
+    left.(dupes) : DIRECTORY {
+        right : DIRECTORY {
+            de : DIRECTORY {
+                team33 : DIRECTORY {
+                    cmd : DIRECTORY {
+                        files : DIRECTORY {
+                            main : DIRECTORY {
                                 Main.java : REGULAR (631, 2024-09-21T14:01:51Z);
                                 copying : DIRECTORY {
                                     Relative.java : REGULAR (69, 2024-09-24T10:02:42Z);
@@ -64,20 +95,18 @@
                                 finder : DIRECTORY {
                                     CaseSensitivity.java : REGULAR (1.093, 2024-09-21T14:01:51Z);
                                     Method.java : REGULAR (959, 2024-09-21T14:01:51Z);
-                                    Pattern.java : REGULAR (1.439, 2024-09-24T10:11:44Z);
                                     WildcardString.java : REGULAR (1.335, 2024-09-21T14:01:51Z);
                                 };
                                 job : DIRECTORY {
                                     About.java : REGULAR (488, 2024-09-21T14:01:51Z);
-                                    Copying.java : REGULAR (4.633, 2024-09-24T10:12:34Z);
                                     DirFinder.java : REGULAR (3.152, 2024-09-24T09:41:21Z);
                                     Finder.java : REGULAR (2.826, 2024-09-24T09:41:21Z);
-                                    Keeping.java : REGULAR (4.196, 2024-09-24T10:12:34Z);
                                     Listing.java : REGULAR (3.113, 2024-09-21T14:01:51Z);
                                     Regulary.java : REGULAR (2.712, 2024-09-24T09:41:21Z);
                                     Util.java : REGULAR (674, 2024-09-21T14:01:51Z);
                                 };
                                 shared : DIRECTORY {
+                                    FileType.java : REGULAR (3.768, 2024-09-21T14:01:51Z);
                                     Output.java : REGULAR (700, 2024-09-21T14:01:51Z);
                                     RequestException.java : REGULAR (726, 2024-09-21T14:01:51Z);
                                 };
@@ -92,33 +121,10 @@
                         };
                         io : DIRECTORY {
                             alpha : DIRECTORY {
-                                FileIndex.java : REGULAR (1.853, 2024-09-21T14:01:51Z);
-                                FileType.java : REGULAR (1.232, 2024-09-21T14:01:51Z);
-                            };
-                        };
-                    };
-                };
-            };
-        };
-    };
-    left.(dupes) : DIRECTORY {
-        right : DIRECTORY {
-            de : DIRECTORY {
-                team33 : DIRECTORY {
-                    cmd : DIRECTORY {
-                        files : DIRECTORY {
-                            main : DIRECTORY {
-                                shared : DIRECTORY {
-                                    FileType.java : REGULAR (3.768, 2024-09-21T14:01:51Z);
-                                };
-                            };
-                        };
-                    };
-                    patterns : DIRECTORY {
-                        io : DIRECTORY {
-                            alpha : DIRECTORY {
                                 FileEntry.java : REGULAR (9.954, 2024-09-23T14:23:50Z);
+                                FileIndex.java : REGULAR (1.853, 2024-09-21T14:01:51Z);
                                 FilePolicy.java : REGULAR (390, 2024-09-21T14:01:51Z);
+                                FileType.java : REGULAR (1.232, 2024-09-21T14:01:51Z);
                             };
                         };
                     };

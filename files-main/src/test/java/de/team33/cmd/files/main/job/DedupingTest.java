@@ -28,8 +28,9 @@ class DedupingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(DedupingTest.class, "MovingTest-dedupe.txt"), testID());
 
         Deduping.job(Output.SYSTEM, Arrays.asList("files", "dedupe", leftPath().toString())).run();
+        Deduping.job(Output.SYSTEM, Arrays.asList("files", "dedupe", leftPath().toString())).run();
 
-        Files.setLastModifiedTime(leftPath().resolve("(deduped).txt"), REPRODUCIBLE);
+        Files.setLastModifiedTime(leftPath().resolve("(deduped-post).txt"), REPRODUCIBLE);
         assertEquals(expected, FileInfo.of(testPath()).toString());
     }
 }

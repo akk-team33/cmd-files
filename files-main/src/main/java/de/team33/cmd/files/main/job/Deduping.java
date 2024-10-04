@@ -3,7 +3,6 @@ package de.team33.cmd.files.main.job;
 import de.team33.cmd.files.main.common.HashId;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
-import de.team33.cmd.files.main.common.TimeId;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
@@ -15,7 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
@@ -27,46 +28,46 @@ class Deduping implements Runnable {
     static final String EXCERPT = "Relocate duplicated files located in a given directory.";
     private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
+    private final Stats stats = new Stats();
     private final Set<Path> createDir = new HashSet<>();
+    private final Set<String> index;
     private final Output out;
     private final Path mainPath;
     private final Path doubletPath;
-    private final Path indexPath;
-    private final Map<String, Entry> index;
+    private final Path prevIndexPath;
+    private final Path postIndexPath;
 
     private Deduping(final Output out, final Path path) {
         this.out = out;
         this.mainPath = path.toAbsolutePath().normalize();
         this.doubletPath = Paths.get(trash(mainPath));
-        this.indexPath = mainPath.resolve("(deduped).txt");
-
-        this.index = readIndex(indexPath);
+        this.prevIndexPath = mainPath.resolve("(deduped-prev).txt");
+        this.postIndexPath = mainPath.resolve("(deduped-post).txt");
+        this.index = readIndex(prevIndexPath);
     }
 
-    private static Map<String, Entry> readIndex(final Path indexPath) {
+    private static Set<String> readIndex(final Path indexPath) {
         try {
             return Files.readAllLines(indexPath, StandardCharsets.UTF_8)
                         .stream()
                         .map(Entry::parse)
-                        .collect(HashMap::new, (map, entry) -> map.put(entry.hash, entry), Map::putAll);
+                        .collect(HashSet::new, HashSet::add, Set::addAll);
         } catch (final IOException ignored) {
-            return new HashMap<>();
+            return new HashSet<>();
         }
     }
 
     private void writeIndex() {
-        try (final BufferedWriter writer = Files.newBufferedWriter(indexPath,
+        try (final BufferedWriter writer = Files.newBufferedWriter(postIndexPath,
                                                                    StandardOpenOption.CREATE,
                                                                    StandardOpenOption.TRUNCATE_EXISTING)) {
-            for (final Entry entry : index.values()) {
-                writer.append(entry.hash)
-                      .append(Entry.SEPARATOR)
-                      .append(entry.time);
+            for (final String value : index) {
+                writer.append(value);
                 writer.newLine();
             }
             writer.flush();
         } catch (final IOException e) {
-            throw new IllegalStateException("could not write index <" + indexPath + ">", e);
+            throw new IllegalStateException("could not write index <" + postIndexPath + ">", e);
         }
     }
 
@@ -86,15 +87,25 @@ class Deduping implements Runnable {
 
     @Override
     public final void run() {
+        stats.reset();
+        out.printf("%s ...%n", mainPath);
         FileIndex.of(mainPath, POLICY)
                  .skipPath(doubletPath::equals)
                  .entries()
+                 .peek(stats::incExamined)
                  .filter(FileEntry::isRegularFile)
-                 .filter(not(entry -> indexPath.equals(entry.path())))
+                 .filter(not(entry -> prevIndexPath.equals(entry.path())))
+                 .filter(not(entry -> postIndexPath.equals(entry.path())))
                  .filter(not(this::isUnique))
                  .map(FileEntry::path)
                  .forEach(this::move);
         writeIndex();
+        out.printf("%n" +
+                           "%,12d directories and a total of%n" +
+                           "%,12d entries examined.%n%n" +
+                           "%,12d files moved to %s%n" +
+                           "%,12d movements failed%n%n",
+                   stats.directories, stats.examined, stats.moved, mainPath.relativize(doubletPath), stats.failed);
     }
 
     private void move(final Path path) {
@@ -109,33 +120,58 @@ class Deduping implements Runnable {
             }
             Files.move(path, newPath);
             out.printf("moved%n");
+            stats.incMoved();
         } catch (final IOException e) {
             out.printf("failed:%n" +
                        "    Message   : %s%n" +
                        "    Exception : %s%n", e.getMessage(), e.getClass().getCanonicalName());
-            //stats.incMoveFailed();
+            stats.incFailed();
         }
     }
 
     private boolean isUnique(final FileEntry entry) {
         final String hashId = HashId.coreValueOf(entry.path());
-        final String timeId = TimeId.coreValueOf(entry);
-        if (index.containsKey(hashId)) {
-            return index.get(hashId).time.equals(timeId);
-        } else {
-            index.put(hashId, new Entry(hashId, timeId));
-            return true;
-        }
+        return index.add(hashId);
     }
 
-    private record Entry(String hash, String time) {
+    private static class Entry {
 
         static final String SEPARATOR = ":";
         static final Pattern PATTERN = Pattern.compile(Pattern.quote(SEPARATOR));
 
-        static Entry parse(final String entry) {
+        static String parse(final String entry) {
             final String[] split = PATTERN.split(entry);
-            return new Entry(split[0], split[1]);
+            return split[0];
+        }
+    }
+
+    private static class Stats {
+
+        private int examined;
+        private int directories;
+        private int moved;
+        private int failed;
+
+        final void reset() {
+            examined = 0;
+            directories = 0;
+            moved = 0;
+            failed = 0;
+        }
+
+        private void incExamined(final FileEntry entry) {
+            this.examined += 1;
+            if (entry.isDirectory()) {
+                this.directories += 1;
+            }
+        }
+
+        private void incMoved() {
+            this.moved += 1;
+        }
+
+        private void incFailed() {
+            this.failed += 1;
         }
     }
 }
