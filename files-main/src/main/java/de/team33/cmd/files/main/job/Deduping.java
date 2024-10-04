@@ -4,6 +4,7 @@ import de.team33.cmd.files.main.cleaning.DirDeletion;
 import de.team33.cmd.files.main.common.HashId;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
+import de.team33.cmd.files.main.moving.Guard;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
@@ -43,8 +44,8 @@ class Deduping implements Runnable {
         this.out = out;
         this.mainPath = path.toAbsolutePath().normalize();
         this.doubletPath = Paths.get(trash(mainPath));
-        this.prevIndexPath = mainPath.resolve("(deduped-prev).txt");
-        this.postIndexPath = mainPath.resolve("(deduped-post).txt");
+        this.prevIndexPath = mainPath.resolve(Guard.DEDUPED_PREV);
+        this.postIndexPath = mainPath.resolve(Guard.DEDUPED_POST);
         this.index = readIndex(prevIndexPath);
         this.deletion = new DirDeletion(out, mainPath, stats);
     }
@@ -97,8 +98,7 @@ class Deduping implements Runnable {
                  .entries()
                  .peek(stats::incExamined)
                  .filter(FileEntry::isRegularFile)
-                 .filter(not(entry -> prevIndexPath.equals(entry.path())))
-                 .filter(not(entry -> postIndexPath.equals(entry.path())))
+                 .filter(Guard::unprotected)
                  .filter(not(this::isUnique))
                  .map(FileEntry::path)
                  .forEach(this::move);

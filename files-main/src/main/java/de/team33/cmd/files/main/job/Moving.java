@@ -3,6 +3,7 @@ package de.team33.cmd.files.main.job;
 import de.team33.cmd.files.main.cleaning.DirDeletion;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
+import de.team33.cmd.files.main.moving.Guard;
 import de.team33.cmd.files.main.moving.Resolver;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
@@ -86,6 +87,7 @@ class Moving implements Runnable {
     public void run() {
         stats.reset();
         stream().filter(FileEntry::isRegularFile)
+                .filter(Guard::unprotected)
                 .forEach(this::move);
         deletion.clean(list());
         out.printf("%n" +
