@@ -22,7 +22,7 @@ class Comparing implements Runnable {
     private final Output out;
     private final Path source;
     private final Path target;
-    // private final Map<String, Exception> problems = new TreeMap<>();
+    private final Stats stats = new Stats();
 
     private Comparing(final Output out, final Path source, final Path target) {
         this.out = out;
@@ -41,8 +41,6 @@ class Comparing implements Runnable {
         }
         throw RequestException.format(Listing.class, "Comparing.txt", cmdLine(args), cmdName(args));
     }
-
-    private final Stats stats = new Stats();
 
     @Override
     public final void run() {

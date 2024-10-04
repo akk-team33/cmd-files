@@ -14,7 +14,7 @@ public class RequestException extends Exception {
 
     public static RequestException format(final Class<?> referringClass,
                                           final String resourceName,
-                                          final Object ... args) {
+                                          final Object... args) {
         return new RequestException(String.format(TextIO.read(referringClass, resourceName), args));
     }
 }

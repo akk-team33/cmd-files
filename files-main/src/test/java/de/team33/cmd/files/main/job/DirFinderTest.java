@@ -21,7 +21,7 @@ class DirFinderTest extends ModifyingTestBase {
     @Test
     final void run_java() throws RequestException, IOException {
         final Runnable job = DirFinder.job(Output.SYSTEM,
-                                        Arrays.asList("files", "findir", "*.java", leftPath().toString()));
+                                           Arrays.asList("files", "findir", "*.java", leftPath().toString()));
         final String result = Redirected.outputOf(job::run)
                                         .replace(leftPath().toString(), "[PATH]");
         assertEquals(TextIO.read(DirFinderTest.class, "DirFinderTest-run_java.txt"), result);
@@ -30,7 +30,7 @@ class DirFinderTest extends ModifyingTestBase {
     @Test
     final void run_56() throws RequestException, IOException {
         final Runnable job = DirFinder.job(Output.SYSTEM,
-                                        Arrays.asList("files", "findir", "rx:.{5,6}", leftPath().toString()));
+                                           Arrays.asList("files", "findir", "rx:.{5,6}", leftPath().toString()));
         final String result = Redirected.outputOf(job::run)
                                         .replace(leftPath().toString(), "[PATH]");
         assertEquals(TextIO.read(DirFinderTest.class, "DirFinderTest-run_56.txt"), result);

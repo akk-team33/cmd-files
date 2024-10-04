@@ -12,13 +12,10 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import static de.team33.cmd.files.main.job.Util.cmdLine;
 import static de.team33.cmd.files.main.job.Util.cmdName;
-import static java.util.Objects.requireNonNullElse;
 
 class DirFinder implements Runnable {
 

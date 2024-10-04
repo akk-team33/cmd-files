@@ -22,7 +22,7 @@ import static java.util.function.Predicate.not;
 class Keeping implements Runnable {
 
     static final String EXCERPT = "Compare files of different types and strike a balance " +
-                                         "based on their file names.";
+                                  "based on their file names.";
 
     private final Output out;
     private final Set<Path> toBeMoved;
@@ -82,6 +82,11 @@ class Keeping implements Runnable {
         }
     }
 
+    private static boolean isMatching(final FileEntry entry, final Set<String> names) {
+        return names.stream()
+                    .anyMatch(name -> entry.name().startsWith(name));
+    }
+
     @Override
     public final void run() {
         toBeMoved.forEach(this::move);
@@ -99,10 +104,5 @@ class Keeping implements Runnable {
             out.printf(" failed%n");
             throw new IllegalStateException(e.getMessage(), e);
         }
-    }
-
-    private static boolean isMatching(final FileEntry entry, final Set<String> names) {
-        return names.stream()
-                    .anyMatch(name -> entry.name().startsWith(name));
     }
 }

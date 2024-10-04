@@ -39,8 +39,8 @@ public class DirDeletion {
             return true;
         } catch (final IOException e) {
             out.printf("failed:%n" +
-                               "    Message   : %s%n" +
-                               "    Exception : %s%n", e.getMessage(), e.getClass().getCanonicalName());
+                       "    Message   : %s%n" +
+                       "    Exception : %s%n", e.getMessage(), e.getClass().getCanonicalName());
             stats.incDeleteFailed();
             return false;
         }

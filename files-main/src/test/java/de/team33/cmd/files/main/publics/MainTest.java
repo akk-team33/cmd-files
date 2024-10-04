@@ -1,7 +1,7 @@
 package de.team33.cmd.files.main.publics;
 
-import de.team33.cmd.files.main.job.Regular;
 import de.team33.cmd.files.main.Main;
+import de.team33.cmd.files.main.job.Regular;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.stdio.ersa.Redirected;
 import org.junit.jupiter.api.Test;

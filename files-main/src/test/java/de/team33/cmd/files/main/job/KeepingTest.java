@@ -44,7 +44,8 @@ class KeepingTest {
         final String path1 = keepingPath.toString();
         final String path2 = keepingPath.toString() + ".moved";
         ZipIO.unzip(Main.class, "zips/keeping.zip", keepingPath);
-        Keeping.job(((format, args) -> {}), Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
+        Keeping.job(((format, args) -> {
+        }), Arrays.asList("files", "keep", path1, "none", "tif,tiff")).run();
 
         Keeping.job(MUTE, Arrays.asList("files", "keep", path1, "jpg,jpe,jpeg", path2, "tif,tiff")).run();
 

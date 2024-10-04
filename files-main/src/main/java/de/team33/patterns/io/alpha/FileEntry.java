@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Comparator.*;
+import static java.util.Comparator.comparing;
 
 /**
  * Represents an entry from the virtual file index.
@@ -150,6 +150,21 @@ public abstract class FileEntry {
     @Override
     public final String toString() {
         return path.toString();
+    }
+
+    private enum Normality {
+        UNKNOWN(path -> path.toAbsolutePath().normalize()),
+        NORMAL(Function.identity());
+
+        private final Function<Path, Path> toNormal;
+
+        Normality(Function<Path, Path> toNormal) {
+            this.toNormal = toNormal;
+        }
+
+        final Path of(final Path path) {
+            return toNormal.apply(path);
+        }
     }
 
     private static class NoDirectory extends Existing {
@@ -308,21 +323,6 @@ public abstract class FileEntry {
         @Override
         public final List<FileEntry> entries() {
             throw new UnsupportedOperationException("not existing: " + path(), cause);
-        }
-    }
-
-    private enum Normality {
-        UNKNOWN(path -> path.toAbsolutePath().normalize()),
-        NORMAL(Function.identity());
-
-        private final Function<Path, Path> toNormal;
-
-        Normality(Function<Path, Path> toNormal) {
-            this.toNormal = toNormal;
-        }
-
-        final Path of(final Path path) {
-            return toNormal.apply(path);
         }
     }
 }

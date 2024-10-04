@@ -60,20 +60,6 @@ class Deduping implements Runnable {
         }
     }
 
-    private void writeIndex() {
-        try (final BufferedWriter writer = Files.newBufferedWriter(postIndexPath,
-                                                                   StandardOpenOption.CREATE,
-                                                                   StandardOpenOption.TRUNCATE_EXISTING)) {
-            for (final String value : index) {
-                writer.append(value);
-                writer.newLine();
-            }
-            writer.flush();
-        } catch (final IOException e) {
-            throw new IllegalStateException("could not write index <" + postIndexPath + ">", e);
-        }
-    }
-
     private static String trash(final Path path) {
         return path + ".(dupes)";
     }
@@ -86,6 +72,20 @@ class Deduping implements Runnable {
             return new Deduping(out, Path.of(args.get(2)));
         }
         throw RequestException.format(Moving.class, "Deduping.txt", cmdLine(args), cmdName(args));
+    }
+
+    private void writeIndex() {
+        try (final BufferedWriter writer = Files.newBufferedWriter(postIndexPath,
+                                                                   StandardOpenOption.CREATE,
+                                                                   StandardOpenOption.TRUNCATE_EXISTING)) {
+            for (final String value : index) {
+                writer.append(value);
+                writer.newLine();
+            }
+            writer.flush();
+        } catch (final IOException e) {
+            throw new IllegalStateException("could not write index <" + postIndexPath + ">", e);
+        }
     }
 
     @Override

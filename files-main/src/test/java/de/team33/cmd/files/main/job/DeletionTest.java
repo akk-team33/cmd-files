@@ -1,6 +1,5 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.cmd.files.main.testing.ModifyingTestBase;
 import de.team33.patterns.io.deimos.TextIO;

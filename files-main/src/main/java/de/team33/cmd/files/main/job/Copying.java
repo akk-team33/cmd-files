@@ -35,7 +35,8 @@ class Copying implements Runnable {
     private final Set<Strategy> strategies;
     private final Path source;
     private final Path target;
-    // private final Map<String, Exception> problems = new TreeMap<>();
+    private final Stats stats = new Stats();
+    private final Set<Path> targetDirs = new HashSet<>();
 
     private Copying(final Output out, final Set<Strategy> strategies, final Path source, final Path target) {
         this.out = out;
@@ -56,8 +57,6 @@ class Copying implements Runnable {
         }
         throw RequestException.format(Copying.class, "Copying.txt", cmdLine(args), cmdName(args));
     }
-
-    private final Stats stats = new Stats();
 
     @Override
     public final void run() {
@@ -113,12 +112,10 @@ class Copying implements Runnable {
         } catch (final IOException e) {
             //problems.put(relative.path(), e);
             return String.format("failed deletion:%n" +
-                                         "    Message   : %s%n" +
-                                         "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
+                                 "    Message   : %s%n" +
+                                 "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
         }
     }
-
-    private final Set<Path> targetDirs = new HashSet<>();
 
     private String copy(final Relative relative, final String okText) {
         try {
@@ -132,13 +129,9 @@ class Copying implements Runnable {
         } catch (final IOException e) {
             //problems.put(relative.path(), e);
             return String.format("failed copying:%n" +
-                                         "    Message   : %s%n" +
-                                         "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
+                                 "    Message   : %s%n" +
+                                 "    Exception : %s", e.getMessage(), e.getClass().getCanonicalName());
         }
-    }
-
-    private interface Action {
-        String run(Relative relative);
     }
 
     private enum Strategy {
@@ -172,6 +165,10 @@ class Copying implements Runnable {
         private boolean supports(final State state) {
             return supported.contains(state);
         }
+    }
+
+    private interface Action {
+        String run(Relative relative);
     }
 
     private static class Stats {
