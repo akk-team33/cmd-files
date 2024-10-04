@@ -13,13 +13,9 @@ public class LazyHashing implements FileHashing {
     private final FileHashing backing;
     private final Pattern pattern;
 
-    private LazyHashing(final String prefix, final FileHashing backing) {
+    public LazyHashing(final String prefix, final FileHashing backing) {
         this.backing = backing;
         this.pattern = Pattern.compile(format(PATTERN_FORMAT, prefix, backing.resultLength()));
-    }
-
-    public static LazyHashing of(final FileHashing backing) {
-        return new LazyHashing("#", backing);
     }
 
     @Override

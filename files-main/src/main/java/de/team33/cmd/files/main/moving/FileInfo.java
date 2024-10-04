@@ -24,7 +24,6 @@ class FileInfo {
     private final Lazy<String> extension;
     private final Lazy<LocalDateTime> lastModified;
     private final Lazy<String> hash;
-    private final FileHashing hashing = LazyHashing.of(StrictHashing.SHA_1);
     private final FileDating dating = LazyDating.of("[");
 
     FileInfo(final Path cwd, final FileEntry entry) {
@@ -37,11 +36,7 @@ class FileInfo {
         this.fileName = Lazy.init(() -> (dotIndex < 0) ? fullName : fullName.substring(0, dotIndex));
         this.extension = Lazy.init(() -> (dotIndex < 0) ? "" : fullName.substring(dotIndex + 1));
         this.lastModified = Lazy.init(this::newLastModified);
-        this.hash = Lazy.init(this::newHash);
-    }
-
-    private String newHash() {
-        return hashing.hash(entry.path());
+        this.hash = Lazy.init(() -> Hash.valueOf(entry.path()));
     }
 
     private LocalDateTime newLastModified() {
@@ -93,7 +88,7 @@ class FileInfo {
     }
 
     final String getHash() {
-        return "#" + hash.get();
+        return hash.get();
     }
 
     final String getRelativePath() {
