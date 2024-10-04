@@ -21,7 +21,7 @@ enum Rule {
     PARENT_DIR("@p"::equals, rule -> FileInfo::getParentDir),
     REL_PATH("@R"::equals, rule -> FileInfo::getRelativePath),
     HASH("@#"::equals, rule -> FileInfo::getHash),
-    TIMESTAMP("@!"::equals, rule -> FileInfo::getTimestamp),
+    TIMESTAMP("@!"::equals, rule -> FileInfo::getTimeId),
     AT("@@"::equals, rule -> fileInfo -> "@"),
     PLAIN(not(rule -> rule.startsWith("@")), rule -> fileInfo -> rule);
 

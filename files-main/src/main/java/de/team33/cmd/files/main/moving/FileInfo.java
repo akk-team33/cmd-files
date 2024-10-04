@@ -2,16 +2,10 @@ package de.team33.cmd.files.main.moving;
 
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.lazy.narvi.Lazy;
-import de.team33.tools.io.FileDating;
-import de.team33.tools.io.FileHashing;
-import de.team33.tools.io.LazyDating;
-import de.team33.tools.io.LazyHashing;
-import de.team33.tools.io.StrictHashing;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 
 class FileInfo {
 
@@ -24,7 +18,7 @@ class FileInfo {
     private final Lazy<String> extension;
     private final Lazy<LocalDateTime> lastModified;
     private final Lazy<String> hash;
-    private final FileDating dating = LazyDating.of("[");
+    private final Lazy<String> timeId;
 
     FileInfo(final Path cwd, final FileEntry entry) {
         this.entry = entry;
@@ -37,14 +31,11 @@ class FileInfo {
         this.extension = Lazy.init(() -> (dotIndex < 0) ? "" : fullName.substring(dotIndex + 1));
         this.lastModified = Lazy.init(this::newLastModified);
         this.hash = Lazy.init(() -> Hash.valueOf(entry.path()));
+        this.timeId = Lazy.init(() -> TimeId.valueOf(entry));
     }
 
     private LocalDateTime newLastModified() {
         return LocalDateTime.ofInstant(entry.lastModified(), ZoneId.systemDefault());
-    }
-
-    final String getTimestamp() {
-        return String.format("[%s]", dating.timestamp(entry));
     }
 
     final String getLastModifiedYear() {
@@ -89,6 +80,10 @@ class FileInfo {
 
     final String getHash() {
         return hash.get();
+    }
+
+    final String getTimeId() {
+        return timeId.get();
     }
 
     final String getRelativePath() {
