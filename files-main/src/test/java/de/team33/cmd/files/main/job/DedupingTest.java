@@ -25,7 +25,7 @@ class DedupingTest extends ModifyingTestBase {
 
     @Test
     final void dedupe() throws RequestException, IOException {
-        final String expected = String.format(TextIO.read(DedupingTest.class, "MovingTest-dedupe.txt"), testID());
+        final String expected = String.format(TextIO.read(DedupingTest.class, "DedupingTest-dedupe.txt"), testID());
 
         Deduping.job(Output.SYSTEM, Arrays.asList("files", "dedupe", leftPath().toString())).run();
         Deduping.job(Output.SYSTEM, Arrays.asList("files", "dedupe", leftPath().toString())).run();
