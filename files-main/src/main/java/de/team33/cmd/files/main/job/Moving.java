@@ -1,5 +1,6 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.cleaning.Deletion;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.cmd.files.main.moving.Resolver;
@@ -28,7 +29,8 @@ class Moving implements Runnable {
     private final Mode mode;
     private final Path mainPath;
     private final Resolver resolver;
-    private final Stats stats = new Stats();
+    private final Stats stats;
+    private final Deletion deletion;
 
     private Moving(final Output out, final Mode mode, final Path mainPath,
                    final Resolver resolver) {
@@ -36,6 +38,8 @@ class Moving implements Runnable {
         this.mode = mode;
         this.mainPath = mainPath;
         this.resolver = resolver;
+        this.stats = new Stats();
+        this.deletion = new Deletion(out, mainPath, stats);
     }
 
     static Moving job(final Output out, final List<String> args) throws RequestException {
@@ -83,13 +87,14 @@ class Moving implements Runnable {
         stats.reset();
         stream().filter(FileEntry::isRegularFile)
                 .forEach(this::move);
-        clean(list());
+        Deletion.with(stats)
+                .clean(list());
         out.printf("%n" +
-                           "%12d files moved%n" +
-                           "%12d files skipped%n" +
-                           "%12d moves failed%n%n" +
-                           "%12d empty directories deleted%n" +
-                           "%12d deletions failed%n%n",
+                   "%12d files moved%n" +
+                   "%12d files skipped%n" +
+                   "%12d moves failed%n%n" +
+                   "%12d empty directories deleted%n" +
+                   "%12d deletions failed%n%n",
                    stats.moved, stats.skipped, stats.moveFailed, stats.deleted, stats.deleteFailed);
     }
 
@@ -152,7 +157,7 @@ class Moving implements Runnable {
         DEEP;
     }
 
-    private static class Stats {
+    private static class Stats implements Deletion.Stats {
 
         private int skipped;
         private int moved;
