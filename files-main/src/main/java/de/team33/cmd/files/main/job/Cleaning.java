@@ -1,13 +1,12 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.cleaning.Deletion;
 import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FilePolicy;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -19,13 +18,15 @@ class Cleaning implements Runnable {
     static final String EXCERPT = "Remove empty directories within given directories.";
     private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
+    private final Stats stats = new Stats();
     private final Output out;
     private final List<FileEntry> entries;
-    private final Stats stats = new Stats();
+    private final Deletion deletion;
 
     private Cleaning(final Output out, final List<FileEntry> entries) {
         this.out = out;
         this.entries = entries;
+        this.deletion = new Deletion(out, Path.of(".").toAbsolutePath().normalize(), stats);
     }
 
     public static Cleaning job(final Output out, final List<String> args) throws RequestException {
@@ -46,7 +47,7 @@ class Cleaning implements Runnable {
     @Override
     public final void run() {
         stats.reset();
-        clean(entries);
+        deletion.clean(entries);
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +
@@ -55,35 +56,7 @@ class Cleaning implements Runnable {
                    stats.totalDirs.value(), stats.total.value(), stats.deleted.value(), stats.failed.value());
     }
 
-    private boolean clean(final List<FileEntry> entries) {
-        return entries.stream()
-                      .map(this::clean)
-                      .reduce(true, Boolean::logicalAnd);
-    }
-
-    private boolean clean(final FileEntry entry) {
-        stats.addTotal(entry);
-        if (entry.isDirectory() && clean(entry.entries())) {
-            final Path path = entry.path();
-            out.printf("%s ...", path);
-            try {
-                Files.delete(path);
-                out.printf(" deleted%n");
-                stats.addDeleted();
-                return true;
-            } catch (final IOException e) {
-                out.printf(" failed:%n" +
-                           "    Message: %s%n" +
-                           "    Exception: %s%n", e.getMessage(), e.getClass().getCanonicalName());
-                stats.addFailed();
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    private static class Stats {
+    private static class Stats implements Deletion.Stats {
 
         private final Counter total = new Counter();
         private final Counter totalDirs = new Counter();
@@ -104,11 +77,13 @@ class Cleaning implements Runnable {
             }
         }
 
-        final void addDeleted() {
+        @Override
+        public void incDeleted() {
             deleted.increment();
         }
 
-        final void addFailed() {
+        @Override
+        public void incDeleteFailed() {
             failed.increment();
         }
     }
