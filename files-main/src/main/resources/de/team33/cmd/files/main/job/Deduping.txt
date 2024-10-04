@@ -1,0 +1,15 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    %2$s dedupe PATH
+
+    ... to relocate all duplicated regular files located in a given
+    processing directory. Files located in subdirectories are also processed.
+    TODO?: Empty subdirectories will finally be removed (see CLEAN).
+
+Parameters:
+
+    PATH - A path to the processing directory.

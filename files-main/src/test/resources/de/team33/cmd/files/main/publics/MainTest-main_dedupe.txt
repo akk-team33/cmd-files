@@ -1,0 +1,18 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest dedupe
+
+Expected request scheme:
+
+    MainTest dedupe PATH
+
+    ... to relocate all duplicated regular files located in a given
+    processing directory. Files located in subdirectories are also processed.
+    TODO?: Empty subdirectories will finally be removed (see CLEAN).
+
+Parameters:
+
+    PATH - A path to the processing directory.%n%n
