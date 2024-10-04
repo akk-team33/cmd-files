@@ -1,6 +1,5 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.cmd.files.main.testing.ModifyingTestBase;
 import de.team33.patterns.io.deimos.TextIO;
@@ -21,7 +20,7 @@ class MovingTest extends ModifyingTestBase {
     final void move_PYMDF() throws RequestException {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_PYMDF.txt"), testID());
 
-        Moving.job(Output.SYSTEM,
+        Moving.job(MUTE,
                    Arrays.asList("files", "move", "-r", leftPath().toString(), "../@P.moved/@Y/@M/@D/@F"))
               .run();
 
@@ -32,7 +31,7 @@ class MovingTest extends ModifyingTestBase {
     final void move_RpNX() throws RequestException {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_RpNX.txt"), testID());
 
-        Moving.job(Output.SYSTEM,
+        Moving.job(MUTE,
                    Arrays.asList("files", "move", "-r", leftPath().toString(), "@R/../@p-@N.@X"))
               .run();
 
@@ -44,7 +43,7 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_hms_hash_X.txt"),
                                               testID());
 
-        Moving.job(Output.SYSTEM,
+        Moving.job(MUTE,
                    Arrays.asList("files", "move", "-r", leftPath().toString(), "@h/@m/@s/@#.@X"))
               .run();
 
@@ -56,10 +55,10 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_R_hash_time_X.txt"),
                                               testID());
 
-        Moving.job(Output.SYSTEM,
+        Moving.job(MUTE,
                    Arrays.asList("files", "move", "-r", leftPath().toString(), "@R/@#@!.@X"))
               .run();
-        Moving.job(Output.SYSTEM,
+        Moving.job(MUTE,
                    Arrays.asList("files", "move", "-r", leftPath().toString(), "@R/@#@!.@X"))
               .run();
 
@@ -71,7 +70,7 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_RF.txt"),
                                               testID());
 
-        Moving.job(Output.SYSTEM,
+        Moving.job(MUTE,
                    Arrays.asList("files", "move", "-r", leftPath().toString(), "@R/@F"))
               .run();
 
@@ -83,7 +82,7 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_RF.txt"),
                                               testID());
 
-        Moving.job(Output.SYSTEM,
+        Moving.job(MUTE,
                    Arrays.asList("files", "move", leftPath().toString(), "@Y/@M/@D/@#"))
               .run();
 
