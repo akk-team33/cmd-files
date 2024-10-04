@@ -1,6 +1,6 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.cleaning.Deletion;
+import de.team33.cmd.files.main.cleaning.DirDeletion;
 import de.team33.cmd.files.main.common.HashId;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
@@ -37,7 +37,7 @@ class Deduping implements Runnable {
     private final Path doubletPath;
     private final Path prevIndexPath;
     private final Path postIndexPath;
-    private final Deletion deletion;
+    private final DirDeletion deletion;
 
     private Deduping(final Output out, final Path path) {
         this.out = out;
@@ -46,7 +46,7 @@ class Deduping implements Runnable {
         this.prevIndexPath = mainPath.resolve("(deduped-prev).txt");
         this.postIndexPath = mainPath.resolve("(deduped-post).txt");
         this.index = readIndex(prevIndexPath);
-        this.deletion = new Deletion(out, mainPath, stats);
+        this.deletion = new DirDeletion(out, mainPath, stats);
     }
 
     private static Set<String> readIndex(final Path indexPath) {
@@ -153,7 +153,7 @@ class Deduping implements Runnable {
         }
     }
 
-    private static class Stats implements Deletion.Stats {
+    private static class Stats implements DirDeletion.Stats {
 
         private int examined;
         private int directories;

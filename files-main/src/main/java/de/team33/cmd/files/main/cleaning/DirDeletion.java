@@ -8,13 +8,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class Deletion {
+public class DirDeletion {
 
     private final Output out;
     private final Path mainPath;
     private final Stats stats;
 
-    public Deletion(final Output out, final Path mainPath, final Stats stats) {
+    public DirDeletion(final Output out, final Path mainPath, final Stats stats) {
         this.out = out;
         this.mainPath = mainPath;
         this.stats = stats;

@@ -1,6 +1,6 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.cleaning.Deletion;
+import de.team33.cmd.files.main.cleaning.DirDeletion;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
 import de.team33.cmd.files.main.moving.Resolver;
@@ -30,7 +30,7 @@ class Moving implements Runnable {
     private final Path mainPath;
     private final Resolver resolver;
     private final Stats stats;
-    private final Deletion deletion;
+    private final DirDeletion deletion;
 
     private Moving(final Output out, final Mode mode, final Path mainPath,
                    final Resolver resolver) {
@@ -39,7 +39,7 @@ class Moving implements Runnable {
         this.mainPath = mainPath;
         this.resolver = resolver;
         this.stats = new Stats();
-        this.deletion = new Deletion(out, mainPath, stats);
+        this.deletion = new DirDeletion(out, mainPath, stats);
     }
 
     static Moving job(final Output out, final List<String> args) throws RequestException {
@@ -130,7 +130,7 @@ class Moving implements Runnable {
         DEEP;
     }
 
-    private static class Stats implements Deletion.Stats {
+    private static class Stats implements DirDeletion.Stats {
 
         private int skipped;
         private int moved;

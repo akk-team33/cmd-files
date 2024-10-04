@@ -1,6 +1,6 @@
 package de.team33.cmd.files.main.job;
 
-import de.team33.cmd.files.main.cleaning.Deletion;
+import de.team33.cmd.files.main.cleaning.DirDeletion;
 import de.team33.cmd.files.main.common.Counter;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
@@ -21,12 +21,12 @@ class Cleaning implements Runnable {
     private final Stats stats = new Stats();
     private final Output out;
     private final List<FileEntry> entries;
-    private final Deletion deletion;
+    private final DirDeletion deletion;
 
     private Cleaning(final Output out, final List<FileEntry> entries) {
         this.out = out;
         this.entries = entries;
-        this.deletion = new Deletion(out, Path.of(".").toAbsolutePath().normalize(), stats);
+        this.deletion = new DirDeletion(out, Path.of(".").toAbsolutePath().normalize(), stats);
     }
 
     public static Cleaning job(final Output out, final List<String> args) throws RequestException {
@@ -56,7 +56,7 @@ class Cleaning implements Runnable {
                    stats.totalDirs.value(), stats.total.value(), stats.deleted.value(), stats.failed.value());
     }
 
-    private static class Stats implements Deletion.Stats {
+    private static class Stats implements DirDeletion.Stats {
 
         private final Counter total = new Counter();
         private final Counter totalDirs = new Counter();
