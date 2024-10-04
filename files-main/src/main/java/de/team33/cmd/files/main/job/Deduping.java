@@ -1,5 +1,6 @@
 package de.team33.cmd.files.main.job;
 
+import de.team33.cmd.files.main.cleaning.Deletion;
 import de.team33.cmd.files.main.common.HashId;
 import de.team33.cmd.files.main.common.Output;
 import de.team33.cmd.files.main.common.RequestException;
@@ -36,6 +37,7 @@ class Deduping implements Runnable {
     private final Path doubletPath;
     private final Path prevIndexPath;
     private final Path postIndexPath;
+    private final Deletion deletion;
 
     private Deduping(final Output out, final Path path) {
         this.out = out;
@@ -44,6 +46,7 @@ class Deduping implements Runnable {
         this.prevIndexPath = mainPath.resolve("(deduped-prev).txt");
         this.postIndexPath = mainPath.resolve("(deduped-post).txt");
         this.index = readIndex(prevIndexPath);
+        this.deletion = new Deletion(out, mainPath, stats);
     }
 
     private static Set<String> readIndex(final Path indexPath) {
@@ -100,12 +103,17 @@ class Deduping implements Runnable {
                  .map(FileEntry::path)
                  .forEach(this::move);
         writeIndex();
+        deletion.clean(FileEntry.of(mainPath, POLICY).entries());
         out.printf("%n" +
-                           "%,12d directories and a total of%n" +
-                           "%,12d entries examined.%n%n" +
-                           "%,12d files moved to %s%n" +
-                           "%,12d movements failed%n%n",
-                   stats.directories, stats.examined, stats.moved, mainPath.relativize(doubletPath), stats.failed);
+                   "%,12d directories and a total of%n" +
+                   "%,12d entries examined.%n%n" +
+                   "%,12d files moved to %s%n" +
+                   "%,12d movements failed%n" +
+                   "%,12d empty directories deleted%n" +
+                   "%,12d deletions failed%n%n",
+                   stats.directories, stats.examined,
+                   stats.moved, mainPath.relativize(doubletPath), stats.failed,
+                   stats.deletedDirs, stats.deletionFailed);
     }
 
     private void move(final Path path) {
@@ -145,18 +153,22 @@ class Deduping implements Runnable {
         }
     }
 
-    private static class Stats {
+    private static class Stats implements Deletion.Stats {
 
         private int examined;
         private int directories;
         private int moved;
         private int failed;
+        private int deletedDirs;
+        private int deletionFailed;
 
         final void reset() {
             examined = 0;
             directories = 0;
             moved = 0;
             failed = 0;
+            deletedDirs = 0;
+            deletionFailed = 0;
         }
 
         private void incExamined(final FileEntry entry) {
@@ -172,6 +184,16 @@ class Deduping implements Runnable {
 
         private void incFailed() {
             this.failed += 1;
+        }
+
+        @Override
+        public void incDeleted() {
+            this.deletedDirs += 1;
+        }
+
+        @Override
+        public void incDeleteFailed() {
+            this.deletionFailed += 1;
         }
     }
 }

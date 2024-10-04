@@ -57,7 +57,6 @@
                     cmd : DIRECTORY {
                         files : DIRECTORY {
                             main : DIRECTORY {
-                                copying : DIRECTORY {};
                                 finder : DIRECTORY {
                                     Pattern.java : REGULAR (1.439, 2024-09-24T10:11:44Z);
                                 };
@@ -65,16 +64,7 @@
                                     Copying.java : REGULAR (4.633, 2024-09-24T10:12:34Z);
                                     Keeping.java : REGULAR (4.196, 2024-09-24T10:12:34Z);
                                 };
-                                shared : DIRECTORY {};
                             };
-                        };
-                    };
-                    patterns : DIRECTORY {
-                        enums : DIRECTORY {
-                            alpha : DIRECTORY {};
-                        };
-                        io : DIRECTORY {
-                            alpha : DIRECTORY {};
                         };
                     };
                 };

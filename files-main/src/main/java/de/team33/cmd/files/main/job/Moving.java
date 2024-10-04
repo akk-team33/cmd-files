@@ -87,8 +87,7 @@ class Moving implements Runnable {
         stats.reset();
         stream().filter(FileEntry::isRegularFile)
                 .forEach(this::move);
-        Deletion.with(stats)
-                .clean(list());
+        deletion.clean(list());
         out.printf("%n" +
                    "%12d files moved%n" +
                    "%12d files skipped%n" +
@@ -96,32 +95,6 @@ class Moving implements Runnable {
                    "%12d empty directories deleted%n" +
                    "%12d deletions failed%n%n",
                    stats.moved, stats.skipped, stats.moveFailed, stats.deleted, stats.deleteFailed);
-    }
-
-    private boolean clean(final List<FileEntry> entries) {
-        return entries.stream()
-                      .map(this::clean)
-                      .reduce(true, Boolean::logicalAnd);
-    }
-
-    private boolean clean(final FileEntry entry) {
-        return entry.isDirectory() && clean(entry.entries()) && clean(entry.path());
-    }
-
-    private boolean clean(final Path path) {
-        out.printf("%s ... ", mainPath.relativize(path));
-        try {
-            Files.delete(path);
-            out.printf("deleted%n");
-            stats.incDeleted();
-            return true;
-        } catch (final IOException e) {
-            out.printf("failed:%n" +
-                       "    Message   : %s%n" +
-                       "    Exception : %s%n", e.getMessage(), e.getClass().getCanonicalName());
-            stats.incDeleteFailed();
-            return false;
-        }
     }
 
     private void move(final FileEntry entry) {
@@ -185,11 +158,11 @@ class Moving implements Runnable {
             this.moveFailed += 1;
         }
 
-        final void incDeleted() {
+        public final void incDeleted() {
             this.deleted += 1;
         }
 
-        final void incDeleteFailed() {
+        public final void incDeleteFailed() {
             this.deleteFailed += 1;
         }
     }
