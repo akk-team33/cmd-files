@@ -24,7 +24,6 @@ class Moving implements Runnable {
     private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
     private final Set<Path> createDir = new HashSet<>();
-
     private final Output out;
     private final Mode mode;
     private final Path mainPath;

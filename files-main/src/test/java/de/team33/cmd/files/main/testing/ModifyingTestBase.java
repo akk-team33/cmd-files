@@ -57,7 +57,7 @@ public abstract class ModifyingTestBase {
         testID = UUID.randomUUID().toString();
         testPath = normal.apply(Path.of("target", "testing", getClass().getSimpleName(), testID));
         leftPath = testPath.resolve("left");
-        rightPath = testPath.resolve("right");
+        rightPath = initMode.rightInLeft ? leftPath.resolve("right") : testPath.resolve("right");
 
         if (initMode.fillLeft) {
             ZipIO.unzip(Main.class, "zips/leftFiles.zip", leftPath);
@@ -72,13 +72,16 @@ public abstract class ModifyingTestBase {
     }
 
     public enum InitMode {
-        FILL_LEFT_ONLY(true, false),
-        FILL_BOTH(true, true);
+        RIGHT_IN_LEFT(true, true, true),
+        FILL_LEFT_ONLY(false, true, false),
+        FILL_BOTH(false, true, true);
 
         private final boolean fillLeft;
         private final boolean fillRight;
+        private final boolean rightInLeft;
 
-        InitMode(final boolean fillLeft, final boolean fillRight) {
+        InitMode(final boolean rightInLeft, final boolean fillLeft, final boolean fillRight) {
+            this.rightInLeft = rightInLeft;
             this.fillLeft = fillLeft;
             this.fillRight = fillRight;
         }

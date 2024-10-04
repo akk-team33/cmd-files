@@ -16,6 +16,6 @@ public class HashId {
     }
 
     public static String coreValueOf(final Path path) {
-        return PREFIX + CORE.hash(path);
+        return CORE.hash(path);
     }
 }

@@ -14,6 +14,6 @@ public class TimeId {
     }
 
     public static String coreValueOf(final FileEntry entry) {
-        return PREFIX + CORE.valueOf(entry) + POSTFIX;
+        return CORE.valueOf(entry);
     }
 }
