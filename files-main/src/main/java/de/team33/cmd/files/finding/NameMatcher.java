@@ -23,7 +23,7 @@ public class NameMatcher {
         } catch (final InternalException e) {
             final String message = TextIO.read(NameMatcher.class, "NameMatcher.txt")
                                          .formatted(pattern, e.getMessage());
-            throw new IllegalArgumentException(message);
+            throw new IllegalArgumentException(message, e);
         }
     }
 
