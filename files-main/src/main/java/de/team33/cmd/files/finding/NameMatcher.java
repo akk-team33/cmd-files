@@ -14,7 +14,10 @@ public class NameMatcher {
         this.pattern = sensitivity.toPattern(method.toRegEx(value));
     }
 
-    public static NameMatcher parse(final String pattern) {
+    /**
+     * @throws IllegalArgumentException if <em>pattern</em> is invalid.
+     */
+    public static NameMatcher parse(final String pattern) throws IllegalArgumentException {
         try {
             return parseEx(pattern);
         } catch (final InternalException e) {
@@ -25,7 +28,7 @@ public class NameMatcher {
     }
 
     private static NameMatcher parseEx(final String pattern) throws InternalException {
-        final String[] parts = pattern.split(":");
+        final String[] parts = pattern.split(":", -1);
         if (1 == parts.length) {
             return parseEx("", parts[0]);
         } else if (2 == parts.length) {
@@ -36,7 +39,7 @@ public class NameMatcher {
     }
 
     private static NameMatcher parseEx(final String head, final String tail) throws InternalException {
-        final String[] parts = head.split("/");
+        final String[] parts = head.split("/", -1);
         if (1 == parts.length) {
             return parseEx(parts[0], "", tail);
         } else if (2 == parts.length) {
