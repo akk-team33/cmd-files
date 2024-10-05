@@ -41,7 +41,7 @@
                             <archive>
                                 <manifest>
                                     <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                                    <mainClass>de.team33.cmd.files.main.Main</mainClass>
+                                    <mainClass>de.team33.cmd.files.Main</mainClass>
                                 </manifest>
                             </archive>
                             <descriptors>
