@@ -1,4 +1,4 @@
-package de.team33.cmd.files.finder;
+package de.team33.cmd.files.finding;
 
 import java.util.LinkedList;
 import java.util.List;

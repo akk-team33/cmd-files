@@ -1,4 +1,4 @@
-package de.team33.cmd.files.finder;
+package de.team33.cmd.files.finding;
 
 import de.team33.patterns.enums.alpha.Values;
 

@@ -1,6 +1,6 @@
-package de.team33.cmd.files.finder.publics;
+package de.team33.cmd.files.finding.publics;
 
-import de.team33.cmd.files.finder.Pattern;
+import de.team33.cmd.files.finding.Pattern;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FilePolicy;
 import org.junit.jupiter.api.Test;
