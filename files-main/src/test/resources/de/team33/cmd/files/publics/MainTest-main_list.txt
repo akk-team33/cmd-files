@@ -7,32 +7,18 @@ Your request:
 
 Expected request scheme:
 
-    MainTest list ASPECT PATH TYPE
+    MainTest list PATH [PATH [...]]
 
 Parameters:
 
-    ASPECT - One of {n, x, nx} (case-insensitive)
-             n  : the pure file name without extension
-             x  : the pure extension (normalized to lowercase)
-             nx : the full file name including extension (as is)
-    PATH   - The path of the working directory
-    TYPE   - One of {:dir, :reg, :sym, :all} or a comma separated list of
-             file extensions specifying the desired file type (case-insensitive)
-             e.g. jpg,jpe,jpeg
-                  -> specifies a file type consisting of three file extensions
-             :dir : type = directories
-             :reg : type = regular files
-             :sym : type = symbolic links
-             :spc : type = special file
-             :all : type = all files
+    PATH - A directory path to be examined. Multiple PATHs are possible.
 
 Example:
 
-[1] MainTest list n path/to/images jpg,jpe,jpeg
+[1] MainTest list path/to/images path/to/music path/to/video
 
-    ... to list the pure file name without extension of all files in
-        the relative directory <path/to/images> that are matching the type that is
-        represented by the extensions .jpg, .jpe or .jpeg
+    ... to get a list of the files in the directories <path/to/images>,
+        <path/to/music> and <path/to/video> and their subdirectories.
 
 [2] MainTest list x . :reg
 
