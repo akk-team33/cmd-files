@@ -3,6 +3,7 @@ package de.team33.cmd.files.finding;
 import de.team33.patterns.enums.alpha.Values;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 enum CaseSensitivity {
@@ -18,16 +19,16 @@ enum CaseSensitivity {
         this.toPattern = toPattern;
     }
 
-    public static CaseSensitivity parse(final String name) {
+    static CaseSensitivity parse(final String name) throws InternalException {
         return name.isEmpty() ? CI : VALUES.findAny(value -> value.name().equalsIgnoreCase(name))
-                                           .orElseThrow(() -> newIllegalArgumentException(name));
+                                           .orElseThrow(newInternalException(name));
     }
 
-    private static IllegalArgumentException newIllegalArgumentException(String name) {
-        return new IllegalArgumentException("\"" + name + "\" is not a valid case sensitivity!");
+    private static Supplier<InternalException> newInternalException(final String name) {
+        return () -> new InternalException("\"" + name + "\" is not a valid OPTION!");
     }
 
-    public final Pattern toPattern(final String regex) {
+    final Pattern toPattern(final String regex) {
         return toPattern.apply(regex);
     }
 }

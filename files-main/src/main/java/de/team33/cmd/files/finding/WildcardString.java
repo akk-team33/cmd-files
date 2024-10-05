@@ -12,7 +12,7 @@ class WildcardString {
 
     private static final Pattern WILDCARD = Pattern.compile("[*?]");
 
-    public static String parse(final String origin) {
+    static String parse(final String origin) {
         final Matcher matcher = WILDCARD.matcher(origin);
         final List<String> result = new LinkedList<>();
         final Index index = new Index();

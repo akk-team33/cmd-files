@@ -3,6 +3,7 @@ package de.team33.cmd.files.finding;
 import de.team33.patterns.enums.alpha.Values;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 enum Method {
 
@@ -17,16 +18,16 @@ enum Method {
         this.toRegEx = toRegEx;
     }
 
-    public static Method parse(final String name) {
+    static Method parse(final String name) throws InternalException {
         return name.isEmpty() ? WC : VALUES.findAny(value -> value.name().equalsIgnoreCase(name))
-                                           .orElseThrow(() -> newIllegalArgumentException(name));
+                                           .orElseThrow(newInternalException(name));
     }
 
-    private static IllegalArgumentException newIllegalArgumentException(String name) {
-        return new IllegalArgumentException("\"" + name + "\" is not a valid find method!");
+    private static Supplier<InternalException> newInternalException(String name) {
+        return () -> new InternalException("\"" + name + "\" is not a valid METHOD!");
     }
 
-    public final String toRegEx(final String origin) {
+    final String toRegEx(final String origin) {
         return toRegEx.apply(origin);
     }
 }

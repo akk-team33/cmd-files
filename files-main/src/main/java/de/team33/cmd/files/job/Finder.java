@@ -1,9 +1,9 @@
 package de.team33.cmd.files.job;
 
-import de.team33.cmd.files.finding.Pattern;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
+import de.team33.cmd.files.finding.NameMatcher;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
@@ -22,12 +22,12 @@ class Finder implements Runnable {
     static final String EXCERPT = "Find files whose names match a pattern.";
 
     private final Output out;
-    private final Pattern pattern;
+    private final NameMatcher nameMatcher;
     private final FileIndex index;
 
     private Finder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
-        this.pattern = Pattern.parse(expression);
+        this.nameMatcher = NameMatcher.parse(expression);
         this.index = FileIndex.of(paths, FilePolicy.DISTINCT_SYMLINKS);
     }
 
@@ -48,7 +48,7 @@ class Finder implements Runnable {
         final Stats stats = new Stats();
         index.entries()
              .peek(stats::addTotal)
-             .filter(pattern.matcher())
+             .filter(nameMatcher::matches)
              .peek(stats::addFound)
              .forEach(entry -> out.printf("%s%n", entry.path()));
         out.printf("%n" +
