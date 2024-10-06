@@ -13,14 +13,11 @@ Parameters:
 
     PATH - A directory path to be examined. Multiple PATHs are possible.
 
+    ... to get a list of the files in given directories.
+
 Example:
 
 [1] MainTest list path/to/images path/to/music path/to/video
 
     ... to get a list of the files in the directories <path/to/images>,
-        <path/to/music> and <path/to/video> and their subdirectories.
-
-[2] MainTest list x . :reg
-
-    ... to list the full file name including extension of all regular files
-        in the current working directory (.)%n%n
+        <path/to/music>, <path/to/video> and their subdirectories.%n%n
