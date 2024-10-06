@@ -1,21 +1,14 @@
 package de.team33.cmd.files.job;
 
-import de.team33.cmd.files.Main;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.testing.ModifyingTestBase;
 import de.team33.patterns.io.deimos.TextIO;
-import de.team33.testing.io.hydra.FileInfo;
-import de.team33.testing.io.hydra.ZipIO;
 import de.team33.testing.stdio.ersa.Redirected;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.UUID;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
