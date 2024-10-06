@@ -1,0 +1,18 @@
+Not a valid file type specifier pattern:
+
+    %s
+
+Problem:
+
+    %s
+
+Expected syntax:
+
+    EXT[,EXT[,...]]
+
+    EXT - A file name extension without a leading dot ('.')
+
+Example:
+
+[1] jpg,jpe,jpeg - matches any file whose name ends with
+                   '.jpg' '.jpe' or '.jpeg' (case-insensitive)%n
