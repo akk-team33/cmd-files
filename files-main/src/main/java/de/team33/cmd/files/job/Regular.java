@@ -23,8 +23,8 @@ public enum Regular {
     DELETE(Deletion::job, Deletion.EXCERPT),
     FIND(Finder::job, Finder.EXCERPT),
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
-    MOVE(Moving::job, Moving.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
+    MOVE(Moving::job, Moving.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 
     private static final Values<Regular> VALUES = Values.of(Regular.class);
