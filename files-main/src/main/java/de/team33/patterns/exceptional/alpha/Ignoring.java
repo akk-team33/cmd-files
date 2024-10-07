@@ -9,28 +9,44 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * A tool for executing methods that can throw certain exceptions that shell be ignored.
+ * A tool for executing methods while ignoring certain exceptions if they occur during execution.
  *
  * @param <X> A main {@link Exception} type that shell be ignored, may be a checked {@link Exception} type.
  */
 public class Ignoring<X extends Exception> {
 
-    static final String UNEXPECTED = "Unexpected checked Exception:%n" +
-                                     "    Type    : %s%n" +
-                                     "    Message : %s%n";
+    private static final String UNEXPECTED = "Unexpected checked Exception:%n" +
+                                             "    Type    : %s%n" +
+                                             "    Message : %s%n";
 
     private final Set<Class<? extends Exception>> ignorable;
 
-    public Ignoring(final Class<X> xClass, final Collection<Class<? extends RuntimeException>> rtxClasses) {
+    private Ignoring(final Class<X> xClass, final Collection<Class<? extends RuntimeException>> rtxClasses) {
         this.ignorable = Set.copyOf(Stream.concat(Stream.of(xClass), rtxClasses.stream()).toList());
     }
 
+    /**
+     * Returns a tool for executing methods while ignoring certain exceptions if they occur during execution.
+     *
+     * @param xClass     the main {@link Exception} type that shell be ignored,
+     *                   may be a checked {@link Exception} type.
+     * @param rtxClasses additional {@link RuntimeException} types that shell also be ignored.
+     */
     @SafeVarargs
     public static <X extends Exception> Ignoring<X> any(final Class<X> xClass,
                                                         final Class<? extends RuntimeException>... rtxClasses) {
         return new Ignoring<>(xClass, List.of(rtxClasses));
     }
 
+    /**
+     * Executes a given <em>method</em> and returns its result as an {@link Optional}.
+     * <p>
+     * Returns {@link Optional#empty()} if an ignorable exception occurs while executing.
+     * <p>
+     * Caution: it also returns {@link Optional#empty()} if the method returns {@code null}!
+     *
+     * @param <R> The result type.
+     */
     public final <R> Optional<R> get(final XSupplier<R, ? extends X> method) {
         try {
             return Optional.ofNullable(method.get());
