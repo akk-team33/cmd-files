@@ -29,7 +29,7 @@ class TypeMatcherTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {""})
+    @ValueSource(strings = {"::"})
     final void parse_fail(final String pattern) {
         try {
             final TypeMatcher matcher = TypeMatcher.parse(pattern);
