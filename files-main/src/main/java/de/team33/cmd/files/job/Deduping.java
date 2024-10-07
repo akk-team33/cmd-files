@@ -43,7 +43,7 @@ class Deduping implements Runnable {
         this.mainPath = path.toAbsolutePath().normalize();
         this.doubletPath = Paths.get(trash(mainPath));
         this.prevIndexPath = mainPath.resolve(Guard.DEDUPED_PREV);
-        this.postIndexPath = mainPath.resolve(Guard.DEDUPED_POST);
+        this.postIndexPath = mainPath.resolve(Guard.DEDUPED_NEXT);
         this.index = readIndex(prevIndexPath);
         this.deletion = new DirDeletion(out, mainPath, stats);
     }

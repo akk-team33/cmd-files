@@ -1,6 +1,7 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.RequestException;
+import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.testing.ModifyingTestBase;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.io.hydra.FileInfo;
@@ -29,7 +30,7 @@ class DedupingTest extends ModifyingTestBase {
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
 
-        Files.setLastModifiedTime(leftPath().resolve("(deduped-post).txt"), REPRODUCIBLE);
+        Files.setLastModifiedTime(leftPath().resolve(Guard.DEDUPED_NEXT), REPRODUCIBLE);
         assertEquals(expected, FileInfo.of(testPath()).toString());
     }
 }
