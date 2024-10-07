@@ -30,6 +30,7 @@ class DedupingTest extends ModifyingTestBase {
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
 
+        Files.setLastModifiedTime(leftPath().resolve(Guard.DEDUPED_PAST), REPRODUCIBLE);
         Files.setLastModifiedTime(leftPath().resolve(Guard.DEDUPED_NEXT), REPRODUCIBLE);
         assertEquals(expected, FileInfo.of(testPath()).toString());
     }

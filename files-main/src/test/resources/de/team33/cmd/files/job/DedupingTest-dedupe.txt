@@ -1,6 +1,7 @@
 %s : DIRECTORY {
     left : DIRECTORY {
         (deduped-next).txt : REGULAR (1.025, 2024-01-01T00:00:00Z);
+        (deduped-past).txt : REGULAR (0, 2024-01-01T00:00:00Z);
         de : DIRECTORY {
             team33 : DIRECTORY {
                 cmd : DIRECTORY {

@@ -42,7 +42,7 @@ class Deduping implements Runnable {
         this.out = out;
         this.mainPath = path.toAbsolutePath().normalize();
         this.doubletPath = Paths.get(trash(mainPath));
-        this.prevIndexPath = mainPath.resolve(Guard.DEDUPED_PREV);
+        this.prevIndexPath = mainPath.resolve(Guard.DEDUPED_PAST);
         this.postIndexPath = mainPath.resolve(Guard.DEDUPED_NEXT);
         this.index = readIndex(prevIndexPath);
         this.deletion = new DirDeletion(out, mainPath, stats);
@@ -50,6 +50,7 @@ class Deduping implements Runnable {
 
     private static Set<String> readIndex(final Path indexPath) {
         try {
+            Files.createFile(indexPath);
             return Files.readAllLines(indexPath, StandardCharsets.UTF_8)
                         .stream()
                         .map(Entry::parse)
