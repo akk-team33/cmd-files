@@ -1,10 +1,11 @@
 package de.team33.cmd.files.job;
 
+import de.team33.cmd.files.cleaning.DirDeletion;
 import de.team33.cmd.files.common.HashId;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.cmd.files.cleaning.DirDeletion;
 import de.team33.cmd.files.moving.Guard;
+import de.team33.patterns.exceptional.alpha.Ignoring;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
@@ -16,8 +17,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -30,7 +36,7 @@ class Deduping implements Runnable {
 
     private final Stats stats = new Stats();
     private final Set<Path> createDir = new HashSet<>();
-    private final Set<String> index;
+    private final Map<String, Entry> index;
     private final Output out;
     private final Path mainPath;
     private final Path doubletPath;
@@ -48,15 +54,15 @@ class Deduping implements Runnable {
         this.deletion = new DirDeletion(out, mainPath, stats);
     }
 
-    private static Set<String> readIndex(final Path indexPath) {
+    private static Map<String, Entry> readIndex(final Path indexPath) {
         try {
             Files.createFile(indexPath);
             return Files.readAllLines(indexPath, StandardCharsets.UTF_8)
                         .stream()
                         .map(Entry::parse)
-                        .collect(HashSet::new, HashSet::add, Set::addAll);
+                        .collect(HashMap::new, (map, entry) -> map.put(entry.hash, entry), Map::putAll);
         } catch (final IOException ignored) {
-            return new HashSet<>();
+            return new HashMap<>();
         }
     }
 
@@ -78,8 +84,12 @@ class Deduping implements Runnable {
         try (final BufferedWriter writer = Files.newBufferedWriter(postIndexPath,
                                                                    StandardOpenOption.CREATE,
                                                                    StandardOpenOption.TRUNCATE_EXISTING)) {
-            for (final String value : index) {
-                writer.append(value);
+            for (final Entry entry : index.values()) {
+                writer.append(entry.hash())
+                      .append(Entry.SEPARATOR)
+                      .append(Optional.ofNullable(entry.time())
+                                      .map(Instant::toString)
+                                      .orElse(""));
                 writer.newLine();
             }
             writer.flush();
@@ -138,17 +148,25 @@ class Deduping implements Runnable {
 
     private boolean isUnique(final FileEntry entry) {
         final String hashId = HashId.coreValueOf(entry.path());
-        return index.add(hashId);
+        if (index.containsKey(hashId)) {
+            return false;
+        } else {
+            index.put(hashId, new Entry(hashId, entry.lastModified()));
+            return true;
+        }
     }
 
-    private static class Entry {
+    private record Entry(String hash, Instant time) {
 
         static final String SEPARATOR = ":";
         static final Pattern PATTERN = Pattern.compile(Pattern.quote(SEPARATOR));
 
-        static String parse(final String entry) {
+        static Entry parse(final String entry) {
             final String[] split = PATTERN.split(entry);
-            return split[0];
+            return new Entry(split[0], Ignoring.any(DateTimeParseException.class,
+                                                    ArrayIndexOutOfBoundsException.class)
+                                               .get(() -> Instant.parse(split[1]))
+                                               .orElse(null));
         }
     }
 
