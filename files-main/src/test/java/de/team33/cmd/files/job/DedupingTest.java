@@ -31,13 +31,11 @@ class DedupingTest extends ModifyingTestBase {
                                       .formatted(testID());
 
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
-        Files.copy(leftPath().resolve(Guard.DEDUPED_NEXT), rightPath().resolve(Guard.DEDUPED_PAST));
+        Files.copy(leftPath().resolve(Guard.DEDUPED_INDEX), rightPath().resolve(Guard.DEDUPED_INDEX));
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", rightPath().toString())).run();
 
-        for (final String deduped : List.of(Guard.DEDUPED_PAST, Guard.DEDUPED_NEXT)) {
-            for (final Path path : List.of(leftPath(), rightPath())) {
-                Files.setLastModifiedTime(path.resolve(deduped), DEFINITE_TIME);
-            }
+        for (final Path path : List.of(leftPath(), rightPath())) {
+            Files.setLastModifiedTime(path.resolve(Guard.DEDUPED_INDEX), DEFINITE_TIME);
         }
         assertEquals(expected, FileInfo.of(testPath()).toString());
     }

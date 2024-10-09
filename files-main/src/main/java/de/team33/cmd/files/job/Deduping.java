@@ -5,7 +5,6 @@ import de.team33.cmd.files.common.HashId;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.moving.Guard;
-import de.team33.patterns.exceptional.alpha.Ignoring;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FilePolicy;
@@ -18,16 +17,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
-import java.util.HashMap;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
-
-import static java.util.function.Predicate.not;
+import java.util.stream.Stream;
 
 class Deduping implements Runnable {
 
@@ -36,34 +33,18 @@ class Deduping implements Runnable {
 
     private final Stats stats = new Stats();
     private final Set<Path> createDir = new HashSet<>();
-    private final Map<String, Entry> index;
+    private final Index index;
     private final Output out;
     private final Path mainPath;
     private final Path doubletPath;
-    private final Path prevIndexPath;
-    private final Path postIndexPath;
     private final DirDeletion deletion;
 
     private Deduping(final Output out, final Path path) {
         this.out = out;
         this.mainPath = path.toAbsolutePath().normalize();
         this.doubletPath = Paths.get(trash(mainPath));
-        this.prevIndexPath = mainPath.resolve(Guard.DEDUPED_PAST);
-        this.postIndexPath = mainPath.resolve(Guard.DEDUPED_NEXT);
-        this.index = readIndex(prevIndexPath);
+        this.index = Index.of(mainPath);
         this.deletion = new DirDeletion(out, mainPath, stats);
-    }
-
-    private static Map<String, Entry> readIndex(final Path indexPath) {
-        Ignoring.any(IOException.class).get(() -> Files.createFile(indexPath));
-        try {
-            return Files.readAllLines(indexPath, StandardCharsets.UTF_8)
-                        .stream()
-                        .map(Entry::parse)
-                        .collect(HashMap::new, (map, entry) -> map.put(entry.hash, entry), Map::putAll);
-        } catch (final IOException ignored) {
-            return new HashMap<>();
-        }
     }
 
     private static String trash(final Path path) {
@@ -80,24 +61,6 @@ class Deduping implements Runnable {
         throw RequestException.format(Moving.class, "Deduping.txt", Util.cmdLine(args), Util.cmdName(args));
     }
 
-    private void writeIndex() {
-        try (final BufferedWriter writer = Files.newBufferedWriter(postIndexPath,
-                                                                   StandardOpenOption.CREATE,
-                                                                   StandardOpenOption.TRUNCATE_EXISTING)) {
-            for (final Entry entry : index.values()) {
-                writer.append(entry.hash())
-                      .append(Entry.SEPARATOR)
-                      .append(Optional.ofNullable(entry.time())
-                                      .map(Instant::toString)
-                                      .orElse(""));
-                writer.newLine();
-            }
-            writer.flush();
-        } catch (final IOException e) {
-            throw new IllegalStateException("could not write index <" + postIndexPath + ">", e);
-        }
-    }
-
     @Override
     public final void run() {
         stats.reset();
@@ -108,10 +71,10 @@ class Deduping implements Runnable {
                  .peek(stats::incExamined)
                  .filter(FileEntry::isRegularFile)
                  .filter(Guard::unprotected)
-                 .filter(not(this::isUnique))
+                 .filter(index::isDuplicated)
                  .map(FileEntry::path)
                  .forEach(this::move);
-        writeIndex();
+        index.write();
         deletion.clean(FileEntry.of(mainPath, POLICY).entries());
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
@@ -146,27 +109,14 @@ class Deduping implements Runnable {
         }
     }
 
-    private boolean isUnique(final FileEntry entry) {
-        final String hashId = HashId.coreValueOf(entry.path());
-        if (index.containsKey(hashId)) {
-            return false;
-        } else {
-            index.put(hashId, new Entry(hashId, entry.lastModified()));
-            return true;
-        }
-    }
-
-    private record Entry(String hash, Instant time) {
+    private record Entry(String hash, int level, Instant time) {
 
         static final String SEPARATOR = ":";
         static final Pattern PATTERN = Pattern.compile(Pattern.quote(SEPARATOR));
 
         static Entry parse(final String entry) {
-            final String[] split = PATTERN.split(entry, 2);
-            return new Entry(split[0], Ignoring.any(DateTimeParseException.class,
-                                                    ArrayIndexOutOfBoundsException.class)
-                                               .get(() -> Instant.parse(split[1]))
-                                               .orElse(null));
+            final String[] split = PATTERN.split(entry, 3);
+            return new Entry(split[0], Integer.parseInt(split[1]), Instant.parse(split[2]));
         }
     }
 
@@ -211,6 +161,125 @@ class Deduping implements Runnable {
         @Override
         public void incDeleteFailed() {
             this.deletionFailed += 1;
+        }
+    }
+
+    private static class Index {
+
+        private static final String PRFX_HEADER = "#";
+        private static final String PRFX_LEVEL = PRFX_HEADER + "dedupe-past-level:";
+
+        private final Path path;
+        private final int pastLevel;
+        private final int nextLevel;
+        private final Map<String, Entry> entries;
+
+        private Index(final Path path, final int pastLevel, final Map<String, Entry> entries) {
+            this.path = path;
+            this.pastLevel = pastLevel;
+            this.nextLevel = pastLevel + 1;
+            this.entries = entries;
+        }
+
+        private static Path createIfNew(final Path path) {
+            try {
+                Files.write(path, List.of(PRFX_HEADER + path,
+                                          PRFX_LEVEL + 0), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+            } catch (final IOException ignored) {
+                // Assuming the file already exists
+            }
+            return path;
+        }
+
+        private static IllegalStateException newReadException(final Path path, final Throwable cause) {
+            return new IllegalStateException(("Could not read index file:%n" +
+                                              "    Path     : %s%n" +
+                                              "    Message  : %s%n" +
+                                              "    Exception: %s%n").formatted(path,
+                                                                               cause.getMessage(),
+                                                                               cause.getClass().getCanonicalName()),
+                                             cause);
+        }
+
+        private static List<String> readHeader(final Path path) {
+            try (final Stream<String> lines = Files.lines(path, StandardCharsets.UTF_8)) {
+                final List<String> result = lines.takeWhile(line -> line.startsWith(PRFX_HEADER))
+                                                 .toList();
+                if (2 == result.size()) {
+                    return result;
+                } else {
+                    throw new IllegalStateException(("Illegal header in index file%n" +
+                                                     "    Path: %s%n" +
+                                                     "    Header: %s%n").formatted(path, result));
+                }
+            } catch (final IOException e) {
+                throw newReadException(path, e);
+            }
+        }
+
+        private static void putEntry(final Map<String, Entry> map, Entry entry) {
+            map.put(entry.hash(), entry);
+        }
+
+        private static Map<String, Entry> readEntries(final int pastLevel, final Path path) {
+            try (final Stream<String> lines = Files.lines(path, StandardCharsets.UTF_8)) {
+                return lines.skip(2)
+                            .map(Entry::parse)
+                            .filter(entry -> entry.level() <= pastLevel)
+                            .collect(TreeMap::new, Index::putEntry, Map::putAll);
+            } catch (final IOException e) {
+                throw newReadException(path, e);
+            }
+        }
+
+        static Index of(final Path mainPath) {
+            final Path path = createIfNew(mainPath.resolve(Guard.DEDUPED_INDEX));
+            final List<String> header = readHeader(path);
+            final String headerPath = header.get(0).substring(PRFX_HEADER.length());
+            final int pastLevel = (headerPath.equals(path.toString()) ? 0 : 1) +
+                                  Integer.parseInt(header.get(1).substring(PRFX_LEVEL.length()));
+            final Map<String, Entry> entries = readEntries(pastLevel, path);
+            return new Index(path, pastLevel, entries);
+        }
+
+        final void write() {
+            try (final BufferedWriter out = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
+                                                                    StandardOpenOption.CREATE,
+                                                                    StandardOpenOption.TRUNCATE_EXISTING)) {
+                out.append(PRFX_HEADER)
+                   .append(String.valueOf(path));
+                out.newLine();
+                out.append(PRFX_LEVEL)
+                   .append(String.valueOf(pastLevel));
+                out.newLine();
+                for (final Entry entry : entries.values()) {
+                    out.append(entry.hash())
+                       .append(Entry.SEPARATOR)
+                       .append(String.valueOf(entry.level()))
+                       .append(Entry.SEPARATOR)
+                       .append(String.valueOf(entry.time()));
+                    out.newLine();
+                }
+            } catch (final IOException e) {
+                throw new IllegalStateException(("Could not write index file:%n" +
+                                                 "    Path     : %s%n" +
+                                                 "    Message  : %s%n" +
+                                                 "    Exception: %s%n").formatted(path,
+                                                                                  e.getMessage(),
+                                                                                  e.getClass().getCanonicalName()),
+                                                e);
+            }
+        }
+
+        final boolean isDuplicated(final FileEntry entry) {
+            final String hash = HashId.coreValueOf(entry.path());
+            if (entries.containsKey(hash)) {
+                return true;
+            } else {
+                final Instant time = entry.lastModified().truncatedTo(ChronoUnit.SECONDS);
+                entries.put(hash, new Entry(hash, nextLevel, time));
+                return false;
+            }
         }
     }
 }
