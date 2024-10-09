@@ -55,8 +55,8 @@ class Deduping implements Runnable {
     }
 
     private static Map<String, Entry> readIndex(final Path indexPath) {
+        Ignoring.any(IOException.class).get(() -> Files.createFile(indexPath));
         try {
-            Files.createFile(indexPath);
             return Files.readAllLines(indexPath, StandardCharsets.UTF_8)
                         .stream()
                         .map(Entry::parse)
@@ -162,7 +162,7 @@ class Deduping implements Runnable {
         static final Pattern PATTERN = Pattern.compile(Pattern.quote(SEPARATOR));
 
         static Entry parse(final String entry) {
-            final String[] split = PATTERN.split(entry);
+            final String[] split = PATTERN.split(entry, 2);
             return new Entry(split[0], Ignoring.any(DateTimeParseException.class,
                                                     ArrayIndexOutOfBoundsException.class)
                                                .get(() -> Instant.parse(split[1]))
