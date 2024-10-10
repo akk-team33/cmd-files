@@ -1,6 +1,6 @@
-package de.team33.cmd.files.finding.publics;
+package de.team33.cmd.files.matching.publics;
 
-import de.team33.cmd.files.finding.NameMatcher;
+import de.team33.cmd.files.matching.NameMatcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

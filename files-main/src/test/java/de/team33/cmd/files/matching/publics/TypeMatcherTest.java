@@ -1,8 +1,7 @@
-package de.team33.cmd.files.finding.publics;
+package de.team33.cmd.files.matching.publics;
 
-import de.team33.cmd.files.finding.TypeMatcher;
+import de.team33.cmd.files.matching.TypeMatcher;
 import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FilePolicy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

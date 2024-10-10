@@ -1,4 +1,4 @@
-package de.team33.cmd.files.finding;
+package de.team33.cmd.files.matching;
 
 class InternalException extends Exception {
     InternalException(final String message) {

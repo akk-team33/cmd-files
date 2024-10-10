@@ -1,4 +1,4 @@
-package de.team33.cmd.files.finding;
+package de.team33.cmd.files.matching;
 
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileType;
