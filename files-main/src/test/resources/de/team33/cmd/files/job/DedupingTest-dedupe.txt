@@ -1,5 +1,6 @@
 %s : DIRECTORY {
     left : DIRECTORY {
+        (deduped)-00.txt : REGULAR (165, 2024-01-01T00:00:00Z);
         (deduped).txt : REGULAR (1.573, 2024-01-01T00:00:00Z);
         de : DIRECTORY {
             team33 : DIRECTORY {
@@ -53,6 +54,7 @@
         };
     };
     right : DIRECTORY {
+        (deduped)-00.txt : REGULAR (1.573, 2024-01-01T00:00:00Z);
         (deduped).txt : REGULAR (1.766, 2024-01-01T00:00:00Z);
         de : DIRECTORY {
             team33 : DIRECTORY {

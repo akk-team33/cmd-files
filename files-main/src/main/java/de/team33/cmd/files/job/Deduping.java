@@ -232,6 +232,15 @@ class Deduping implements Runnable {
             }
         }
 
+        private static void backupIfNew(final Path path) {
+            final Path backup = path.getParent().resolve(Guard.DEDUPED_INDEX_BAK);
+            try {
+                Files.move(path, backup);
+            } catch (final IOException ignored) {
+                // Assuming the file already exists
+            }
+        }
+
         static Index of(final Path mainPath) {
             final Path path = createIfNew(mainPath.resolve(Guard.DEDUPED_INDEX));
             final List<String> header = readHeader(path);
@@ -239,6 +248,7 @@ class Deduping implements Runnable {
             final int pastLevel = (headerPath.equals(path.toString()) ? 0 : 1) +
                                   Integer.parseInt(header.get(1).substring(PRFX_LEVEL.length()));
             final Map<String, Entry> entries = readEntries(pastLevel, path);
+            backupIfNew(path);
             return new Index(path, pastLevel, entries);
         }
 

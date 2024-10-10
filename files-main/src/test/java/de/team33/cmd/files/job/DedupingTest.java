@@ -34,9 +34,9 @@ class DedupingTest extends ModifyingTestBase {
         Files.copy(leftPath().resolve(Guard.DEDUPED_INDEX), rightPath().resolve(Guard.DEDUPED_INDEX));
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", rightPath().toString())).run();
 
-        for (final Path path : List.of(leftPath(), rightPath())) {
-            Files.setLastModifiedTime(path.resolve(Guard.DEDUPED_INDEX), DEFINITE_TIME);
-        }
+        for (final String name : List.of(Guard.DEDUPED_INDEX, Guard.DEDUPED_INDEX_BAK))
+            for (final Path path : List.of(leftPath(), rightPath()))
+                Files.setLastModifiedTime(path.resolve(name), DEFINITE_TIME);
         assertEquals(expected, FileInfo.of(testPath()).toString());
     }
 }
