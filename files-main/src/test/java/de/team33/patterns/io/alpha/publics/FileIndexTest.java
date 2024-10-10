@@ -2,7 +2,6 @@ package de.team33.patterns.io.alpha.publics;
 
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,7 +31,7 @@ class FileIndexTest {
                                           .lines()
                                           .map(line -> TEST_PATH.resolve(line).toAbsolutePath().normalize())
                                           .toList();
-        final FileIndex index = FileIndex.of(TEST_PATH, FilePolicy.DISTINCT_SYMLINKS);
+        final FileIndex index = FileIndex.of(TEST_PATH);
 
         final List<Path> result = index.entries()
                                        .map(FileEntry::path)
@@ -48,7 +47,7 @@ class FileIndexTest {
                                           .lines()
                                           .map(line -> TEST_PATH.resolve(line).toAbsolutePath().normalize())
                                           .toList();
-        final FileIndex index = FileIndex.of(TEST_PATH, FilePolicy.DISTINCT_SYMLINKS)
+        final FileIndex index = FileIndex.of(TEST_PATH)
                                          .skipEntry(entry -> entry.name().equals("patterns"));
 
         final List<Path> result = index.entries()

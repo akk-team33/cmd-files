@@ -16,7 +16,6 @@ import static de.team33.cmd.files.job.Util.cmdName;
 class Cleaning implements Runnable {
 
     static final String EXCERPT = "Remove empty directories within given directories.";
-    private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
     private final Stats stats = new Stats();
     private final Output out;
@@ -37,7 +36,7 @@ class Cleaning implements Runnable {
             final List<FileEntry> entries = args.stream()
                                                 .skip(2)
                                                 .map(Path::of)
-                                                .map(path -> FileEntry.of(path, POLICY))
+                                                .map(path -> FileEntry.of(path))
                                                 .toList();
             return new Cleaning(out, entries);
         }
@@ -68,13 +67,6 @@ class Cleaning implements Runnable {
             totalDirs.reset();
             deleted.reset();
             failed.reset();
-        }
-
-        final void addTotal(final FileEntry entry) {
-            total.increment();
-            if (entry.isDirectory()) {
-                totalDirs.increment();
-            }
         }
 
         @Override

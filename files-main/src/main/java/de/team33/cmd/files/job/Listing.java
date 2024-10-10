@@ -5,7 +5,6 @@ import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 import de.team33.patterns.io.alpha.FileType;
 
 import java.nio.file.Path;
@@ -17,7 +16,6 @@ import static de.team33.cmd.files.job.Util.cmdName;
 class Listing implements Runnable {
 
     static final String EXCERPT = "Get a list of the files in given directories.";
-    private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
     private final Output out;
     private final List<Path> paths;
@@ -42,7 +40,7 @@ class Listing implements Runnable {
     @Override
     public final void run() {
         final Stats stats = new Stats();
-        FileIndex.of(paths, POLICY)
+        FileIndex.of(paths)
                  .entries()
                  .peek(stats::incTotal)
                  .peek(stats::incFound)

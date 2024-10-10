@@ -5,7 +5,6 @@ import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.finding.NameMatcher;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +28,7 @@ class Deletion implements Runnable {
     private Deletion(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
-        this.index = FileIndex.of(paths, FilePolicy.DISTINCT_SYMLINKS);
+        this.index = FileIndex.of(paths);
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
@@ -84,7 +83,7 @@ class Deletion implements Runnable {
 
     private enum Cause {
         EXPLICIT,
-        IMPLICIT;
+        IMPLICIT
     }
 
     private static class Stats {

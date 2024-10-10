@@ -12,10 +12,10 @@ public class Relative {
     private final FileEntry target;
     private final State state;
 
-    Relative(final String path, final Path srcRoot, final Path tgtRoot, final FilePolicy policy) {
+    Relative(final String path, final Path srcRoot, final Path tgtRoot) {
         this.path = path;
-        this.source = FileEntry.of(srcRoot.resolve(path), policy);
-        this.target = FileEntry.of(tgtRoot.resolve(path), policy);
+        this.source = FileEntry.of(srcRoot.resolve(path));
+        this.target = FileEntry.of(tgtRoot.resolve(path));
         this.state = State.of(source, target);
     }
 

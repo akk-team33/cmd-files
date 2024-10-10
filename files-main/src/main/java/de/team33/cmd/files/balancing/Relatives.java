@@ -2,7 +2,6 @@ package de.team33.cmd.files.balancing;
 
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -14,14 +13,12 @@ import java.util.stream.Stream;
 
 public class Relatives {
 
-    public static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
-
     private final FileIndex index;
     private final Function<String, Relative> toRelative;
 
     private Relatives(final Path srcRoot, final Path tgtRoot) {
-        this.index = FileIndex.of(List.of(srcRoot, tgtRoot), POLICY);
-        this.toRelative = relative -> new Relative(relative, srcRoot, tgtRoot, POLICY);
+        this.index = FileIndex.of(List.of(srcRoot, tgtRoot));
+        this.toRelative = relative -> new Relative(relative, srcRoot, tgtRoot);
     }
 
     public static Set<String> collect(final Path srcRoot, final Path tgtRoot) {

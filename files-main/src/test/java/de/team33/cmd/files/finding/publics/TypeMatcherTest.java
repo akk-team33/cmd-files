@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TypeMatcherTest {
 
     private FileEntry entry(final String path) {
-        return FileEntry.of(Path.of(path), FilePolicy.DISTINCT_SYMLINKS);
+        return FileEntry.of(Path.of(path));
     }
 
     @Test

@@ -52,7 +52,7 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void type(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         if (entry.isDirectory()) {
             assertEquals(FileType.DIRECTORY, entry.type());
         } else if (entry.isSymbolicLink()) {
@@ -69,28 +69,28 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void isDirectory(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         assertEquals(Files.isDirectory(path), entry.isDirectory());
     }
 
     @ParameterizedTest
     @MethodSource("paths")
     final void isRegularFile(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         assertEquals(Files.isRegularFile(path), entry.isRegularFile());
     }
 
     @ParameterizedTest
     @MethodSource("paths")
     final void isSymbolicLink(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         assertEquals(Files.isSymbolicLink(path), entry.isSymbolicLink());
     }
 
     @ParameterizedTest
     @MethodSource("paths")
     final void isSpecial(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         if (entry.isSpecial()) {
             assertEquals(DEV_NULL, path);
         } else {
@@ -101,14 +101,14 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void exists(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         assertEquals(Files.exists(path), entry.exists());
     }
 
     @ParameterizedTest
     @MethodSource("paths")
     final void lastModified(final Path path) throws IOException {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         if (entry.exists()) {
             assertEquals(Files.getLastModifiedTime(path).toInstant(), entry.lastModified());
         } else {
@@ -119,7 +119,7 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void lastAccess(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         if (entry.exists()) {
             assertNotNull(entry.lastAccess());
         } else {
@@ -130,7 +130,7 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void creation(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.DISTINCT_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path);
         if (entry.exists()) {
             assertNotNull(entry.creation());
         } else {

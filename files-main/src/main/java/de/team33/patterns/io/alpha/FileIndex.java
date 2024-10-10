@@ -20,8 +20,16 @@ public class FileIndex {
                           .collect(Collectors.toList());
     }
 
+    public static FileIndex of(final Collection<? extends Path> paths) {
+        return new FileIndex(paths, FilePolicy.DISTINCT_SYMLINKS);
+    }
+
     public static FileIndex of(final Collection<? extends Path> paths, final FilePolicy policy) {
         return new FileIndex(paths, policy);
+    }
+
+    public static FileIndex of(final Path path) {
+        return of(List.of(path), FilePolicy.DISTINCT_SYMLINKS);
     }
 
     public static FileIndex of(final Path path, final FilePolicy policy) {

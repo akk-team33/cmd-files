@@ -7,7 +7,6 @@ import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -29,7 +28,6 @@ import java.util.stream.Stream;
 class Deduping implements Runnable {
 
     static final String EXCERPT = "Relocate duplicated files located in a given directory.";
-    private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
     private final Stats stats = new Stats();
     private final Set<Path> createDir = new HashSet<>();
@@ -65,7 +63,7 @@ class Deduping implements Runnable {
     public final void run() {
         stats.reset();
         out.printf("%s ...%n", mainPath);
-        FileIndex.of(mainPath, POLICY)
+        FileIndex.of(mainPath)
                  .skipPath(doubletPath::equals)
                  .entries()
                  .peek(stats::incExamined)
@@ -75,7 +73,7 @@ class Deduping implements Runnable {
                  .map(FileEntry::path)
                  .forEach(this::move);
         index.write();
-        deletion.clean(FileEntry.of(mainPath, POLICY).entries());
+        deletion.clean(FileEntry.of(mainPath).entries());
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +

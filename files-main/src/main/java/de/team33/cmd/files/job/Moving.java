@@ -7,7 +7,6 @@ import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.moving.Resolver;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +19,6 @@ import java.util.stream.Stream;
 class Moving implements Runnable {
 
     static final String EXCERPT = "Relocate regular files located in a given directory.";
-    private static final FilePolicy POLICY = FilePolicy.DISTINCT_SYMLINKS;
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;
@@ -63,10 +61,10 @@ class Moving implements Runnable {
 
     private Stream<FileEntry> stream() {
         return switch (mode) {
-            case FLAT -> FileEntry.of(mainPath, POLICY)
+            case FLAT -> FileEntry.of(mainPath)
                                   .entries()
                                   .stream();
-            case DEEP -> FileIndex.of(mainPath, POLICY)
+            case DEEP -> FileIndex.of(mainPath)
                                   .entries()
                                   .skip(1);
         };
@@ -75,7 +73,7 @@ class Moving implements Runnable {
     private List<FileEntry> list() {
         return switch (mode) {
             case FLAT -> List.of();
-            case DEEP -> FileEntry.of(mainPath, POLICY)
+            case DEEP -> FileEntry.of(mainPath)
                                   .entries();
         };
     }

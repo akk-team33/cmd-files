@@ -38,6 +38,16 @@ public abstract class FileEntry {
 
     /**
      * Returns a new {@link FileEntry} based on a given {@link Path}.
+     * Just like {@link #of(Path, FilePolicy) of(path, FilePolicy.DISTINCT_SYMLINKS)}.
+     *
+     * @see FilePolicy#DISTINCT_SYMLINKS
+     */
+    public static FileEntry of(final Path path) {
+        return of(path, FilePolicy.DISTINCT_SYMLINKS);
+    }
+
+    /**
+     * Returns a new {@link FileEntry}.
      *
      * @param path   a {@link Path} to the file to be represented.
      * @param policy a {@link FilePolicy} that specifies how symbolic links should be treated.

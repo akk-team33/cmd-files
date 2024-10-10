@@ -6,7 +6,6 @@ import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.finding.NameMatcher;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -28,7 +27,7 @@ class DirFinder implements Runnable {
     private DirFinder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
-        this.index = FileIndex.of(paths, FilePolicy.DISTINCT_SYMLINKS);
+        this.index = FileIndex.of(paths);
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
