@@ -18,7 +18,7 @@ class TypeMatcherTest {
 
     @Test
     final void parse_extensions() {
-        final TypeMatcher matcher = TypeMatcher.parse("jpg,JPE,jPEg");
+        final TypeMatcher matcher = TypeMatcher.parse("a:jpg,JPE,jPEg");
         assertTrue(matcher.matches(entry("myImage.Jpg")));
         assertTrue(matcher.matches(entry("myImage.jPe")));
         assertTrue(matcher.matches(entry("myImage.jpEg")));

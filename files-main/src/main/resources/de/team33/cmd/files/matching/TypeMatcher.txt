@@ -8,11 +8,21 @@ Problem:
 
 Expected syntax:
 
-    EXT[,EXT[,...]]
+    FILE_TYPES[:EXTENSIONS]
 
-    EXT - A file name extension without a leading dot ('.')
+    FILE_TYPES - A or a combination of {D, F, L, S} (case-insensitive)
+                 A -> All file types
+                 D -> Directories
+                 F -> Regular files
+                 L -> Symbolic links
+                 S -> Special Files
+    EXTENSIONS - EXTENSION[,EXTENSION[,...]]
+    EXTENSION  - A file name extension without a leading dot ('.')
+                 (case-insensitive)
 
-Example:
+Examples:
 
-[1] jpg,jpe,jpeg - matches any file whose name ends with
-                   '.jpg' '.jpe' or '.jpeg' (case-insensitive)%n
+[1] lsd            - matches any directory, symbolic link or special file
+[2] F:jpg,jpe,jpeg - matches any regular file whose name ends with
+                     '.jpg', '.jpe' or '.jpeg'
+[3] a:sys          - matches any file of any type whose name ends with '.sys'%n
