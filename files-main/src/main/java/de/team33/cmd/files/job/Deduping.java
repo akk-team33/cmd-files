@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -49,7 +50,7 @@ class Deduping implements Runnable {
         return path + ".(dupes)";
     }
 
-    public static Deduping job(final Output out, final List<String> args) throws RequestException {
+    static Deduping job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
         assert Regular.DEDUPE.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -165,41 +166,58 @@ class Deduping implements Runnable {
     private static class Index {
 
         private static final String PRFX_HEADER = "#";
+        private static final String PRFX_ID = PRFX_HEADER + "dedupe-id:";
         private static final String PRFX_LEVEL = PRFX_HEADER + "dedupe-past-level:";
 
         private final Path path;
+        private final String pathId;
         private final int pastLevel;
         private final int nextLevel;
         private final Map<String, Entry> entries;
 
-        private Index(final Path path, final int pastLevel, final Map<String, Entry> entries) {
+        private Index(final Path path, final String pathId, final int pastLevel, final Map<String, Entry> entries) {
             this.path = path;
+            this.pathId = pathId;
             this.pastLevel = pastLevel;
             this.nextLevel = pastLevel + 1;
             this.entries = entries;
         }
 
-        private static Path createIfNew(final Path path) {
+        private static <X extends Throwable> X addSuppressed(final X x, final Throwable t) {
+            x.addSuppressed(t);
+            return x;
+        }
+
+        private static String existingPathId(final Path path, final IOException e0) {
             try {
-                Files.write(path, List.of(PRFX_HEADER + path,
-                                          PRFX_LEVEL + 0), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
-            } catch (final IOException ignored) {
-                // Assuming the file already exists
+                return Files.readString(path)
+                            .trim();
+            } catch (final IOException ex) {
+                final IOException e = (e0 == null) ? ex : addSuppressed(e0, ex);
+                throw new IllegalStateException(("Could not read pathId:" +
+                                                 "    id file   : %s%n" +
+                                                 "    cause     : %s%n" +
+                                                 "    exception : %s%n").formatted(path,
+                                                                                   e.getMessage(),
+                                                                                   e.getClass().getCanonicalName()),
+                                                e);
             }
-            return path;
         }
 
-        private static IllegalStateException newReadException(final Path path, final Throwable cause) {
-            return new IllegalStateException(("Could not read index file:%n" +
-                                              "    Path     : %s%n" +
-                                              "    Message  : %s%n" +
-                                              "    Exception: %s%n").formatted(path,
-                                                                               cause.getMessage(),
-                                                                               cause.getClass().getCanonicalName()),
-                                             cause);
+        private static String pathId(final Path mainPath) {
+            final Path path = mainPath.resolve(Guard.DEDUPE_PATH_ID);
+            try {
+                Files.write(path,
+                            List.of(UUID.randomUUID().toString()),
+                            StandardOpenOption.CREATE_NEW);
+                return existingPathId(path, null);
+            } catch (final IOException e) {
+                // Assuming the file already exists
+                return existingPathId(path, e);
+            }
         }
 
-        private static List<String> readHeader(final Path path) {
+        private static List<String> existingHeader(final Path path, final IOException e0) {
             try (final Stream<String> lines = Files.lines(path, StandardCharsets.UTF_8)) {
                 final List<String> result = lines.takeWhile(line -> line.startsWith(PRFX_HEADER))
                                                  .toList();
@@ -210,9 +228,31 @@ class Deduping implements Runnable {
                                                      "    Path: %s%n" +
                                                      "    Header: %s%n").formatted(path, result));
                 }
-            } catch (final IOException e) {
-                throw newReadException(path, e);
+            } catch (final IOException ex) {
+                throw newReadException(path, (null == e0) ? ex : addSuppressed(e0, ex));
             }
+        }
+
+        private static List<String> header(final Path path, final String pathId) {
+            try {
+                Files.write(path,
+                            List.of(PRFX_ID + pathId, PRFX_LEVEL + 0),
+                            StandardOpenOption.CREATE_NEW);
+                return existingHeader(path, null);
+            } catch (final IOException e) {
+                // Assuming the file already exists
+                return existingHeader(path, e);
+            }
+        }
+
+        private static IllegalStateException newReadException(final Path path, final Throwable cause) {
+            return new IllegalStateException(("Could not read index file:%n" +
+                                              "    Path     : %s%n" +
+                                              "    Message  : %s%n" +
+                                              "    Exception: %s%n").formatted(path,
+                                                                               cause.getMessage(),
+                                                                               cause.getClass().getCanonicalName()),
+                                             cause);
         }
 
         private static void putEntry(final Map<String, Entry> map, Entry entry) {
@@ -230,32 +270,23 @@ class Deduping implements Runnable {
             }
         }
 
-        private static void backupIfNew(final Path path) {
-            final Path backup = path.getParent().resolve(Guard.DEDUPED_INDEX_BAK);
-            try {
-                Files.move(path, backup);
-            } catch (final IOException ignored) {
-                // Assuming the file already exists
-            }
-        }
-
         static Index of(final Path mainPath) {
-            final Path path = createIfNew(mainPath.resolve(Guard.DEDUPED_INDEX));
-            final List<String> header = readHeader(path);
-            final String headerPath = header.get(0).substring(PRFX_HEADER.length());
-            final int pastLevel = (headerPath.equals(path.toString()) ? 0 : 1) +
+            final String pathId = pathId(mainPath);
+            final Path path = mainPath.resolve(Guard.DEDUPED_INDEX);
+            final List<String> header = header(path, pathId);
+            final String headerId = header.get(0).substring(PRFX_ID.length());
+            final int pastLevel = (headerId.equals(pathId) ? 0 : 1) +
                                   Integer.parseInt(header.get(1).substring(PRFX_LEVEL.length()));
             final Map<String, Entry> entries = readEntries(pastLevel, path);
-            backupIfNew(path);
-            return new Index(path, pastLevel, entries);
+            return new Index(path, pathId, pastLevel, entries);
         }
 
         final void write() {
             try (final BufferedWriter out = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
                                                                     StandardOpenOption.CREATE,
                                                                     StandardOpenOption.TRUNCATE_EXISTING)) {
-                out.append(PRFX_HEADER)
-                   .append(String.valueOf(path));
+                out.append(PRFX_ID)
+                   .append(String.valueOf(pathId));
                 out.newLine();
                 out.append(PRFX_LEVEL)
                    .append(String.valueOf(pastLevel));

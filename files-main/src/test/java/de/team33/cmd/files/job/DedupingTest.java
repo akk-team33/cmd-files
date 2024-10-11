@@ -32,17 +32,17 @@ class DedupingTest extends ModifyingTestBase {
 
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
         assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-left.txt")
-                           .formatted(leftIndexPath),
+                           .formatted(TextIO.read(leftPath().resolve(Guard.DEDUPE_PATH_ID))),
                      TextIO.read(leftIndexPath));
 
         Files.copy(leftIndexPath, rightIndexPath);
 
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", rightPath().toString())).run();
         assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-right.txt")
-                           .formatted(rightIndexPath),
+                           .formatted(TextIO.read(rightPath().resolve(Guard.DEDUPE_PATH_ID))),
                      TextIO.read(rightIndexPath));
 
-        for (final String name : List.of(Guard.DEDUPED_INDEX, Guard.DEDUPED_INDEX_BAK))
+        for (final String name : List.of(Guard.DEDUPE_PATH_ID, Guard.DEDUPED_INDEX))
             for (final Path path : List.of(leftPath(), rightPath()))
                 Files.setLastModifiedTime(path.resolve(name), DEFINITE_TIME);
         assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe.txt")
