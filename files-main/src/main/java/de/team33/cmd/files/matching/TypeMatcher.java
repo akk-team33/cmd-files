@@ -8,12 +8,10 @@ import de.team33.patterns.io.deimos.TextIO;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static java.util.function.Predicate.*;
+import static java.util.function.Predicate.not;
 
 public class TypeMatcher {
 

@@ -27,16 +27,26 @@ class DedupingTest extends ModifyingTestBase {
 
     @Test
     final void dedupe() throws RequestException, IOException {
-        final String expected = TextIO.read(DedupingTest.class, "DedupingTest-dedupe.txt")
-                                      .formatted(testID());
+        final Path leftIndexPath = leftPath().resolve(Guard.DEDUPED_INDEX);
+        final Path rightIndexPath = rightPath().resolve(Guard.DEDUPED_INDEX);
 
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
-        Files.copy(leftPath().resolve(Guard.DEDUPED_INDEX), rightPath().resolve(Guard.DEDUPED_INDEX));
+        assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-left.txt")
+                           .formatted(leftIndexPath),
+                     TextIO.read(leftIndexPath));
+
+        Files.copy(leftIndexPath, rightIndexPath);
+
         Deduping.job(MUTE, Arrays.asList("files", "dedupe", rightPath().toString())).run();
+        assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-right.txt")
+                           .formatted(rightIndexPath),
+                     TextIO.read(rightIndexPath));
 
         for (final String name : List.of(Guard.DEDUPED_INDEX, Guard.DEDUPED_INDEX_BAK))
             for (final Path path : List.of(leftPath(), rightPath()))
                 Files.setLastModifiedTime(path.resolve(name), DEFINITE_TIME);
-        assertEquals(expected, FileInfo.of(testPath()).toString());
+        assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe.txt")
+                           .formatted(testID()),
+                     FileInfo.of(testPath()).toString());
     }
 }
