@@ -12,6 +12,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -173,13 +174,16 @@ class Deduping implements Runnable {
         private final String pathId;
         private final int pastLevel;
         private final int nextLevel;
+        private final boolean isNext;
         private final Map<String, Entry> entries;
 
-        private Index(final Path path, final String pathId, final int pastLevel, final Map<String, Entry> entries) {
+        private Index(final Path path, final String pathId, final int pastLevel,
+                      final boolean isNext, final Map<String, Entry> entries) {
             this.path = path;
             this.pathId = pathId;
             this.pastLevel = pastLevel;
             this.nextLevel = pastLevel + 1;
+            this.isNext = isNext;
             this.entries = entries;
         }
 
@@ -270,7 +274,23 @@ class Deduping implements Runnable {
             }
         }
 
+        private static boolean isNext(final Path mainPath) {
+            final Path path = mainPath.resolve(Guard.DEDUPE_NEXT);
+            try {
+                Files.delete(path);
+                return true;
+            } catch (final NoSuchFileException ignored) {
+                return false;
+            } catch (IOException e) {
+                throw new IllegalStateException(("Could not delete symbolic file:%n" +
+                        "    Path : %s%n" +
+                        "    Message : %s%n" +
+                        "    Exception : %s%n").formatted(path, e.getMessage(), e.getClass().getName()), e);
+            }
+        }
+
         static Index of(final Path mainPath) {
+            final boolean isNext = isNext(mainPath);
             final String pathId = pathId(mainPath);
             final Path path = mainPath.resolve(Guard.DEDUPED_INDEX);
             final List<String> header = header(path, pathId);
@@ -278,7 +298,7 @@ class Deduping implements Runnable {
             final int pastLevel = (headerId.equals(pathId) ? 0 : 1) +
                                   Integer.parseInt(header.get(1).substring(PRFX_LEVEL.length()));
             final Map<String, Entry> entries = readEntries(pastLevel, path);
-            return new Index(path, pathId, pastLevel, entries);
+            return new Index(path, pathId, pastLevel, isNext, entries);
         }
 
         final void write() {
@@ -310,14 +330,19 @@ class Deduping implements Runnable {
             }
         }
 
+        final boolean isUpdateEntry(final Entry indexEntry, final Instant fileTime) {
+            return isNext && (indexEntry.level == pastLevel) && indexEntry.time().equals(fileTime);
+        }
+
         final boolean isDuplicated(final FileEntry entry) {
-            final String hash = HashId.coreValueOf(entry.path());
-            if (entries.containsKey(hash)) {
-                return true;
-            } else {
-                final Instant time = entry.lastModified().truncatedTo(ChronoUnit.SECONDS);
-                entries.put(hash, new Entry(hash, nextLevel, time));
+            final String fileHash = HashId.coreValueOf(entry.path());
+            final Instant fileTime = entry.lastModified().truncatedTo(ChronoUnit.SECONDS);
+            final Entry idxEntry = entries.get(fileHash);
+            if (null == idxEntry || isUpdateEntry(idxEntry, fileTime)) {
+                entries.put(fileHash, new Entry(fileHash, nextLevel, fileTime));
                 return false;
+            } else {
+                return true;
             }
         }
     }
