@@ -198,13 +198,7 @@ class Deduping implements Runnable {
                             .trim();
             } catch (final IOException ex) {
                 final IOException e = (e0 == null) ? ex : addSuppressed(e0, ex);
-                throw new IllegalStateException(("Could not read pathId:" +
-                                                 "    id file   : %s%n" +
-                                                 "    cause     : %s%n" +
-                                                 "    exception : %s%n").formatted(path,
-                                                                                   e.getMessage(),
-                                                                                   e.getClass().getCanonicalName()),
-                                                e);
+                throw IOFault.by("Could not read pathId", path, e);
             }
         }
 
@@ -250,13 +244,7 @@ class Deduping implements Runnable {
         }
 
         private static IllegalStateException newReadException(final Path path, final Throwable cause) {
-            return new IllegalStateException(("Could not read index file:%n" +
-                                              "    Path     : %s%n" +
-                                              "    Message  : %s%n" +
-                                              "    Exception: %s%n").formatted(path,
-                                                                               cause.getMessage(),
-                                                                               cause.getClass().getCanonicalName()),
-                                             cause);
+            return IOFault.by("Could not read index file", path, cause);
         }
 
         private static void putEntry(final Map<String, Entry> map, Entry entry) {
@@ -282,10 +270,7 @@ class Deduping implements Runnable {
             } catch (final NoSuchFileException ignored) {
                 return false;
             } catch (IOException e) {
-                throw new IllegalStateException(("Could not delete symbolic file:%n" +
-                        "    Path : %s%n" +
-                        "    Message : %s%n" +
-                        "    Exception : %s%n").formatted(path, e.getMessage(), e.getClass().getName()), e);
+                throw IOFault.by("Could not delete symbolic file", path, e);
             }
         }
 
@@ -320,13 +305,7 @@ class Deduping implements Runnable {
                     out.newLine();
                 }
             } catch (final IOException e) {
-                throw new IllegalStateException(("Could not write index file:%n" +
-                                                 "    Path     : %s%n" +
-                                                 "    Message  : %s%n" +
-                                                 "    Exception: %s%n").formatted(path,
-                                                                                  e.getMessage(),
-                                                                                  e.getClass().getCanonicalName()),
-                                                e);
+                throw IOFault.by("Could not write index file", path, e);
             }
         }
 

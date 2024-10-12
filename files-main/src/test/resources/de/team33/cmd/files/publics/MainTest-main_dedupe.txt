@@ -11,7 +11,11 @@ Expected request scheme:
 
     ... to relocate all duplicated regular files located in a given
     processing directory. Files located in subdirectories are also processed.
-    TODO?: Empty subdirectories will finally be removed (see CLEAN).
+    Empty subdirectories will finally be removed (see CLEAN).
+
+    SPECIAL: rename PATH/(dedupe-id).txt to PATH/(dedupe-next).txt
+    to update the index file to the next level and keep existing files that
+    would otherwise be identified as duplicates.
 
 Parameters:
 
