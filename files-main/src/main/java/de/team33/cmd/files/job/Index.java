@@ -4,6 +4,7 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
+import de.team33.patterns.enums.alpha.Values;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FileType;
@@ -21,11 +22,13 @@ class Index implements Runnable {
     static final String EXCERPT = "Indexing files whose names match a pattern.";
 
     private final Output out;
+    private final Mode mode;
     private final NameMatcher nameMatcher;
     private final FileIndex index;
 
-    private Index(final Output out, final String expression, final List<Path> paths) {
+    private Index(final Output out, final Mode mode, final String expression, final List<Path> paths) {
         this.out = out;
+        this.mode = mode;
         this.nameMatcher = NameMatcher.parse(expression);
         this.index = FileIndex.of(paths);
     }
@@ -34,10 +37,11 @@ class Index implements Runnable {
         assert 1 < args.size();
         assert Regular.INDEX.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (3 < args.size()) {
-            final String expression = args.get(2);
-            final List<Path> paths = args.stream().skip(3).map(Path::of).toList();
-            return new Index(out, expression, paths);
+        if (4 < args.size()) {
+            final Mode mode = Mode.of(args.get(2));
+            final String expression = args.get(3);
+            final List<Path> paths = args.stream().skip(4).map(Path::of).toList();
+            return new Index(out, mode, expression, paths);
         }
         throw RequestException.format(Index.class, "Index.txt", cmdLine(args), cmdName(args));
     }
@@ -77,6 +81,18 @@ class Index implements Runnable {
         private void addFound(final FileEntry entry) {
             foundCounter.increment();
             foundTypeCounters.computeIfAbsent(entry.type(), any -> new Counter()).increment();
+        }
+    }
+
+    private enum Mode {
+        ADD, UPDATE, REPORT;
+
+        private static final Values<Mode> VALUES = Values.of(Mode.class);
+        private static final String FAULT = "mode \"%s\" not specified!";
+
+        static Mode of(final String name) {
+            return VALUES.findAny(value -> value.name().equalsIgnoreCase(name))
+                         .orElseThrow(() -> new IllegalArgumentException(FAULT.formatted(name)));
         }
     }
 }
