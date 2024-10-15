@@ -23,6 +23,7 @@ public enum Regular {
     DELETE(Deletion::job, Deletion.EXCERPT),
     FIND(Finder::job, Finder.EXCERPT),
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
+    INDEX(Index::job, Index.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
     MOVE(Moving::job, Moving.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);

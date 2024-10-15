@@ -1,0 +1,30 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    %2$s index MODE PATTERN PATH [PATH [...]]
+
+    ... TODO
+
+Parameters:
+
+    MODE    - On of {ADD, UPDATE, REPORT} (case-insensitive)
+              ADD    - TODO
+              UPDATE - TODO
+              REPORT - TODO
+    PATTERN - Consists of [METHOD[/OPTION]:]VALUE
+              METHOD - One of {rx, wc} (case-insensitive)
+                       rx : the VALUE is treated as a regular expression.
+                       wc : the VALUE is treated as the full file name,
+                            but allows the use of the usual wildcards (?*).
+                     - Default: wc
+              OPTION - One of {cs, ci} (case-insensitive)
+                       cs : the PATTERN will be applied case-sensitive.
+                       ci : the PATTERN will be applied case-insensitive.
+                     - Default: ci
+              VALUE  - A (constant) value to be applied to the METHOD along
+                       with the (variable) filenames in question.
+    PATH   - A path to be examined. Subdirectories are included if existing.
+             Multiple PATHs can be examined.
