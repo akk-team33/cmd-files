@@ -6,6 +6,7 @@ import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.common.StatsTotal;
 import de.team33.cmd.files.matching.NameMatcher;
+import de.team33.cmd.files.stats.Aggregat;
 import de.team33.patterns.io.alpha.FileEntry;
 import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FileType;
@@ -27,13 +28,13 @@ class Finder implements Runnable {
     private final Output out;
     private final NameMatcher nameMatcher;
     private final FileIndex index;
-    private final Stats stats;
+    private final Stats_ stats;
 
     private Finder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
         this.index = FileIndex.of(paths);
-        this.stats = new Stats();
+        this.stats = new Stats_();
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
@@ -51,7 +52,6 @@ class Finder implements Runnable {
     @Override
     public final void run() {
         stats.reset();
-        final Stats stats = new Stats();
         index.entries()
              .peek(stats::addTotal)
              .filter(nameMatcher::matches)
@@ -60,6 +60,28 @@ class Finder implements Runnable {
         stats.lines()
              .forEach(line -> out.printf("%s%n", line));
         out.printf("%n");
+    }
+
+    private static class Stats_ {
+
+        private final Aggregat<FileEntry> aggregat = Aggregat.headEmpty()
+                                                             .add();
+
+        final void reset() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        final void addTotal(final FileEntry entry) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        final void addFound(final FileEntry entry) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        final Stream<String> lines() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
     }
 
     private static class Stats {
