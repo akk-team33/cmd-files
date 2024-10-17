@@ -9,4 +9,10 @@ class Bytes {
         }
         return sb.toString();
     }
+
+    static String toCompactString(final byte[] bytes) {
+        final int shortLength = bytes.length / 5;
+        final byte[] shortBytes = new byte[shortLength];
+        throw new UnsupportedOperationException("not yet implemented");
+    }
 }
