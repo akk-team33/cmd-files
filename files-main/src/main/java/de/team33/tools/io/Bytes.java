@@ -59,7 +59,7 @@ class Bytes {
     }
 
     static String toCompactString(final byte[] bytes) {
-        return toString(compact(bytes, 5, salted(Operation.XOR, 71, 107)), 32);
+        return toString(compact(bytes, 5, salted(Operation.XOR, 7, 13)), 32);
     }
 
     interface Operation {
