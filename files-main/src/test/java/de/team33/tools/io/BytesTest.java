@@ -1,14 +1,14 @@
 package de.team33.tools.io;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import java.math.BigInteger;
 import java.util.stream.IntStream;
 
-import static de.team33.tools.io.Bytes.Operation.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static de.team33.tools.io.Bytes.Operation.ADD;
+import static de.team33.tools.io.Bytes.Operation.XOR;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BytesTest {
 
