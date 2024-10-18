@@ -59,7 +59,7 @@ class Bytes {
     }
 
     static String toCompactString(final byte[] bytes) {
-        return toString(compact(bytes, 5, Operation.XOR), 32);
+        return toString(compact(bytes, 5, salted(Operation.XOR, 71, 107)), 32);
     }
 
     interface Operation {
@@ -68,6 +68,19 @@ class Bytes {
         Operation XOR = (left, right) -> (byte) (left ^ right);
 
         byte apply(byte left, byte right);
+    }
+
+    static Operation salted(final Operation baseOp, final int leftSalt, final int rightSalt) {
+        return new Operation() {
+
+            private int salt = 0;
+
+            @Override
+            public byte apply(final byte left, final byte right) {
+                return baseOp.apply((byte) (left + (salt += leftSalt)),
+                                    (byte) (right + (salt += rightSalt)));
+            }
+        };
     }
 
     private record ExpectedStringLengthKey(int bytesLength, int radix) {
