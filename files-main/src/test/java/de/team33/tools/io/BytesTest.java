@@ -56,10 +56,10 @@ class BytesTest {
 
     private enum ToHexStringCase {
 
-        _00_ff(toBytes(0,0,0,0,-1,-1,-1,-1), "00000000ffffffff"),
-        _ff_00(toBytes(-1,-1,-1,-1,0,0,0,0), "ffffffff00000000"),
-        _1TO16(toBytes(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), "0102030405060708090a0b0c0d0e0f10"),
-        _16TO1(toBytes(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1), "100f0e0d0c0b0a090807060504030201"),
+        _00_ff(toBytes(0, 0, 0, 0, -1, -1, -1, -1), "00000000ffffffff"),
+        _ff_00(toBytes(-1, -1, -1, -1, 0, 0, 0, 0), "ffffffff00000000"),
+        _1TO16(toBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "0102030405060708090a0b0c0d0e0f10"),
+        _16TO1(toBytes(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1), "100f0e0d0c0b0a090807060504030201"),
         _ff_20(bytesOf(0xff, 20), "ffffffffffffffffffffffffffffffffffffffff"),
         _0_20(bytesOf(0, 20), "0000000000000000000000000000000000000000");
 
@@ -74,10 +74,10 @@ class BytesTest {
 
     private enum ToBase32StringCase {
 
-        _00_ff(toBytes(0,0,0,0,-1,-1,-1,-1), "0000003vvvvvv"),
-        _ff_00(toBytes(-1,-1,-1,-1,0,0,0,0), "fvvvvvs000000"),
-        _1TO16(toBytes(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), "01081g81860s40i2gb1g6gs3og"),
-        _16TO1(toBytes(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1), "0g1s70q30b184gg1o60k2060g1"),
+        _00_ff(toBytes(0, 0, 0, 0, -1, -1, -1, -1), "0000003vvvvvv"),
+        _ff_00(toBytes(-1, -1, -1, -1, 0, 0, 0, 0), "fvvvvvs000000"),
+        _1TO16(toBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "01081g81860s40i2gb1g6gs3og"),
+        _16TO1(toBytes(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1), "0g1s70q30b184gg1o60k2060g1"),
         _ff_20(bytesOf(0xff, 20), "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"),
         _0_20(bytesOf(0, 20), "00000000000000000000000000000000"),
         _LEN_5(bytesOf(15, 5), "1s7gu3of");
@@ -93,13 +93,15 @@ class BytesTest {
 
     private enum ToCompactStringCase {
 
-        _00_ff(toBytes(0,0,0,0,-1,-1,-1,-1), "00000000"),
-        _ff_00(toBytes(-1,-1,-1,-1,0,0,0,0), "00000000"),
-        _1TO16(toBytes(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), "2081040g"),
-        _16TO1(toBytes(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1), "2081040g"),
-        _ff_20(bytesOf(0xff, 20), "00000000"),
-        _0_20(bytesOf(0, 20), "00000000"),
-        _LEN_5(bytesOf(15, 5), "1s7gu3of");
+        _00_ff_8(toBytes(0, 0, 0, 0, -1, -1, -1, -1), "ojeb951k"),
+        _ff_00_8(toBytes(-1, -1, -1, -1, 0, 0, 0, 0), "gjmd8t1k"),
+        _00_ff_10(toBytes(0, 0, 0, 0, 0, -1, -1, -1, -1, -1), "jn6mqb8d"),
+        _ff_00_10(toBytes(-1, -1, -1, -1, -1, 0, 0, 0, 0, 0), "jf9n6cob"),
+        _1TO16(toBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "41g01c60"),
+        _16TO1(toBytes(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1), "82g61g60"),
+        _ff_20(bytesOf(0xff, 20), "7209gc1o"),
+        _0_20(bytesOf(0, 20), "12cb1e08"),
+        _LEN_5(bytesOf(15, 5), "gq58t2k6");
 
         private final byte[] origin;
         private final String expected;
