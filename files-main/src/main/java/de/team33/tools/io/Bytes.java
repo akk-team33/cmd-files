@@ -1,8 +1,10 @@
 package de.team33.tools.io;
 
+import java.math.BigInteger;
+
 class Bytes {
 
-    public static byte[] compact(final byte[] normal, final int length, final Operation op) {
+    static byte[] compact(final byte[] normal, final int length, final Operation op) {
         final byte[] result = new byte[length];
         for (int i = 0, k = 0, n = 0;
              i == 0 || k != 0 || n != 0;
@@ -12,12 +14,18 @@ class Bytes {
         return result;
     }
 
+    static String toString(final byte[] bytes, final int radix) {
+        final BigInteger stage = new BigInteger(bytes);
+        final String result = BigInteger.ONE.shiftLeft(bytes.length * Byte.SIZE).add(stage).toString(radix);
+        return (BigInteger.ZERO.compareTo(stage) > 0) ? result : result.substring(1);
+    }
+
     static String toHexString(final byte[] bytes) {
-        final StringBuilder sb = new StringBuilder();
-        for (final byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
+        return toString(bytes, 16);
+    }
+
+    static String toBase32String(final byte[] bytes) {
+        return toString(bytes, 32);
     }
 
     static String toCompactString(final byte[] bytes) {
