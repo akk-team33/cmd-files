@@ -1,9 +1,6 @@
 package de.team33.tools.io;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -62,9 +59,7 @@ class Bytes {
     }
 
     static String toCompactString(final byte[] bytes) {
-        final int shortLength = bytes.length / 5;
-        final byte[] shortBytes = new byte[shortLength];
-        throw new UnsupportedOperationException("not yet implemented");
+        return toString(compact(bytes, 5, Operation.XOR), 32);
     }
 
     interface Operation {
