@@ -93,15 +93,15 @@ class BytesTest {
 
     private enum ToCompactStringCase {
 
-        _00_ff_8(toBytes(0, 0, 0, 0, -1, -1, -1, -1), "ojeb951k"),
-        _ff_00_8(toBytes(-1, -1, -1, -1, 0, 0, 0, 0), "gjmd8t1k"),
-        _00_ff_10(toBytes(0, 0, 0, 0, 0, -1, -1, -1, -1, -1), "jn6mqb8d"),
-        _ff_00_10(toBytes(-1, -1, -1, -1, -1, 0, 0, 0, 0, 0), "jf9n6cob"),
-        _1TO16(toBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "41g01c60"),
-        _16TO1(toBytes(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1), "82g61g60"),
-        _ff_20(bytesOf(0xff, 20), "7209gc1o"),
-        _0_20(bytesOf(0, 20), "12cb1e08"),
-        _LEN_5(bytesOf(15, 5), "gq58t2k6");
+        _00_ff_8(toBytes(0, 0, 0, 0, -1, -1, -1, -1), "d3c50e78"),
+        _ff_00_8(toBytes(-1, -1, -1, -1, 0, 0, 0, 0), "d28cgq78"),
+        _00_ff_10(toBytes(0, 0, 0, 0, 0, -1, -1, -1, -1, -1), "14sji299"),
+        _ff_00_10(toBytes(-1, -1, -1, -1, -1, 0, 0, 0, 0, 0), "0srge1p7"),
+        _1TO16(toBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "e1gd043g"),
+        _16TO1(toBytes(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1), "a2o3107g"),
+        _ff_20(bytesOf(0xff, 20), "008e1s30"),
+        _0_20(bytesOf(0, 20), "fh63o33s"),
+        _LEN_5(bytesOf(15, 5), "4gm68714");
 
         private final byte[] origin;
         private final String expected;
