@@ -1,0 +1,47 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    [1] %2$s hash -c init
+    [2] %2$s hash [-p:PATTERN] PATH [PATH [...]]
+
+Description:
+
+[1] Initiate a runtime configuration: A file named "(files.hash).txt" in the
+    current working directory preliminary containing default configuration
+    values. You may later edit and so modify that configuration.
+
+[2] 1. Determine an SHA-1 hash value and a short form of it for each regular
+    file in the specified directories whose name corresponds to the specified
+    (or predefined) pattern.
+
+    2. Save the values together with other information about the respective
+    file (file size, time of last modification) in a user-specific cache.
+
+    3. Add the short form of the hash value to the file name of each affected
+    file in order to be able to establish a relationship between the file and
+    the data stored in the cache.
+
+    4. Find potential duplicates of the affected files and finally list them.
+
+    OPTIONAL: If specified accordingly in the runtime configuration,
+    duplicates of the affected files are moved to a quarantine directory.
+
+Parameters:
+
+    PATTERN - Consists of [METHOD[/OPTION]:]VALUE
+              METHOD - One of {rx, wc} (case-insensitive)
+                       rx : the VALUE is treated as a regular expression.
+                       wc : the VALUE is treated as the full file name,
+                            but allows the use of the usual wildcards (?*).
+                     - Default: wc
+              OPTION - One of {cs, ci} (case-insensitive)
+                       cs : the PATTERN will be applied case-sensitive.
+                       ci : the PATTERN will be applied case-insensitive.
+                     - Default: ci
+              VALUE  - The value to be applied to the METHOD.
+            - Default: As defined in the runtime configuration or else '*'.
+    PATH    - A path to be examined. Subdirectories are included if existing.
+              Multiple PATHs can be examined at once.
