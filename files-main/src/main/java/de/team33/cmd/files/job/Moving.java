@@ -1,6 +1,7 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.cleaning.DirDeletion;
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.moving.Guard;
@@ -38,25 +39,22 @@ class Moving implements Runnable {
         this.deletion = new DirDeletion(out, mainPath, stats);
     }
 
-    static Moving job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.MOVE.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (args.stream().skip(2).findFirst().map("-r"::equalsIgnoreCase).orElse(false)) {
-            return job(out, Mode.DEEP, args, 3);
+    static Moving job(final Condition condition) throws RequestException {
+        if (condition.args().stream().skip(2).findFirst().map("-r"::equalsIgnoreCase).orElse(false)) {
+            return job(condition, Mode.DEEP, 3);
         } else {
-            return job(out, Mode.FLAT, args, 2);
+            return job(condition, Mode.FLAT, 2);
         }
     }
 
-    private static Moving job(final Output out, final Mode mode,
-                              final List<String> args, final int nextArg) throws RequestException {
-        if ((nextArg + 2) == args.size()) {
-            final Path mainPath = Path.of(args.get(nextArg));
-            final Resolver resolver = Resolver.parse(args.get(nextArg + 1));
-            return new Moving(out, mode, mainPath, resolver);
+    private static Moving job(final Condition condition, final Mode mode,
+                              final int nextArg) throws RequestException {
+        if ((nextArg + 2) == condition.args().size()) {
+            final Path mainPath = Path.of(condition.args().get(nextArg));
+            final Resolver resolver = Resolver.parse(condition.args().get(nextArg + 1));
+            return new Moving(condition.out(), mode, mainPath, resolver);
         }
-        throw RequestException.format(Moving.class, "Moving.txt", Util.cmdLine(args), Util.cmdName(args));
+        throw condition.toRequestException(Moving.class).get();
     }
 
     private Stream<FileEntry> stream() {

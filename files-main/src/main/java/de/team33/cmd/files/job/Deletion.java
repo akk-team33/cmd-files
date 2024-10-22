@@ -1,5 +1,6 @@
 package de.team33.cmd.files.job;
 
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
@@ -11,10 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
-import static de.team33.cmd.files.job.Util.cmdLine;
-import static de.team33.cmd.files.job.Util.cmdName;
 
 class Deletion implements Runnable {
 
@@ -31,16 +30,16 @@ class Deletion implements Runnable {
         this.index = FileIndex.of(paths);
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.DELETE.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (3 < args.size()) {
-            final String expression = args.get(2);
-            final List<Path> paths = args.stream().skip(3).map(Path::of).toList();
-            return new Deletion(out, expression, paths);
-        }
-        throw RequestException.format(Deletion.class, "Deletion.txt", cmdLine(args), cmdName(args));
+    public static Runnable job(final Condition condition) throws RequestException {
+        return Optional.of(condition.args())
+                       .filter(args -> 3 < args.size())
+                       .map(args -> new Deletion(condition.out(),
+                                                 args.get(2),
+                                                 args.stream()
+                                                     .skip(3)
+                                                     .map(Path::of)
+                                                     .toList()))
+                       .orElseThrow(condition.toRequestException(Deletion.class));
     }
 
     @Override

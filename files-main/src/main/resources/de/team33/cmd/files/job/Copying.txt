@@ -4,7 +4,7 @@ Your request:
 
 Expected request scheme:
 
-    %2$s copy STRATEGY SRC_PATH TGT_PATH
+    %2$s STRATEGY SRC_PATH TGT_PATH
 
     ... to recursively copy regular files and their relative file structure
     from a source directory to a target directory.
@@ -28,14 +28,14 @@ Parameters:
 
 Examples:
 
-[1] %2$s copy cu path/to/source path/to/target
+[1] %2$s cu path/to/source path/to/target
 
     ... to recursively copy regular files and their relative file structure
         from 'path/to/source' to 'path/to/target' if they do not already exist
         in the target directory or if they are newer than the corresponding
         target file.
 
-[2] %2$s copy UcDRo path/to/source path/to/target
+[2] %2$s UcDRo path/to/source path/to/target
 
     ... to recursively copy regular files and their relative file structure
         from 'path/to/source' to 'path/to/target', regardless of whether

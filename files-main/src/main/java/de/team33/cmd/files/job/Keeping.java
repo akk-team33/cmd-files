@@ -1,5 +1,6 @@
 package de.team33.cmd.files.job;
 
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.FileType;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
@@ -66,17 +67,15 @@ class Keeping implements Runnable {
                         .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    static Runnable job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.KEEP.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    static Keeping job(final Condition condition) throws RequestException {
+        final List<String> args = condition.args();
         final int size = args.size();
         if (5 == size) {
-            return new Keeping(out, args.get(2), args.get(3), args.get(4));
+            return new Keeping(condition.out(), args.get(2), args.get(3), args.get(4));
         } else if (6 == size) {
-            return new Keeping(out, args.get(2), args.get(3), args.get(4), args.get(5));
+            return new Keeping(condition.out(), args.get(2), args.get(3), args.get(4), args.get(5));
         } else {
-            throw RequestException.format(Keeping.class, "Keeping.txt", Util.cmdLine(args), Util.cmdName(args));
+            throw condition.toRequestException(Keeping.class).get();
         }
     }
 

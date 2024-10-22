@@ -4,7 +4,7 @@ Your request:
 
 Expected request scheme:
 
-    %2$s dedupe PATH
+    %2$s PATH
 
     ... to relocate all duplicated regular files located in a given
     processing directory. Files located in subdirectories are also processed.

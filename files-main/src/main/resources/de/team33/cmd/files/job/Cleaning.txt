@@ -4,7 +4,7 @@ Your request:
 
 Expected request scheme:
 
-    %2$s clean PATH [PATH [...]]
+    %2$s PATH [PATH [...]]
 
     ... to remove given directories if they are empty
         after cleaning all their subdirectories.

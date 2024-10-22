@@ -1,6 +1,7 @@
 package de.team33.cmd.files.common;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class Condition extends CoreCondition {
 
@@ -27,5 +28,10 @@ public class Condition extends CoreCondition {
 
     public final String cmdSpec() {
         return cmdSpec;
+    }
+
+    public final Supplier<RequestException> toRequestException(final Class<?> refClass) {
+        return () -> RequestException.format(refClass,refClass.getSimpleName() + ".txt",
+                                             cmdLine(), cmdSpec());
     }
 }

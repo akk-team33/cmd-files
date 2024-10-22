@@ -3,6 +3,7 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.balancing.Relative;
 import de.team33.cmd.files.balancing.Relatives;
 import de.team33.cmd.files.balancing.State;
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
@@ -13,12 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,17 +38,14 @@ class Copying implements Runnable {
         this.target = target;
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.COPY.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (5 == args.size()) {
-            final Set<Strategy> strategies = Strategy.parse(args.get(2));
-            final Path source = Path.of(args.get(3));
-            final Path target = Path.of(args.get(4));
-            return new Copying(out, strategies, source, target);
-        }
-        throw RequestException.format(Copying.class, "Copying.txt", Util.cmdLine(args), Util.cmdName(args));
+    public static Runnable job(final Condition condition) throws RequestException {
+        return Optional.of(condition.args())
+                       .filter(args -> (5 == args.size()))
+                       .map(args -> new Copying(condition.out(),
+                                                Strategy.parse(args.get(2)),
+                                                Path.of(args.get(3)),
+                                                Path.of(args.get(4))))
+                       .orElseThrow(condition.toRequestException(Copying.class));
     }
 
     @Override

@@ -2,12 +2,10 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.CoreCondition;
-import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.patterns.enums.alpha.Values;
-import de.team33.patterns.exceptional.dione.XBiFunction;
+import de.team33.patterns.exceptional.dione.XFunction;
 
-import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -28,10 +26,10 @@ public enum Regular {
 
     private static final Values<Regular> VALUES = Values.of(Regular.class);
 
-    private final XBiFunction<Output, List<String>, Runnable, RequestException> toJob;
+    private final XFunction<Condition, Runnable, RequestException> toJob;
     private final String excerpt;
 
-    Regular(final XBiFunction<Output, List<String>, Runnable, RequestException> toJob, final String excerpt) {
+    Regular(final XFunction<Condition, Runnable, RequestException> toJob, final String excerpt) {
         this.toJob = toJob;
         this.excerpt = excerpt;
     }
@@ -70,6 +68,6 @@ public enum Regular {
     }
 
     private Runnable runnable(final Condition condition) throws RequestException {
-        return toJob.apply(condition.out(), condition.args());
+        return toJob.apply(condition);
     }
 }

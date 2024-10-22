@@ -4,7 +4,7 @@ Your request:
 
 Expected request scheme:
 
-    %2$s dcopy SRC_PATH TGT_PATH
+    %2$s SRC_PATH TGT_PATH
 
     ... to recursively copy the (empty) directory structure
     from a source directory to a target directory.

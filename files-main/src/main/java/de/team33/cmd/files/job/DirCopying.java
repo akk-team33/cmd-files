@@ -1,5 +1,6 @@
 package de.team33.cmd.files.job;
 
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.patterns.io.alpha.FileEntry;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 class DirCopying implements Runnable {
 
@@ -25,16 +27,13 @@ class DirCopying implements Runnable {
         this.target = target;
     }
 
-    static DirCopying job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.DCOPY.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (4 == args.size()) {
-            final Path source = Path.of(args.get(2));
-            final Path target = Path.of(args.get(3));
-            return new DirCopying(out, source, target);
-        }
-        throw RequestException.format(DirCopying.class, "DirCopying.txt", Util.cmdLine(args), Util.cmdName(args));
+    static DirCopying job(final Condition condition) throws RequestException {
+        return Optional.of(condition.args())
+                       .filter(args -> (4 == args.size()))
+                       .map(args -> new DirCopying(condition.out(),
+                                                   Path.of(args.get(2)),
+                                                   Path.of(args.get(3))))
+                       .orElseThrow(condition.toRequestException(DirCopying.class));
     }
 
     @Override

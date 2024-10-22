@@ -1,6 +1,7 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.cleaning.DirDeletion;
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.HashId;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
@@ -18,12 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -51,14 +47,11 @@ class Deduping implements Runnable {
         return path + ".(dupes)";
     }
 
-    static Deduping job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.DEDUPE.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (3 == args.size()) {
-            return new Deduping(out, Path.of(args.get(2)));
-        }
-        throw RequestException.format(Moving.class, "Deduping.txt", Util.cmdLine(args), Util.cmdName(args));
+    static Deduping job(final Condition condition) throws RequestException {
+        return Optional.of(condition.args())
+                       .filter(args -> 3 == args.size())
+                       .map(args -> new Deduping(condition.out(), Path.of(args.get(2))))
+                       .orElseThrow(condition.toRequestException(Deduping.class));
     }
 
     @Override

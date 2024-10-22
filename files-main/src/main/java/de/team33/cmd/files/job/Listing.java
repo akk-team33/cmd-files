@@ -1,5 +1,6 @@
 package de.team33.cmd.files.job;
 
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
@@ -8,10 +9,10 @@ import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.alpha.FileType;
 
 import java.nio.file.Path;
-import java.util.*;
-
-import static de.team33.cmd.files.job.Util.cmdLine;
-import static de.team33.cmd.files.job.Util.cmdName;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 
 class Listing implements Runnable {
 
@@ -25,16 +26,12 @@ class Listing implements Runnable {
         this.paths = paths;
     }
 
-    static Runnable job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.LIST.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        final int size = args.size();
-        if (2 < size) {
-            final List<Path> paths = args.stream().skip(2).map(Path::of).toList();
-            return new Listing(out, paths);
-        }
-        throw RequestException.format(Listing.class, "Listing.txt", cmdLine(args), cmdName(args));
+    static Runnable job(final Condition condition) throws RequestException {
+        return Optional.of(condition.args())
+                       .filter(args -> 2 < args.size())
+                       .map(args -> new Listing(condition.out(),
+                                                args.stream().skip(2).map(Path::of).toList()))
+                       .orElseThrow(condition.toRequestException(Listing.class));
     }
 
     @Override

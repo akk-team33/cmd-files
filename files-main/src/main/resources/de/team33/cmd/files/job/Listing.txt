@@ -4,7 +4,7 @@ Your request:
 
 Expected request scheme:
 
-    %2$s list PATH [PATH [...]]
+    %2$s PATH [PATH [...]]
 
 Parameters:
 

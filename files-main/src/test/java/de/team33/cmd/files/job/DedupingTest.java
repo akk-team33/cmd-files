@@ -12,9 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 
+import static de.team33.cmd.files.job.Util.condition;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DedupingTest extends ModifyingTestBase {
@@ -30,14 +30,14 @@ class DedupingTest extends ModifyingTestBase {
         final Path leftIndexPath = leftPath().resolve(Guard.DEDUPED_INDEX);
         final Path rightIndexPath = rightPath().resolve(Guard.DEDUPED_INDEX);
 
-        Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
+        Deduping.job(condition(MUTE, "files", "dedupe", leftPath().toString())).run();
         assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-left.txt")
                            .formatted(TextIO.read(leftPath().resolve(Guard.DEDUPE_PATH_ID))),
                      TextIO.read(leftIndexPath));
 
         Files.copy(leftIndexPath, rightIndexPath);
 
-        Deduping.job(MUTE, Arrays.asList("files", "dedupe", rightPath().toString())).run();
+        Deduping.job(condition(MUTE, "files", "dedupe", rightPath().toString())).run();
         assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-right.txt")
                            .formatted(TextIO.read(rightPath().resolve(Guard.DEDUPE_PATH_ID))),
                      TextIO.read(rightIndexPath));
@@ -55,7 +55,7 @@ class DedupingTest extends ModifyingTestBase {
         final Path leftIndexPath = leftPath().resolve(Guard.DEDUPED_INDEX);
         final Path rightIndexPath = rightPath().resolve(Guard.DEDUPED_INDEX);
 
-        Deduping.job(MUTE, Arrays.asList("files", "dedupe", leftPath().toString())).run();
+        Deduping.job(condition(MUTE, "files", "dedupe", leftPath().toString())).run();
         assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-left.txt")
                            .formatted(TextIO.read(leftPath().resolve(Guard.DEDUPE_PATH_ID))),
                      TextIO.read(leftIndexPath));
@@ -63,7 +63,7 @@ class DedupingTest extends ModifyingTestBase {
         Files.writeString(rightPath().resolve(Guard.DEDUPE_NEXT), Guard.DEDUPE_NEXT);
         Files.copy(leftIndexPath, rightIndexPath);
 
-        Deduping.job(MUTE, Arrays.asList("files", "dedupe", rightPath().toString())).run();
+        Deduping.job(condition(MUTE, "files", "dedupe", rightPath().toString())).run();
         assertEquals(TextIO.read(DedupingTest.class, "DedupingTest-dedupe-index-next-right.txt")
                            .formatted(TextIO.read(rightPath().resolve(Guard.DEDUPE_PATH_ID))),
                      TextIO.read(rightIndexPath));

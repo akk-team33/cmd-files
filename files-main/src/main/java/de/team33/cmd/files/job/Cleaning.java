@@ -1,17 +1,16 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.cleaning.DirDeletion;
+import de.team33.cmd.files.common.Condition;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FilePolicy;
 
 import java.nio.file.Path;
 import java.util.List;
-
-import static de.team33.cmd.files.job.Util.cmdLine;
-import static de.team33.cmd.files.job.Util.cmdName;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 class Cleaning implements Runnable {
 
@@ -28,19 +27,16 @@ class Cleaning implements Runnable {
         this.deletion = new DirDeletion(out, Path.of(".").toAbsolutePath().normalize(), stats);
     }
 
-    public static Cleaning job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Regular.CLEAN.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (2 < args.size()) {
-            final List<FileEntry> entries = args.stream()
-                                                .skip(2)
-                                                .map(Path::of)
-                                                .map(path -> FileEntry.of(path))
-                                                .toList();
-            return new Cleaning(out, entries);
-        }
-        throw RequestException.format(Listing.class, "Cleaning.txt", cmdLine(args), cmdName(args));
+    public static Cleaning job(final Condition condition) throws RequestException {
+        final List<FileEntry> entries = Optional.of(condition.args())
+                                                .filter(args -> (2 < args.size()))
+                                                .map(args -> args.stream()
+                                                                 .skip(2)
+                                                                 .map(Path::of)
+                                                                 .map(FileEntry::of)
+                                                                 .toList())
+                                                .orElseThrow(condition.toRequestException(Cleaning.class));
+        return new Cleaning(condition.out(), entries);
     }
 
     @Override
