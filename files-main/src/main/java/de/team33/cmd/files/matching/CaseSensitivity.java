@@ -1,6 +1,6 @@
 package de.team33.cmd.files.matching;
 
-import de.team33.patterns.enums.alpha.Values;
+import de.team33.patterns.enums.pan.Values;
 
 import java.util.function.Function;
 import java.util.function.Supplier;

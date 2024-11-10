@@ -1,12 +1,12 @@
 package de.team33.cmd.files.cleaning;
 
 import de.team33.cmd.files.common.Output;
-import de.team33.patterns.io.alpha.FileEntry;
+import de.team33.patterns.io.phobos.FileEntry;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class DirDeletion {
 
@@ -20,9 +20,8 @@ public class DirDeletion {
         this.stats = stats;
     }
 
-    public boolean clean(final List<FileEntry> entries) {
-        return entries.stream()
-                      .map(this::clean)
+    public boolean clean(final Stream<FileEntry> entries) {
+        return entries.map(this::clean)
                       .reduce(true, Boolean::logicalAnd);
     }
 

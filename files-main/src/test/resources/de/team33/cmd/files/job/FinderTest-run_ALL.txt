@@ -40,7 +40,7 @@
           37 entries examined.
 
           37 entries found
-              15 of type DIRECTORY
               22 of type REGULAR
+              15 of type DIRECTORY
 
 

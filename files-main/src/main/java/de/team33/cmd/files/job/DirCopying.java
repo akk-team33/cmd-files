@@ -2,18 +2,17 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FilePolicy;
+import de.team33.patterns.io.phobos.FileEntry;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 class DirCopying implements Runnable {
 
     static final String EXCERPT = "Copy the subdirectory structure from one directory to another.";
-    private static final FilePolicy POLICY = FilePolicy.RESOLVE_SYMLINKS;
 
     private final Output out;
     private final Path source;
@@ -39,10 +38,10 @@ class DirCopying implements Runnable {
 
     @Override
     public void run() {
-        copy(FileEntry.of(source, POLICY).entries());
+        copy(FileEntry.of(source).resolved().entries());
     }
 
-    private void copy(final List<FileEntry> entries) {
+    private void copy(final Stream<FileEntry> entries) {
         entries.forEach(this::copy);
     }
 

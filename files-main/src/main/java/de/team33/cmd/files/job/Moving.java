@@ -5,8 +5,8 @@ import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.moving.Resolver;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FileIndex;
+import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.phobos.FileIndex;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,17 +62,16 @@ class Moving implements Runnable {
     private Stream<FileEntry> stream() {
         return switch (mode) {
             case FLAT -> FileEntry.of(mainPath)
-                                  .entries()
-                                  .stream();
+                                  .entries();
             case DEEP -> FileIndex.of(mainPath)
                                   .entries()
                                   .skip(1);
         };
     }
 
-    private List<FileEntry> list() {
+    private Stream<FileEntry> entries() {
         return switch (mode) {
-            case FLAT -> List.of();
+            case FLAT -> Stream.of();
             case DEEP -> FileEntry.of(mainPath)
                                   .entries();
         };
@@ -84,7 +83,7 @@ class Moving implements Runnable {
         stream().filter(FileEntry::isRegularFile)
                 .filter(Guard::unprotected)
                 .forEach(this::move);
-        deletion.clean(list());
+        deletion.clean(entries());
         out.printf("%n" +
                    "%12d files moved%n" +
                    "%12d files skipped%n" +
@@ -124,7 +123,7 @@ class Moving implements Runnable {
 
     private enum Mode {
         FLAT,
-        DEEP;
+        DEEP
     }
 
     private static class Stats implements DirDeletion.Stats {

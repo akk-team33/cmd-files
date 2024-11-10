@@ -1,8 +1,8 @@
 package de.team33.patterns.io.alpha.publics;
 
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FileIndex;
 import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.phobos.FileIndex;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

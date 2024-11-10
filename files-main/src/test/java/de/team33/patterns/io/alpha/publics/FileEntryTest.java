@@ -1,8 +1,7 @@
 package de.team33.patterns.io.alpha.publics;
 
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FilePolicy;
-import de.team33.patterns.io.alpha.FileType;
+import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.phobos.FileType;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -31,21 +30,21 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void path(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path).resolved();
         assertTrue(entry.path().isAbsolute());
     }
 
     @ParameterizedTest
     @MethodSource("paths")
     final void name(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path).resolved();
         assertEquals(path.getFileName().toString(), entry.name());
     }
 
     @ParameterizedTest
     @MethodSource("paths")
     final void testToString(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path).resolved();
         assertEquals(path.toAbsolutePath().normalize().toString(), entry.toString());
     }
 
@@ -141,7 +140,7 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void size(final Path path) throws IOException {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path).resolved();
         if (entry.exists()) {
             assertEquals(Files.size(path), entry.size());
         } else {
@@ -152,7 +151,7 @@ class FileEntryTest {
     @ParameterizedTest
     @MethodSource("paths")
     final void entries(final Path path) {
-        final FileEntry entry = FileEntry.of(path, FilePolicy.RESOLVE_SYMLINKS);
+        final FileEntry entry = FileEntry.of(path).resolved();
         if (entry.isDirectory()) {
             assertNotNull(entry.entries());
         } else {

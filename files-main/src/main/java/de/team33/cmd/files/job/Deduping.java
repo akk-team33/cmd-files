@@ -5,8 +5,8 @@ import de.team33.cmd.files.common.HashId;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.moving.Guard;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FileIndex;
+import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.phobos.FileIndex;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

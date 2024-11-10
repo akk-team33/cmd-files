@@ -3,9 +3,9 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FileIndex;
-import de.team33.patterns.io.alpha.FileType;
+import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.phobos.FileIndex;
+import de.team33.patterns.io.phobos.FileType;
 
 import java.nio.file.Path;
 import java.util.*;

@@ -3,8 +3,8 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FileIndex;
+import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.phobos.FileIndex;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -75,10 +76,8 @@ class Deletion implements Runnable {
         }
     }
 
-    private void delete(final List<FileEntry> entries) {
-        for (final FileEntry entry : entries) {
-            delete(entry, Cause.IMPLICIT);
-        }
+    private void delete(final Stream<FileEntry> entries) {
+        entries.forEach(entry -> delete(entry, Cause.IMPLICIT));
     }
 
     private enum Cause {

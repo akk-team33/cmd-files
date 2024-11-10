@@ -2,7 +2,7 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.enums.alpha.Values;
+import de.team33.patterns.enums.pan.Values;
 import de.team33.patterns.exceptional.dione.XBiFunction;
 
 import java.util.List;

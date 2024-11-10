@@ -6,7 +6,7 @@ import de.team33.cmd.files.balancing.State;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.enums.alpha.Values;
+import de.team33.patterns.enums.pan.Values;
 
 import java.io.IOException;
 import java.nio.file.Files;

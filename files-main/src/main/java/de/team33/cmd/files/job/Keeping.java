@@ -3,8 +3,7 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.FileType;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FilePolicy;
+import de.team33.patterns.io.phobos.FileEntry;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,9 +46,9 @@ class Keeping implements Runnable {
     }
 
     private static Set<Path> toBeMoved(final Path parent, final FileType type, final Set<String> names) {
-        return FileEntry.of(parent, FilePolicy.RESOLVE_SYMLINKS)
+        return FileEntry.of(parent)
+                        .resolved()
                         .entries()
-                        .stream()
                         .filter(type::isTypeOf)
                         .filter(not(path -> isMatching(path, names)))
                         .map(FileEntry::path)
@@ -57,9 +56,9 @@ class Keeping implements Runnable {
     }
 
     private static Set<String> pureNamesOf(final Path parent, final FileType type) {
-        return FileEntry.of(parent, FilePolicy.RESOLVE_SYMLINKS)
+        return FileEntry.of(parent)
+                        .resolved()
                         .entries()
-                        .stream()
                         .filter(FileEntry::isRegularFile)
                         .map(type::toPureName)
                         .filter(Objects::nonNull)

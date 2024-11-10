@@ -28,18 +28,14 @@
             <groupId>de.team33.patterns</groupId>
             <artifactId>io-deimos</artifactId>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>de.team33.patterns</groupId>
             <artifactId>io-phobos</artifactId>
         </dependency>
         <dependency>
             <groupId>de.team33.patterns</groupId>
-            <artifactId>lazy-narvi</artifactId>
+            <artifactId>enums-pan</artifactId>
         </dependency>
-        <dependency>
-            <groupId>de.team33.patterns</groupId>
-            <artifactId>collection-ceres</artifactId>
-        </dependency-->
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>

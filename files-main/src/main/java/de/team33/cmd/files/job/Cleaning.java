@@ -4,8 +4,7 @@ import de.team33.cmd.files.cleaning.DirDeletion;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FilePolicy;
+import de.team33.patterns.io.phobos.FileEntry;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -36,7 +35,7 @@ class Cleaning implements Runnable {
             final List<FileEntry> entries = args.stream()
                                                 .skip(2)
                                                 .map(Path::of)
-                                                .map(path -> FileEntry.of(path))
+                                                .map(FileEntry::of)
                                                 .toList();
             return new Cleaning(out, entries);
         }
@@ -46,7 +45,7 @@ class Cleaning implements Runnable {
     @Override
     public final void run() {
         stats.reset();
-        deletion.clean(entries);
+        deletion.clean(entries.stream());
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +

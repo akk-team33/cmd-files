@@ -1,7 +1,7 @@
 package de.team33.cmd.files.matching.publics;
 
 import de.team33.cmd.files.matching.TypeMatcher;
-import de.team33.patterns.io.alpha.FileEntry;
+import de.team33.patterns.io.phobos.FileEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -35,7 +35,7 @@ class TypeMatcherTest {
             fail("expected to fail - but was " + matcher);
         } catch (final IllegalArgumentException e) {
             // as expected -> OK!
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 }

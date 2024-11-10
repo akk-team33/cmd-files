@@ -1,7 +1,6 @@
 package de.team33.cmd.files.balancing;
 
-import de.team33.patterns.io.alpha.FileEntry;
-import de.team33.patterns.io.alpha.FilePolicy;
+import de.team33.patterns.io.phobos.FileEntry;
 
 import java.nio.file.Path;
 

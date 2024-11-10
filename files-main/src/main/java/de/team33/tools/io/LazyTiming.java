@@ -1,6 +1,6 @@
 package de.team33.tools.io;
 
-import de.team33.patterns.io.alpha.FileEntry;
+import de.team33.patterns.io.phobos.FileEntry;
 
 import java.time.temporal.ChronoUnit;
 import java.util.regex.MatchResult;
