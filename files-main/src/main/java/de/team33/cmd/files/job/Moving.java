@@ -32,7 +32,7 @@ class Moving implements Runnable {
                    final Resolver resolver) {
         this.out = out;
         this.mode = mode;
-        this.mainPath = mainPath;
+        this.mainPath = mainPath.toAbsolutePath().normalize();
         this.resolver = resolver;
         this.stats = new Stats();
         this.deletion = new DirDeletion(out, mainPath, stats);

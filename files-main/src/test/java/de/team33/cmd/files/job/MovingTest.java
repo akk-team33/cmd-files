@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MovingTest extends ModifyingTestBase {
 
     MovingTest() {
-        super(ABSOLUTE, InitMode.FILL_LEFT_ONLY);
+        super(RELATIVE, InitMode.FILL_LEFT_ONLY);
     }
 
     @Test

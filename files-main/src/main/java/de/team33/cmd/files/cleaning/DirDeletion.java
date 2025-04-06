@@ -16,7 +16,7 @@ public class DirDeletion {
 
     public DirDeletion(final Output out, final Path mainPath, final Stats stats) {
         this.out = out;
-        this.mainPath = mainPath;
+        this.mainPath = mainPath.toAbsolutePath().normalize();
         this.stats = stats;
     }
 
