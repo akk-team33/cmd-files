@@ -1,7 +1,7 @@
 package de.team33.cmd.files.publics;
 
 import de.team33.cmd.files.Main;
-import de.team33.cmd.files.job.Regular;
+import de.team33.cmd.files.job.Command;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.stdio.ersa.Redirected;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,8 @@ class MainTest {
 
     @Test
     final void main_oneArg() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_oneArg.txt"),
-                                              Regular.excerpts());
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_oneArg.txt")
+                                      .formatted(Command.excerpts());
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME));
         // System.out.println(result);

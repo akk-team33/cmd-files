@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
 
-public enum Regular {
+public enum Command {
 
     ABOUT(About::job, About.EXCERPT),
     CLEAN(Cleaning::job, Cleaning.EXCERPT),
@@ -27,12 +27,12 @@ public enum Regular {
     MOVE(Moving::job, Moving.EXCERPT),
     KEEP(Keeping::job, Keeping.EXCERPT);
 
-    private static final Values<Regular> VALUES = Values.of(Regular.class);
+    private static final Values<Command> VALUES = Values.of(Command.class);
 
     private final XBiFunction<Output, List<String>, Runnable, RequestException> toJob;
     private final String excerpt;
 
-    Regular(final XBiFunction<Output, List<String>, Runnable, RequestException> toJob, final String excerpt) {
+    Command(final XBiFunction<Output, List<String>, Runnable, RequestException> toJob, final String excerpt) {
         this.toJob = toJob;
         this.excerpt = excerpt;
     }
@@ -47,11 +47,11 @@ public enum Regular {
     }
 
     private static RequestException newBadArgsException(final List<String> args) {
-        return RequestException.format(Regular.class, "BadArgs.txt",
+        return RequestException.format(Command.class, "BadArgs.txt",
                                        cmdLine(args), cmdName(args), excerpts());
     }
 
-    private static Optional<Regular> ofAmbiguous(final List<String> args) {
+    private static Optional<Command> ofAmbiguous(final List<String> args) {
         if (1 < args.size()) {
             return VALUES.findAny(regular -> regular.name().equalsIgnoreCase(args.get(1)));
         } else {
@@ -66,7 +66,7 @@ public enum Regular {
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
         if (args.isEmpty()) {
-            throw RequestException.read(Regular.class, "NoArgs.txt");
+            throw RequestException.read(Command.class, "NoArgs.txt");
         } else {
             return ofCharged(out, args);
         }

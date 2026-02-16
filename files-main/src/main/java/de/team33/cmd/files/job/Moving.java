@@ -40,7 +40,7 @@ class Moving implements Runnable {
 
     static Moving job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.MOVE.name().equalsIgnoreCase(args.get(1));
+        assert Command.MOVE.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (args.stream().skip(2).findFirst().map("-r"::equalsIgnoreCase).orElse(false)) {
             return job(out, Mode.DEEP, args, 3);

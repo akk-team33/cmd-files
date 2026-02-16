@@ -67,7 +67,7 @@ class Keeping implements Runnable {
 
     static Runnable job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.KEEP.name().equalsIgnoreCase(args.get(1));
+        assert Command.KEEP.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         final int size = args.size();
         if (5 == size) {

@@ -29,7 +29,7 @@ class Cleaning implements Runnable {
 
     public static Cleaning job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.CLEAN.name().equalsIgnoreCase(args.get(1));
+        assert Command.CLEAN.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (2 < args.size()) {
             final List<FileEntry> entries = args.stream()

@@ -13,12 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -44,7 +39,7 @@ class Copying implements Runnable {
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.COPY.name().equalsIgnoreCase(args.get(1));
+        assert Command.COPY.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (5 == args.size()) {
             final Set<Strategy> strategies = Strategy.parse(args.get(2));

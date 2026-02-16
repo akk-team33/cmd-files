@@ -32,7 +32,7 @@ class Comparing implements Runnable {
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.CMP.name().equalsIgnoreCase(args.get(1));
+        assert Command.CMP.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (4 == args.size()) {
             final Path source = Path.of(args.get(2));

@@ -1,8 +1,8 @@
 package de.team33.cmd.files;
 
-import de.team33.cmd.files.job.Regular;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
+import de.team33.cmd.files.job.Command;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ public class Main {
     private static Runnable job(final List<String> args) {
         final Output out = Output.SYSTEM;
         try {
-            return Regular.job(out, args);
+            return Command.job(out, args);
         } catch (final RequestException e) {
             return () -> out.printHelp(e.getMessage());
         }

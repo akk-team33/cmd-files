@@ -41,6 +41,9 @@
     </scm>
 
     <properties>
+        <!-- preliminary ... -->
+        <maven.compiler.release>17</maven.compiler.release>
+
         <copyright.year>2026</copyright.year>
     </properties>
 

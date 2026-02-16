@@ -8,7 +8,9 @@ import de.team33.patterns.io.phobos.FileIndex;
 import de.team33.patterns.io.phobos.FileType;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -27,7 +29,7 @@ class Listing implements Runnable {
 
     static Runnable job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.LIST.name().equalsIgnoreCase(args.get(1));
+        assert Command.LIST.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         final int size = args.size();
         if (2 < size) {

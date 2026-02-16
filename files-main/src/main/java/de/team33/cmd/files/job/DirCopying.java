@@ -26,7 +26,7 @@ class DirCopying implements Runnable {
 
     static DirCopying job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.DCOPY.name().equalsIgnoreCase(args.get(1));
+        assert Command.DCOPY.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (4 == args.size()) {
             final Path source = Path.of(args.get(2));

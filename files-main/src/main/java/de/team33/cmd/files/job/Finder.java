@@ -32,7 +32,7 @@ class Finder implements Runnable {
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.FIND.name().equalsIgnoreCase(args.get(1));
+        assert Command.FIND.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (3 < args.size()) {
             final String expression = args.get(2);

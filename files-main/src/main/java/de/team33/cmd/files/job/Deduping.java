@@ -11,19 +11,10 @@ import de.team33.patterns.io.phobos.FileIndex;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -53,7 +44,7 @@ class Deduping implements Runnable {
 
     static Deduping job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
-        assert Regular.DEDUPE.name().equalsIgnoreCase(args.get(1));
+        assert Command.DEDUPE.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (3 == args.size()) {
             return new Deduping(out, Path.of(args.get(2)));

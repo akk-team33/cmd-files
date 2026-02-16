@@ -4,13 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class RegularTest {
+class CommandTest {
 
     @Test
     void excerpt() {
-        final String result = Regular.excerpts();
+        final String result = Command.excerpts();
         // System.out.println(result);
-        for (final Regular item : Regular.values()) {
+        for (final Command item : Command.values()) {
             assertTrue(result.contains(item.name()));
         }
     }
