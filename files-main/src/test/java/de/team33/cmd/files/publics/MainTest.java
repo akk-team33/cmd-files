@@ -29,7 +29,7 @@ class MainTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", "wrong args"})
+    @ValueSource(strings = {"", "wrong args", "keep"})
     final void main_poorArgs(final String moreArgs) throws Exception {
         final String[] cmdLine = String.join(" ", CMD_NAME, moreArgs)
                                        .split(" +");
