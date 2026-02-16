@@ -5,6 +5,8 @@ import de.team33.cmd.files.job.Command;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.stdio.ersa.Redirected;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Collectors;
 
@@ -17,8 +19,8 @@ class MainTest {
 
     @Test
     final void main_noArgs() throws Exception {
-        final String expected = String.format("%s%n%n",
-                                              TextIO.read(MainTest.class, "MainTest-main_noArgs.txt"));
+        final String expected = "%s%n%n"
+                .formatted(TextIO.read(MainTest.class, "MainTest-main_noArgs.txt"));
 
         final String result = Redirected.outputOf(Main::main);
         // System.out.println(result);
@@ -26,12 +28,15 @@ class MainTest {
         assertEquals(expected, result);
     }
 
-    @Test
-    final void main_oneArg() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"", "wrong args"})
+    final void main_poorArgs(final String moreArgs) throws Exception {
+        final String[] cmdLine = String.join(" ", CMD_NAME, moreArgs)
+                                       .split(" +");
         final String expected = TextIO.read(MainTest.class, "MainTest-main_oneArg.txt")
-                                      .formatted(Command.excerpts());
+                                      .formatted(String.join(" ", cmdLine), Command.excerpts());
 
-        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME));
+        final String result = Redirected.outputOf(() -> Main.main(cmdLine));
         // System.out.println(result);
 
         assertEquals(expected, result);
@@ -39,7 +44,8 @@ class MainTest {
 
     @Test
     final void main_about() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_about.txt"));
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_about.txt")
+                                      .formatted();
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "about"))
                                         .lines()
