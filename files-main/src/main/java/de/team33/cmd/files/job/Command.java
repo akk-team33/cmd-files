@@ -24,8 +24,7 @@ public enum Command {
     FIND(Finder::job, Finder.EXCERPT),
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
     LIST(Listing::job, Listing.EXCERPT),
-    MOVE(Moving::job, Moving.EXCERPT),
-    KEEP(Keeping::job, Keeping.EXCERPT);
+    MOVE(Moving::job, Moving.EXCERPT);
 
     private static final Values<Command> VALUES = Values.of(Command.class);
 
