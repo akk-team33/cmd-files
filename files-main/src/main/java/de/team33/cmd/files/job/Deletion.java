@@ -3,8 +3,7 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.phobos.FileEntry;
-import de.team33.patterns.io.phobos.FileIndex;
+import de.team33.patterns.io.delta.FileEntry;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +11,6 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -23,13 +21,15 @@ class Deletion implements Runnable {
 
     private final Output out;
     private final NameMatcher nameMatcher;
-    private final FileIndex index;
+    private final List<FileEntry> entries;
     private final Stats stats = new Stats();
 
     private Deletion(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
-        this.index = FileIndex.of(paths);
+        this.entries = paths.stream()
+                            .map(FileEntry::of)
+                            .toList();
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
@@ -44,11 +44,16 @@ class Deletion implements Runnable {
         throw RequestException.format(Deletion.class, "Deletion.txt", cmdLine(args), cmdName(args));
     }
 
+    private static List<FileEntry> list(final FileEntry entry) {
+        return FileEntry.LISTER.list(entry, Problems::log);
+    }
+
     @Override
     public final void run() {
-        index.entries()
-             .filter(nameMatcher::matches)
-             .forEach(entry -> delete(entry, Cause.EXPLICIT));
+        entries.stream()
+               .flatMap(entry -> FileEntry.STREAMER.stream(entry, Problems::log))
+               .filter(nameMatcher::matches)
+               .forEach(entry -> delete(entry, Cause.EXPLICIT));
         out.printf("%n" +
                    "%,12d entries deleted explicit%n" +
                    "%,12d entries deleted implicit%n" +
@@ -60,7 +65,7 @@ class Deletion implements Runnable {
     private void delete(final FileEntry entry, final Cause cause) {
         if (stats.addCandidate(entry.path())) {
             if (entry.isDirectory()) {
-                delete(entry.entries());
+                delete(list(entry));
             }
             out.printf("%s ...", entry.path());
             try {
@@ -76,7 +81,7 @@ class Deletion implements Runnable {
         }
     }
 
-    private void delete(final Stream<FileEntry> entries) {
+    private void delete(final List<FileEntry> entries) {
         entries.forEach(entry -> delete(entry, Cause.IMPLICIT));
     }
 

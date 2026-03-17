@@ -4,9 +4,8 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.phobos.FileEntry;
-import de.team33.patterns.io.phobos.FileIndex;
-import de.team33.patterns.io.phobos.FileType;
+import de.team33.patterns.io.delta.FileEntry;
+import de.team33.patterns.io.delta.FileType;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -22,12 +21,14 @@ class Finder implements Runnable {
 
     private final Output out;
     private final NameMatcher nameMatcher;
-    private final FileIndex index;
+    private final List<FileEntry> entries;
 
     private Finder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
-        this.index = FileIndex.of(paths);
+        this.entries = paths.stream()
+                            .map(FileEntry::of)
+                            .toList();
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
@@ -45,11 +46,12 @@ class Finder implements Runnable {
     @Override
     public final void run() {
         final Stats stats = new Stats();
-        index.entries()
-             .peek(stats::addTotal)
-             .filter(nameMatcher::matches)
-             .peek(stats::addFound)
-             .forEach(entry -> out.printf("%s%n", entry.path()));
+        entries.stream()
+               .flatMap(fileEntry -> FileEntry.STREAMER.stream(fileEntry, Problems::log))
+               .peek(stats::addTotal)
+               .filter(nameMatcher::matches)
+               .peek(stats::addFound)
+               .forEach(entry -> out.printf("%s%n", entry.path()));
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +
@@ -76,7 +78,8 @@ class Finder implements Runnable {
 
         private void addFound(final FileEntry entry) {
             foundCounter.increment();
-            foundTypeCounters.computeIfAbsent(entry.type(), any -> new Counter()).increment();
+            FileType.of(entry)
+                    .forEach(type -> foundTypeCounters.computeIfAbsent(type, any -> new Counter()).increment());
         }
     }
 }

@@ -1,7 +1,7 @@
 package de.team33.cmd.files.matching;
 
 import de.team33.patterns.io.deimos.TextIO;
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.delta.FileEntry;
 
 import java.nio.file.Path;
 import java.util.regex.Pattern;

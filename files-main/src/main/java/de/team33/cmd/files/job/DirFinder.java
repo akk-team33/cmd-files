@@ -4,8 +4,7 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.phobos.FileEntry;
-import de.team33.patterns.io.phobos.FileIndex;
+import de.team33.patterns.io.delta.FileEntry;
 
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -22,12 +21,14 @@ class DirFinder implements Runnable {
 
     private final Output out;
     private final NameMatcher nameMatcher;
-    private final FileIndex index;
+    private final List<FileEntry> index;
 
     private DirFinder(final Output out, final String expression, final List<Path> paths) {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
-        this.index = FileIndex.of(paths);
+        this.index = paths.stream()
+                          .map(FileEntry::of)
+                          .toList();
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
@@ -45,7 +46,8 @@ class DirFinder implements Runnable {
     @Override
     public final void run() {
         final Stats stats = new Stats();
-        index.entries()
+        index.stream()
+             .flatMap(entry -> FileEntry.STREAMER.stream(entry, Problems::log))
              .peek(stats::addTotal)
              .filter(nameMatcher::matches)
              .map(FileEntry::path)
