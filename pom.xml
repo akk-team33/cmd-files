@@ -41,7 +41,7 @@
     </scm>
 
     <properties>
-        <!-- preliminary ... -->
+        <!-- preliminary - TODO: move to parent pom ... -->
         <maven.compiler.release>17</maven.compiler.release>
 
         <copyright.year>2026</copyright.year>
