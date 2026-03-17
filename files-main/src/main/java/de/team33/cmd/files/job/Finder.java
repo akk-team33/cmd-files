@@ -14,31 +14,27 @@ import java.util.TreeMap;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
+import static de.team33.patterns.io.delta.FileEntry.STREAMER;
 
 class Finder implements Runnable {
 
-    static final String EXCERPT = "Find files whose names match a pattern.";
+    static final String EXCERPT = "List files that meet certain criteria.";
 
     private final Output out;
+    private final FileEntry entry;
     private final NameMatcher nameMatcher;
-    private final List<FileEntry> entries;
 
-    private Finder(final Output out, final String expression, final List<Path> paths) {
+    private Finder(final Output out, final Path path, final String expression) {
         this.out = out;
+        this.entry = FileEntry.of(path);
         this.nameMatcher = NameMatcher.parse(expression);
-        this.entries = paths.stream()
-                            .map(FileEntry::of)
-                            .toList();
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Command.FIND.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (3 < args.size()) {
-            final String expression = args.get(2);
-            final List<Path> paths = args.stream().skip(3).map(Path::of).toList();
-            return new Finder(out, expression, paths);
+        if (4 == args.size() && Command.FIND.name().equalsIgnoreCase(args.get(1))) {
+            final Path path = Path.of(args.get(2));
+            final String expression = args.get(3);
+            return new Finder(out, path, expression);
         }
         throw RequestException.format(Finder.class, "Finder.txt", cmdLine(args), cmdName(args));
     }
@@ -46,12 +42,11 @@ class Finder implements Runnable {
     @Override
     public final void run() {
         final Stats stats = new Stats();
-        entries.stream()
-               .flatMap(fileEntry -> FileEntry.STREAMER.stream(fileEntry, Problems::log))
-               .peek(stats::addTotal)
-               .filter(nameMatcher::matches)
-               .peek(stats::addFound)
-               .forEach(entry -> out.printf("%s%n", entry.path()));
+        STREAMER.stream(entry, Problems::log)
+                .peek(stats::addTotal)
+                .filter(nameMatcher::matches)
+                .peek(stats::addFound)
+                .forEach(entry -> out.printf("%s%n", entry.path()));
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +
