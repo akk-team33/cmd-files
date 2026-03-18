@@ -5,17 +5,19 @@ It may look as follows ...
 
 [Unix/Linux/MacOS/...]
 #!/bin/sh
-JAVA_HOME=/path/to/java/home
-JAVA=$JAVA_HOME/bin/java
-JAR_FILE=/path/to/fat.jar
-$JAVA -jar $JAR_FILE $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
+JAVA_HOME="/path/to/java/home"
+JAVA="$JAVA_HOME/bin/java"
+JAR_FILE="/path/to/fat.jar"
+exec "$JAVA" -jar "$JAR_FILE" "$0" "$@"
 
 [Windows]
 @echo off
-set JAVA_HOME=\path\to\java\home
-set JAVA=%JAVA_HOME%/bin/java
-set JAR_FILE=\path\to\fat.jar
-%JAVA% -jar %JAR_FILE% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
+setlocal
+set "JAVA_HOME=X:\path\to\java\home"
+set "JAVA=%JAVA_HOME%\bin\java.exe"
+set "JAR_FILE=X:\path\to\fat.jar"
+"%JAVA%" -jar "%JAR_FILE%" "%0" %*
+endlocal
 
 Note that in all examples, argument 0 of the script is passed as the first
 argument to this Java application.

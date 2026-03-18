@@ -1,6 +1,5 @@
 #!/bin/sh
-#JAVA_HOME=/path/to/java/home
-#JAVA=$JAVA_HOME/bin/java
-JAVA=java
-JAR_FILE=files-fat/target/files-fat.jar
-$JAVA -jar $JAR_FILE $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
+JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home"
+JAVA="$JAVA_HOME/bin/java"
+JAR_FILE="files-fat/target/files-fat.jar"
+exec "$JAVA" -jar "$JAR_FILE" "$0" "$@"
