@@ -4,8 +4,8 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.delta.FileEntry;
-import de.team33.patterns.io.delta.FileType;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -14,11 +14,13 @@ import java.util.TreeMap;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
-import static de.team33.patterns.io.delta.FileEntry.STREAMER;
+import static de.team33.patterns.io.adrastea.LinkHandling.DISCLOSE;
 
 class Finder implements Runnable {
 
     static final String EXCERPT = "List files that meet certain criteria.";
+
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.DISCLOSE);
 
     private final Output out;
     private final FileEntry entry;
@@ -26,7 +28,7 @@ class Finder implements Runnable {
 
     private Finder(final Output out, final Path path, final String expression) {
         this.out = out;
-        this.entry = FileEntry.of(path);
+        this.entry = FileEntry.of(path, DISCLOSE);
         this.nameMatcher = NameMatcher.parse(expression);
     }
 
@@ -42,7 +44,7 @@ class Finder implements Runnable {
     @Override
     public final void run() {
         final Stats stats = new Stats();
-        STREAMER.stream(entry, Problems::log)
+        STREAMER.stream(entry)
                 .peek(stats::addTotal)
                 .filter(nameMatcher::matches)
                 .peek(stats::addFound)
@@ -73,8 +75,7 @@ class Finder implements Runnable {
 
         private void addFound(final FileEntry entry) {
             foundCounter.increment();
-            FileType.of(entry)
-                    .forEach(type -> foundTypeCounters.computeIfAbsent(type, any -> new Counter()).increment());
+            foundTypeCounters.computeIfAbsent(FileType.of(entry), type -> new Counter()).increment();
         }
     }
 }

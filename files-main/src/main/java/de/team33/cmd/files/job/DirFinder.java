@@ -4,7 +4,8 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.delta.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -14,10 +15,12 @@ import java.util.Set;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
+import static de.team33.patterns.io.adrastea.LinkHandling.DISCLOSE;
 
 class DirFinder implements Runnable {
 
     static final String EXCERPT = "Find directories containing files that match a pattern.";
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.DISCLOSE);
 
     private final Output out;
     private final NameMatcher nameMatcher;
@@ -27,7 +30,7 @@ class DirFinder implements Runnable {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
         this.index = paths.stream()
-                          .map(FileEntry::of)
+                          .map(path -> FileEntry.of(path, DISCLOSE))
                           .toList();
     }
 
@@ -47,7 +50,7 @@ class DirFinder implements Runnable {
     public final void run() {
         final Stats stats = new Stats();
         index.stream()
-             .flatMap(entry -> FileEntry.STREAMER.stream(entry, Problems::log))
+             .flatMap(STREAMER::stream)
              .peek(stats::addTotal)
              .filter(nameMatcher::matches)
              .map(FileEntry::path)

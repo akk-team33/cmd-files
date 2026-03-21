@@ -20,4 +20,4 @@ set "JAR_FILE=X:\path\to\fat.jar"
 endlocal
 
 Note that in all examples, argument 0 of the script is passed as the first
-argument to this Java application.
+argument to the Java application!

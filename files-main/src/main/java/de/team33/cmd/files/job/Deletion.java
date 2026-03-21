@@ -3,7 +3,8 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.delta.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,10 +15,13 @@ import java.util.Set;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
+import static de.team33.patterns.io.adrastea.LinkHandling.DISCLOSE;
 
 class Deletion implements Runnable {
 
     static final String EXCERPT = "Delete files whose names match a pattern.";
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.DISCLOSE);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
 
     private final Output out;
     private final NameMatcher nameMatcher;
@@ -28,7 +32,7 @@ class Deletion implements Runnable {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
         this.entries = paths.stream()
-                            .map(FileEntry::of)
+                            .map(path -> FileEntry.of(path, DISCLOSE))
                             .toList();
     }
 
@@ -45,13 +49,13 @@ class Deletion implements Runnable {
     }
 
     private static List<FileEntry> list(final FileEntry entry) {
-        return FileEntry.LISTER.list(entry, Problems::log);
+        return LISTER.list(entry);
     }
 
     @Override
     public final void run() {
         entries.stream()
-               .flatMap(entry -> FileEntry.STREAMER.stream(entry, Problems::log))
+               .flatMap(STREAMER::stream)
                .filter(nameMatcher::matches)
                .forEach(entry -> delete(entry, Cause.EXPLICIT));
         out.printf("%n" +
