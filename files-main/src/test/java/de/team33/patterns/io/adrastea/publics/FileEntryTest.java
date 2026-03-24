@@ -29,7 +29,7 @@ class FileEntryTest {
     @SuppressWarnings("HardcodedFileSeparator")
     private static final Path DEV_NULL = Paths.get("/dev/null"); // special file
     @SuppressWarnings("HardcodedFileSeparator")
-    private static final Path ROOT_HOME = Paths.get("/root"); // unreadable directory (linux)
+    private static final Path ROOT_HOME = Paths.get("/root"); // unreadable directory (Linux)
     @SuppressWarnings("HardcodedFileSeparator")
     private static final Path ROOT = Paths.get("/"); // root directory
 
@@ -169,13 +169,19 @@ class FileEntryTest {
     }
 
     @Test
-    final void lastModified() throws IOException {
+    final void lastModified() {
         for (final Path path : paths()) {
+            // System.out.println(path);
             final FileEntry entry = FileEntry.of(path, RESOLVE);
-            if (entry.isMissing()) {
-                assertEquals(Instant.MAX, entry.lastModified());
-            } else {
-                assertEquals(Files.getLastModifiedTime(path).toInstant(), entry.lastModified());
+            try {
+                final Instant result = entry.lastModified();
+                assertFalse(entry.isMissing());
+                final Instant expected = readAttributes(path, TUtil.RESOLVE_LINKS).lastModifiedTime()
+                                                                                  .toInstant();
+                assertEquals(expected, result);
+            } catch (final UnsupportedOperationException caught) {
+                assertTrue(entry.isMissing());
+                assertEquals(entry.isSymbolicLink(), entry.isPresent());
             }
         }
     }
@@ -185,12 +191,15 @@ class FileEntryTest {
         for (final Path path : paths()) {
             // System.out.println(path);
             final FileEntry entry = FileEntry.of(path, RESOLVE);
-            if (entry.isPresent()) {
+            try {
+                final Instant result = entry.lastAccess();
+                assertFalse(entry.isMissing());
                 final Instant expected = readAttributes(path, TUtil.RESOLVE_LINKS).lastAccessTime()
                                                                                   .toInstant();
-                assertEquals(expected, entry.lastAccess());
-            } else {
-                assertEquals(Instant.MAX, entry.lastAccess());
+                assertEquals(expected, result);
+            } catch (final UnsupportedOperationException caught) {
+                assertTrue(entry.isMissing());
+                assertEquals(entry.isSymbolicLink(), entry.isPresent());
             }
         }
     }
@@ -200,12 +209,15 @@ class FileEntryTest {
         for (final Path path : paths()) {
             // System.out.println(path);
             final FileEntry entry = FileEntry.of(path, DISCLOSE);
-            if (entry.isPresent()) {
+            try {
+                final Instant result = entry.creation();
+                assertTrue(entry.isPresent());
                 final Instant expected = readAttributes(path, TUtil.DISCLOSE_LINKS).creationTime()
                                                                                    .toInstant();
-                assertEquals(expected, entry.creation());
-            } else {
-                assertEquals(Instant.MAX, entry.creation());
+                assertEquals(expected, result);
+            } catch (final UnsupportedOperationException caught) {
+                assertTrue(entry.isMissing());
+                assertFalse(entry.isSymbolicLink());
             }
         }
     }
