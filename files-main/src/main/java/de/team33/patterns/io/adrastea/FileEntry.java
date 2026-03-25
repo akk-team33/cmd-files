@@ -51,10 +51,24 @@ public class FileEntry {
     }
 
     /**
-     * Returns a new {@link FileEntry} based on a given {@link Path} and a {@link LinkHandling}.
+     * Returns a new {@link FileEntry} based on a given {@link Path} and a given {@link LinkHandling}.
      */
     public static FileEntry of(final Path path, final LinkHandling linkHandling) {
         return new FileEntry(path, Normality.UNKNOWN, linkHandling);
+    }
+
+    /**
+     * Returns a new {@link FileEntry} based on a given {@link Path} that {@link #isDisclosed()}.
+     */
+    public static FileEntry disclosed(final Path path) {
+        return of(path, DISCLOSE);
+    }
+
+    /**
+     * Returns a new {@link FileEntry} based on a given {@link Path} that {@link #isResolved()}.
+     */
+    public static FileEntry resolved(final Path path) {
+        return of(path, RESOLVE);
     }
 
     private static FileEntry ofDefinite(final Path path, final LinkHandling linkHandling) {

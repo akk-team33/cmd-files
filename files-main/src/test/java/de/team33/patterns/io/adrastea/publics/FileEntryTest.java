@@ -237,7 +237,7 @@ class FileEntryTest {
     @Test
     final void isDisclosed() {
         paths().forEach(path -> {
-            final FileEntry entry = FileEntry.of(path, DISCLOSE);
+            final FileEntry entry = FileEntry.disclosed(path);
             assertTrue(entry.isDisclosed());
             assertEquals(!Files.isSymbolicLink(path), entry.isResolved());
         });
@@ -255,7 +255,7 @@ class FileEntryTest {
     @Test
     final void isResolved() {
         paths().forEach(path -> {
-            final FileEntry entry = FileEntry.of(path, RESOLVE);
+            final FileEntry entry = FileEntry.resolved(path);
             assertTrue(entry.isResolved());
             assertEquals(!Files.isSymbolicLink(path), entry.isDisclosed());
         });
