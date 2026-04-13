@@ -4,45 +4,69 @@ Your request:
 
 Expected request scheme:
 
-    %2$s find PATH PATTERN
+    %2$s find PATH [n:PATTERN] [t:TYPES] [o:ORDER]
 
-    ... to list files within a specific directory that meet certain criteria.
+    ... to list files that meet certain criteria within a specific directory
+        and its subdirectories. Note that symbolic links to directories will
+        not be resolved at this point!
 
 Parameters:
 
     PATH    - A path to be examined. Subdirectories are included if existing.
-    PATTERN - A pattern for matching the filenames of the files to be listed.
+    PATTERN - A pattern for matching the simple filenames of the files to be listed.
               Consists of [METHOD[/OPTION]:]VALUE
               METHOD - One of {rx, wc} (case-insensitive)
                        rx : the VALUE is treated as a regular expression.
                        wc : the VALUE is treated as the full file name,
                             but allows the use of the usual wildcards (?*).
-                     - Default: wc
+                     - Default: wc (allow usual wildcards)
               OPTION - One of {cs, ci} (case-insensitive)
                        cs : the PATTERN will be applied case-sensitive.
                        ci : the PATTERN will be applied case-insensitive.
-                     - Default: ci
+                     - Default: ci (case-insensitive)
               VALUE  - A (constant) value to be applied to the METHOD along
                        with the (variable) filenames in question.
+    TYPES   - A subset of {f, d, s, l, m, a} (case-insensitive)
+              with the respective meanings:
+              f : regular files
+              d : directories
+              s : special files
+              l : symbolic links
+              m : missing files (typically broken links)
+              a : any file
+            - Default: a (any file)
+    ORDER   - An expression that specifies the sort order.
+              Consists of CRITERION[:DIRECTION]
+              CRITERION - One of {p, n, d, s} (case-insensitive)
+                          p : order by path
+                          n : order by simple file name
+                          d : order by date / time of last modification
+                          s : order by file size
+              DIRECTION - One of {a, d}
+                          a : ascending order
+                          d : descending order
+                        - Default: a (ascending order)
+            - Default: p:a (order by path, ascending)
 
 Examples:
 
-[1] %2$s find path/to/images 'myFile.jpg'
-
-    ... to find files named "myFile.jpg" in the directory
-        "path/to/images" and its subdirectories.
-
-[2] %2$s find path/to/images '*.jpg'
+[1] %2$s find path/to/images 'n:*.jpg'
 
     ... to find files whose names end with ".jpg" in the directory
-        "path/to/images" and its subdirectories.
+        "path/to/images" and its subdirectories. Output in default order.
 
-[3] %2$s find path/to/images 'myFile.*'
+[2] %2$s find path/to/images 'n:myFile.*'
 
     ... to find files whose names start with "myFile." in the directory
-        "path/to/images" and its subdirectories.
+        "path/to/images" and its subdirectories. Output in default order.
 
-[4] %2$s find . 'rx:.*\.(jpg|jpe|jpeg)'
+[3] %2$s find path/to/images 't:fl'
+
+    ... to find regular files and symbolic links in the directory
+        "path/to/images" and its subdirectories. Output in default order.
+
+[4] %2$s find . 'n:rx:.*\.(jpg|jpe|jpeg)' 'o:d:d'
 
     ... to find files with any of the extensions {"jpg", "jpe", "jpeg"}
-        in the current working directory.
+        in the current working directory. Output order by date / time
+        of last modification, descending.
