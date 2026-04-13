@@ -15,12 +15,12 @@ import java.util.Set;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
-import static de.team33.patterns.io.adrastea.LinkHandling.DISCLOSE;
+import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
 
 class Deletion implements Runnable {
 
     static final String EXCERPT = "Delete files whose names match a pattern.";
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.DISCLOSE);
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
     private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
 
     private final Output out;
@@ -32,7 +32,7 @@ class Deletion implements Runnable {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
         this.entries = paths.stream()
-                            .map(path -> FileEntry.of(path, DISCLOSE))
+                            .map(path -> FileEntry.of(path, ORIGINAL))
                             .toList();
     }
 

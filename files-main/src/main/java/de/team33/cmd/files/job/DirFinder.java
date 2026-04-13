@@ -15,12 +15,12 @@ import java.util.Set;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
-import static de.team33.patterns.io.adrastea.LinkHandling.DISCLOSE;
+import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
 
 class DirFinder implements Runnable {
 
     static final String EXCERPT = "Find directories containing files that match a pattern.";
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.DISCLOSE);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
 
     private final Output out;
     private final NameMatcher nameMatcher;
@@ -30,7 +30,7 @@ class DirFinder implements Runnable {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
         this.index = paths.stream()
-                          .map(path -> FileEntry.of(path, DISCLOSE))
+                          .map(path -> FileEntry.of(path, ORIGINAL))
                           .toList();
     }
 
