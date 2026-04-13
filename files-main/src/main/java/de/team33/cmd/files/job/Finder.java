@@ -82,7 +82,7 @@ class Finder implements Runnable {
         private final Counter totalCounter = new Counter();
         private final Counter totalDirCounter = new Counter();
         private final Counter foundCounter = new Counter();
-        private final Map<FileType, Counter> foundTypeCounters = new TreeMap<>();
+        private final Map<FileEntry.Type, Counter> foundTypeCounters = new TreeMap<>();
 
         private void addTotal(final FileEntry entry) {
             totalCounter.increment();
@@ -93,7 +93,7 @@ class Finder implements Runnable {
 
         private void addFound(final FileEntry entry) {
             foundCounter.increment();
-            foundTypeCounters.computeIfAbsent(FileType.of(entry), type -> new Counter()).increment();
+            foundTypeCounters.computeIfAbsent(entry.type(), type -> new Counter()).increment();
         }
     }
 }

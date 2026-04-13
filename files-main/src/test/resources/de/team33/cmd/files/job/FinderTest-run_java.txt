@@ -25,6 +25,6 @@
           37 entries examined.
 
           22 entries found
-              22 of type REGULAR
+              22 of type REGULAR_FILE
 
 
