@@ -1,17 +1,16 @@
 package de.team33.cmd.files.job;
 
+import de.team33.cmd.files.common.Args;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.cmd.files.spike.Args;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.Function;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -22,6 +21,8 @@ class Finder implements Runnable {
     static final String EXCERPT = "List files that meet certain criteria.";
 
     private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
+    private static final Set<Option> OPTIONS = EnumSet.allOf(Option.class);
+    private static final Function<List<String>, Args> ARGS = Args.stage(3, OPTIONS);
 
     private final Output out;
     private final FileEntry entry;
@@ -35,13 +36,13 @@ class Finder implements Runnable {
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
         try {
-            return job(out, Args.stage(3, Option.class).apply(args));
+            return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
             throw RequestException.format(Finder.class, "Finder.txt", cmdLine(args), cmdName(args));
         }
     }
 
-    private static Runnable job(final Output out, final Args<Option> args) {
+    private static Runnable job(final Output out, final Args args) {
         final Path path = Path.of(args.get(2));
         final String expression = args.get(Option.N)
                                       .orElse("*"); // TODO?
@@ -66,7 +67,7 @@ class Finder implements Runnable {
         out.printf("%n");
     }
 
-    private enum Option {
+    private enum Option implements Args.Key {
         N,
         T,
         O
