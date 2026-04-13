@@ -1,4 +1,4 @@
-package de.team33.cmd.files.common;
+package de.team33.cmd.files.spike;
 
 import java.util.*;
 import java.util.function.Function;
