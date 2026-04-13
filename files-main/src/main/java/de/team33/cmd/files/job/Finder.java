@@ -11,6 +11,7 @@ import de.team33.patterns.io.adrastea.LinkHandling;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -28,10 +29,10 @@ class Finder implements Runnable {
     private final FileEntry entry;
     private final NameMatcher nameMatcher;
 
-    private Finder(final Output out, final Path path, final String expression) {
+    private Finder(final Output out, final Path path, final NameMatcher nameMatcher) {
         this.out = out;
         this.entry = FileEntry.of(path, ORIGINAL);
-        this.nameMatcher = NameMatcher.parse(expression);
+        this.nameMatcher = nameMatcher;
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
@@ -44,17 +45,20 @@ class Finder implements Runnable {
 
     private static Runnable job(final Output out, final Args args) {
         final Path path = Path.of(args.get(2));
-        final String expression = args.get(Option.N)
-                                      .orElse("*"); // TODO?
-        return new Finder(out, path, expression);
+        final NameMatcher matcher = args.get(Option.N)
+                                        .map(NameMatcher::parse)
+                                        .orElse(null); // TODO?
+        return new Finder(out, path, matcher);
     }
 
     @Override
     public final void run() {
         final Stats stats = new Stats();
-        STREAMER.stream(entry)
-                .peek(stats::addTotal)
-                .filter(nameMatcher::matches)
+        final Stream<FileEntry> stage = STREAMER.stream(entry)
+                                                .peek(stats::addTotal);
+        Optional.ofNullable(nameMatcher)
+                .map(matcher -> stage.filter(matcher::matches))
+                .orElse(stage)
                 .peek(stats::addFound)
                 .forEach(entry -> out.printf("%s%n", entry.path()));
         out.printf("%n" +
