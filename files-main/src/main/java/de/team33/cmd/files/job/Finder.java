@@ -1,5 +1,6 @@
 package de.team33.cmd.files.job;
 
+import de.team33.cmd.files.common.Args;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
@@ -33,12 +34,18 @@ class Finder implements Runnable {
     }
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
-        if (4 == args.size() && Command.FIND.name().equalsIgnoreCase(args.get(1))) {
-            final Path path = Path.of(args.get(2));
-            final String expression = args.get(3);
-            return new Finder(out, path, expression);
+        try {
+            return job(out, Args.stage(3, Option.class).apply(args));
+        } catch (final IllegalArgumentException e) {
+            throw RequestException.format(Finder.class, "Finder.txt", cmdLine(args), cmdName(args));
         }
-        throw RequestException.format(Finder.class, "Finder.txt", cmdLine(args), cmdName(args));
+    }
+
+    private static Runnable job(final Output out, final Args<Option> args) {
+        final Path path = Path.of(args.get(2));
+        final String expression = args.get(Option.N)
+                                      .orElse("*"); // TODO?
+        return new Finder(out, path, expression);
     }
 
     @Override
@@ -57,6 +64,12 @@ class Finder implements Runnable {
         stats.foundTypeCounters.forEach(
                 (fileType, counter) -> out.printf("    %,12d of type %s%n", counter.value(), fileType));
         out.printf("%n");
+    }
+
+    private enum Option {
+        N,
+        T,
+        O
     }
 
     private static class Stats {
