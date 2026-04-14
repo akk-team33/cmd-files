@@ -41,6 +41,18 @@ class FinderTest extends ModifyingTestBase {
     }
 
     @Test
+    final void run_filter_by_type() throws RequestException {
+        final Buffer buffer = new Buffer();
+
+        Finder.job(buffer, List.of("files", "find", leftPath().toString(), "t:f", "o:s"))
+              .run();
+
+        final String result = buffer.toString()
+                                    .replace(leftPath().toString(), "[PATH]");
+        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_filter_by_type.txt"), result);
+    }
+
+    @Test
     final void run_rxALL() throws RequestException {
         final Buffer buffer = new Buffer();
 

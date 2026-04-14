@@ -2,6 +2,7 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.*;
 import de.team33.cmd.files.matching.NameMatcher;
+import de.team33.cmd.files.matching.TypeFilter;
 import de.team33.cmd.files.sorting.Order;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
@@ -51,15 +52,14 @@ class Finder implements Runnable {
                                                     .map(NameMatcher::parse)
                                                     .map(NameMatcher::toFileEntryFilter)
                                                     .orElse(POSITIVE);
-//        final Predicate<FileEntry> typeFilter = args.get(Option.T)
-//                                                    .map(TypeMatcher::parse)
-//                                                    .map(TypeMatcher::toFileEntryFilter)
-//                                                    .orElse(POSITIVE);
-//        final Predicate<FileEntry> entryFilter = (typeFilter == POSITIVE) ? nameFilter : nameFilter.and(typeFilter);
+        final Predicate<FileEntry> typeFilter = args.get(Option.T)
+                                                    .map(TypeFilter::parse)
+                                                    .orElse(POSITIVE);
+        final Predicate<FileEntry> entryFilter = (typeFilter == POSITIVE) ? nameFilter : nameFilter.and(typeFilter);
         final Comparator<FileEntry> order = args.get(Option.O)
                                                 .map(Order::parse)
                                                 .orElse(null);
-        return new Finder(out, path, nameFilter, order);
+        return new Finder(out, path, entryFilter, order);
     }
 
     @Override
