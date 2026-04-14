@@ -4,6 +4,7 @@ import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.deimos.TextIO;
 
 import java.nio.file.Path;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class NameMatcher {
@@ -65,5 +66,17 @@ public class NameMatcher {
 
     public final boolean matches(final FileEntry entry) {
         return matches(entry.name());
+    }
+
+    public final Predicate<String> toNameFilter() {
+        return this::matches;
+    }
+
+    public final Predicate<Path> toPathFilter() {
+        return this::matches;
+    }
+
+    public final Predicate<FileEntry> toFileEntryFilter() {
+        return this::matches;
     }
 }

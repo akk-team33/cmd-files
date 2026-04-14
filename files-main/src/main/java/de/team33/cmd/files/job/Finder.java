@@ -1,9 +1,6 @@
 package de.team33.cmd.files.job;
 
-import de.team33.cmd.files.common.Args;
-import de.team33.cmd.files.common.Counter;
-import de.team33.cmd.files.common.Output;
-import de.team33.cmd.files.common.RequestException;
+import de.team33.cmd.files.common.*;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
@@ -11,7 +8,7 @@ import de.team33.patterns.io.adrastea.LinkHandling;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -27,13 +24,8 @@ class Finder implements Runnable {
 
     private final Output out;
     private final FileEntry entry;
-    private final NameMatcher nameMatcher;
-
-    private Finder(final Output out, final Path path, final NameMatcher nameMatcher) {
-        this.out = out;
-        this.entry = FileEntry.of(path, ORIGINAL);
-        this.nameMatcher = nameMatcher;
-    }
+    private static final Predicate<FileEntry> POSITIVE = Filter.positive();
+    private final Predicate<FileEntry> nameFilter;
 
     public static Runnable job(final Output out, final List<String> args) throws RequestException {
         try {
@@ -43,32 +35,30 @@ class Finder implements Runnable {
         }
     }
 
+    private Finder(final Output out, final Path path, final Predicate<FileEntry> nameFilter) {
+        this.out = out;
+        this.entry = FileEntry.of(path, ORIGINAL);
+        this.nameFilter = nameFilter;
+    }
+
     private static Runnable job(final Output out, final Args args) {
         final Path path = Path.of(args.get(2));
-        final NameMatcher matcher = args.get(Option.N)
-                                        .map(NameMatcher::parse)
-                                        .orElse(null); // TODO?
-        return new Finder(out, path, matcher);
+        final Predicate<FileEntry> nameFilter = args.get(Option.N)
+                                                    .map(NameMatcher::parse)
+                                                    .map(NameMatcher::toFileEntryFilter)
+                                                    .orElse(POSITIVE);
+        return new Finder(out, path, nameFilter);
     }
 
     @Override
     public final void run() {
         final Stats stats = new Stats();
-        final Stream<FileEntry> stage = STREAMER.stream(entry)
-                                                .peek(stats::addTotal);
-        Optional.ofNullable(nameMatcher)
-                .map(matcher -> stage.filter(matcher::matches))
-                .orElse(stage)
+        STREAMER.stream(entry)
+                .peek(stats::addTotal)
+                .filter(nameFilter)
                 .peek(stats::addFound)
                 .forEach(entry -> out.printf("%s%n", entry.path()));
-        out.printf("%n" +
-                   "%,12d directories and a total of%n" +
-                   "%,12d entries examined.%n%n" +
-                   "%,12d entries found%n",
-                   stats.totalDirCounter.value(), stats.totalCounter.value(), stats.foundCounter.value());
-        stats.foundTypeCounters.forEach(
-                (fileType, counter) -> out.printf("    %,12d of type %s%n", counter.value(), fileType));
-        out.printf("%n");
+        stats.print(out);
     }
 
     private enum Option implements Args.Key {
@@ -94,6 +84,20 @@ class Finder implements Runnable {
         private void addFound(final FileEntry entry) {
             foundCounter.increment();
             foundTypeCounters.computeIfAbsent(entry.type(), type -> new Counter()).increment();
+        }
+
+        private void print(final Output out) {
+            out.printf("%n" +
+                       "%,12d directories and a total of%n" +
+                       "%,12d entries examined.%n%n" +
+                       "%,12d entries found%n",
+                       totalDirCounter.value(), totalCounter.value(), foundCounter.value());
+            for (final Map.Entry<FileEntry.Type, Counter> entry : foundTypeCounters.entrySet()) {
+                FileEntry.Type fileType = entry.getKey();
+                Counter counter = entry.getValue();
+                out.printf("    %,12d of type %s%n", counter.value(), fileType);
+            }
+            out.printf("%n");
         }
     }
 }

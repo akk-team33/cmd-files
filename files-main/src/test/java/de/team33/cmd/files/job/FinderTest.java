@@ -29,6 +29,18 @@ class FinderTest extends ModifyingTestBase {
     }
 
     @Test
+    final void run_order_by_date() throws RequestException {
+        final Buffer buffer = new Buffer();
+
+        Finder.job(buffer, List.of("files", "find", leftPath().toString(), "o:d:d"))
+              .run();
+
+        final String result = buffer.toString()
+                                    .replace(leftPath().toString(), "[PATH]");
+        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_order_by_date.txt"), result);
+    }
+
+    @Test
     final void run_rxALL() throws RequestException {
         final Buffer buffer = new Buffer();
 
