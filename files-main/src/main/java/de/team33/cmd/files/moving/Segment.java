@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 class Segment {
 
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("@.");
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("@.(\\(\\d+(,\\d+)?\\))?");
     private static final Pattern MULTI_DOT_PATTERN = Pattern.compile("\\.{2,}");
     private static final Pattern END_DOT_PATTERN = Pattern.compile("\\.$");
 
@@ -29,6 +29,7 @@ class Segment {
     }
 
     private static List<String> split(final String rule) {
+        //if (true) throw new AssertionError();
         final Matcher matcher = TOKEN_PATTERN.matcher(rule);
         final List<String> result = new LinkedList<>();
         final Iterator<MatchResult> matches = matcher.results().toList().iterator();

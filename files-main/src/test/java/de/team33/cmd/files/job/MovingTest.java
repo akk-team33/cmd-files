@@ -7,6 +7,7 @@ import de.team33.testing.io.hydra.FileInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,10 +19,32 @@ class MovingTest extends ModifyingTestBase {
 
     @Test
     final void move_PYMDF() throws RequestException {
-        final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_PYMDF.txt"), testID());
+        final String expected = TextIO.read(MovingTest.class, "MovingTest-move_PYMDF.txt")
+                                      .formatted(testID());
 
-        Moving.job(MUTE,
-                   Arrays.asList("files", "move", "-r", leftPath().toString(), "../@P.moved/@Y/@M/@D/@F"))
+        Moving.job(MUTE, List.of("files", "move", "-r", leftPath().toString(), "../@P.moved/@Y/@M/@D/@F"))
+              .run();
+
+        assertEquals(expected, FileInfo.of(testPath()).toString());
+    }
+
+    @Test
+    final void move_N13F() throws RequestException {
+        final String expected = TextIO.read(MovingTest.class, "MovingTest-move_N13F.txt")
+                                      .formatted(testID());
+
+        Moving.job(MUTE, List.of("files", "move", "-r", leftPath().toString(), "../@P.moved/@N(1,3)/@F"))
+              .run();
+
+        assertEquals(expected, FileInfo.of(testPath()).toString());
+    }
+
+    @Test
+    final void move_N1F() throws RequestException {
+        final String expected = TextIO.read(MovingTest.class, "MovingTest-move_N1F.txt")
+                                      .formatted(testID());
+
+        Moving.job(MUTE, List.of("files", "move", "-r", leftPath().toString(), "../@P.moved/@N(1)/@F"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
