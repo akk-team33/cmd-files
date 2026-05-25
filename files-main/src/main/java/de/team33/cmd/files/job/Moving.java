@@ -10,11 +10,15 @@ import de.team33.patterns.io.phobos.FileIndex;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static java.util.function.Predicate.not;
 
 class Moving implements Runnable {
 
@@ -82,6 +86,7 @@ class Moving implements Runnable {
         stats.reset();
         stream().filter(FileEntry::isRegularFile)
                 .filter(Guard::unprotected)
+                .filter(not(entry -> entry.name().startsWith(".")))
                 .forEach(this::move);
         deletion.clean(entries());
         out.printf("%n" +
@@ -106,11 +111,13 @@ class Moving implements Runnable {
         }
 
         try {
+            final FileTime lastModifiedTime = Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS);
             final Path parent = newPath.getParent();
             if (createDir.add(parent)) {
                 Files.createDirectories(parent);
             }
             Files.move(path, newPath);
+            Files.setLastModifiedTime(newPath, lastModifiedTime);
             out.printf("moved%n");
             stats.incMoved();
         } catch (final IOException e) {
