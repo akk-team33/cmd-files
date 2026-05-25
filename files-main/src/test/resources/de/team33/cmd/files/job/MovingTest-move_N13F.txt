@@ -1,0 +1,72 @@
+%s : DIRECTORY {
+    left : DIRECTORY {
+        de : DIRECTORY {
+            team33 : DIRECTORY {
+                patterns : DIRECTORY {
+                    io : DIRECTORY {
+                        alpha : DIRECTORY {
+                            FileType.java : REGULAR (1.232, 2024-09-21T14:01:51Z);
+                        };
+                    };
+                };
+            };
+        };
+    };
+    left.moved : DIRECTORY {
+        ai : DIRECTORY {
+            Main.java : REGULAR (631, 2024-09-21T14:01:51Z);
+        };
+        al : DIRECTORY {
+            Values.java : REGULAR (1.757, 2024-09-21T14:01:51Z);
+        };
+        as : DIRECTORY {
+            CaseSensitivity.java : REGULAR (1.093, 2024-09-21T14:01:51Z);
+        };
+        at : DIRECTORY {
+            Pattern.java : REGULAR (1.524, 2024-09-22T15:36:05Z);
+        };
+        bo : DIRECTORY {
+            About.java : REGULAR (488, 2024-09-21T14:01:51Z);
+        };
+        ee : DIRECTORY {
+            Keeping.java : REGULAR (4.244, 2024-09-21T14:01:51Z);
+        };
+        eg : DIRECTORY {
+            Regular.java : REGULAR (2.712, 2024-09-24T09:41:21Z);
+        };
+        el : DIRECTORY {
+            Relative.java : REGULAR (69, 2024-09-24T10:02:42Z);
+        };
+        eq : DIRECTORY {
+            RequestException.java : REGULAR (726, 2024-09-21T14:01:51Z);
+        };
+        et : DIRECTORY {
+            Method.java : REGULAR (959, 2024-09-21T14:01:51Z);
+        };
+        il : DIRECTORY {
+            FileEntry.java : REGULAR (9.954, 2024-09-24T10:19:46Z);
+            FileIndex.java : REGULAR (1.853, 2024-09-21T14:01:51Z);
+            FilePolicy.java : REGULAR (390, 2024-09-24T10:20:11Z);
+            FileType.java : REGULAR (3.768, 2024-09-24T10:21:18Z);
+            WildcardString.java : REGULAR (1.335, 2024-09-21T14:01:51Z);
+        };
+        in : DIRECTORY {
+            Finder.java : REGULAR (2.826, 2024-09-24T09:41:21Z);
+        };
+        ir : DIRECTORY {
+            DirFinder.java : REGULAR (3.152, 2024-09-24T09:41:21Z);
+        };
+        is : DIRECTORY {
+            Listing.java : REGULAR (3.113, 2024-09-21T14:01:51Z);
+        };
+        op : DIRECTORY {
+            Copying.java : REGULAR (4.680, 2024-09-24T09:41:21Z);
+        };
+        ti : DIRECTORY {
+            Util.java : REGULAR (674, 2024-09-21T14:01:51Z);
+        };
+        ut : DIRECTORY {
+            Output.java : REGULAR (700, 2024-09-21T14:01:51Z);
+        };
+    };
+};
