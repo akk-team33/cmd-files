@@ -17,15 +17,27 @@ class FinderTest extends ModifyingTestBase {
     }
 
     @Test
-    final void run_ALL() throws RequestException {
+    final void run_ALL_DEEP() throws RequestException {
         final Buffer buffer = new Buffer();
 
-        Finder.job(buffer, List.of("files", "find", leftPath().toString()))
+        Finder.job(buffer, List.of("files", "find", leftPath().toString(), "d:deep"))
               .run();
 
         final String result = buffer.toString()
                                     .replace(leftPath().toString(), "[PATH]");
-        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL.txt"), result);
+        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL_DEEP.txt"), result);
+    }
+
+    @Test
+    final void run_ALL_FLAT() throws RequestException {
+        final Buffer buffer = new Buffer();
+
+        Finder.job(buffer, List.of("files", "find", leftPath().toString(), "d:flat"))
+              .run();
+
+        final String result = buffer.toString()
+                                    .replace(leftPath().toString(), "[PATH]");
+        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL_FLAT.txt"), result);
     }
 
     @Test
@@ -61,7 +73,7 @@ class FinderTest extends ModifyingTestBase {
 
         final String result = buffer.toString()
                                     .replace(leftPath().toString(), "[PATH]");
-        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL.txt"), result);
+        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL_DEEP.txt"), result);
     }
 
     @Test
@@ -73,7 +85,7 @@ class FinderTest extends ModifyingTestBase {
 
         final String result = buffer.toString()
                                     .replace(leftPath().toString(), "[PATH]");
-        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL.txt"), result);
+        assertEquals(TextIO.read(FinderTest.class, "FinderTest-run_ALL_DEEP.txt"), result);
     }
 
     @Test

@@ -1,0 +1,9 @@
+[PATH]/de
+
+           A total of
+           1 entries examined.
+
+           1 entries found
+               1 of type DIRECTORY
+
+
