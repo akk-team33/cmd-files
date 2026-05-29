@@ -14,6 +14,8 @@ class DirCopying implements Runnable {
 
     static final String EXCERPT = "Copy the subdirectory structure from one directory to another.";
 
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.RESOLVE);
+
     private final Output out;
     private final Path source;
     private final Path target;
@@ -35,8 +37,6 @@ class DirCopying implements Runnable {
         }
         throw RequestException.format(DirCopying.class, "DirCopying.txt", Util.cmdLine(args), Util.cmdName(args));
     }
-
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.RESOLVE);
 
     @Override
     public void run() {

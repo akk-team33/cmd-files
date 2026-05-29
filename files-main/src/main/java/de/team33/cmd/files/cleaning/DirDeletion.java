@@ -7,7 +7,7 @@ import de.team33.patterns.io.adrastea.LinkHandling;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Stream;
+import java.util.List;
 
 public class DirDeletion {
 
@@ -21,15 +21,16 @@ public class DirDeletion {
         this.stats = stats;
     }
 
-    public boolean clean(final Stream<FileEntry> entries) {
-        return entries.map(this::clean)
+    public boolean clean(final List<FileEntry> entries) {
+        return entries.stream()
+                      .map(this::clean)
                       .reduce(true, Boolean::logicalAnd);
     }
 
     private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
 
     private boolean clean(final FileEntry entry) {
-        return entry.isDirectory() && clean(LISTER.list(entry).stream()) && clean(entry.path());
+        return entry.isDirectory() && clean(LISTER.list(entry)) && clean(entry.path());
     }
 
     private boolean clean(final Path path) {

@@ -45,7 +45,7 @@ class Cleaning implements Runnable {
     @Override
     public final void run() {
         stats.reset();
-        deletion.clean(entries.stream());
+        deletion.clean(entries);
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +

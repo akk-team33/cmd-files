@@ -22,6 +22,9 @@ class Deduping implements Runnable {
 
     static final String EXCERPT = "Relocate duplicated files located in a given directory.";
 
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+
     private final Stats stats = new Stats();
     private final Set<Path> createDir = new HashSet<>();
     private final Index index;
@@ -52,9 +55,6 @@ class Deduping implements Runnable {
         throw RequestException.format(Moving.class, "Deduping.txt", Util.cmdLine(args), Util.cmdName(args));
     }
 
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
-
     @Override
     public final void run() {
         stats.reset();
@@ -68,7 +68,7 @@ class Deduping implements Runnable {
                 .map(FileEntry::path)
                 .forEach(this::move);
         index.write();
-        deletion.clean(LISTER.list(mainPath).stream());
+        deletion.clean(LISTER.list(mainPath));
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +

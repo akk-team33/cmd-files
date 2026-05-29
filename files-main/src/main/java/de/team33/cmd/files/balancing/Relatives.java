@@ -14,8 +14,14 @@ import java.util.stream.Stream;
 public class Relatives {
 
     private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
+
     private final Function<String, Relative> toRelative;
     private final List<FileEntry> entries;
+
+    private Relatives(final Path srcRoot, final Path tgtRoot) {
+        this.entries = List.of(FileEntry.original(srcRoot), FileEntry.original(tgtRoot));
+        this.toRelative = relative -> new Relative(relative, srcRoot, tgtRoot);
+    }
 
     public static Set<String> collect(final Path srcRoot, final Path tgtRoot) {
         return new Relatives(srcRoot, tgtRoot).collect();
@@ -27,11 +33,6 @@ public class Relatives {
 
     private Stream<Relative> stream() {
         return collect().stream().map(toRelative);
-    }
-
-    private Relatives(final Path srcRoot, final Path tgtRoot) {
-        this.entries = List.of(FileEntry.original(srcRoot), FileEntry.original(tgtRoot));
-        this.toRelative = relative -> new Relative(relative, srcRoot, tgtRoot);
     }
 
     private Set<String> collect() {

@@ -24,6 +24,9 @@ class Moving implements Runnable {
 
     static final String EXCERPT = "Relocate regular files located in a given directory.";
 
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;
     private final Mode mode;
@@ -63,9 +66,6 @@ class Moving implements Runnable {
         throw RequestException.format(Moving.class, "Moving.txt", Util.cmdLine(args), Util.cmdName(args));
     }
 
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
-
     private Stream<FileEntry> stream() {
         return switch (mode) {
             case FLAT -> LISTER.list(mainPath)
@@ -75,11 +75,10 @@ class Moving implements Runnable {
         };
     }
 
-    private Stream<FileEntry> entries() {
+    private List<FileEntry> entries() {
         return switch (mode) {
-            case FLAT -> Stream.of();
-            case DEEP -> LISTER.list(mainPath)
-                               .stream();
+            case FLAT -> List.of();
+            case DEEP -> LISTER.list(mainPath);
         };
     }
 
