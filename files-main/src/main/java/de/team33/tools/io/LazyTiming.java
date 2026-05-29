@@ -1,6 +1,6 @@
 package de.team33.tools.io;
 
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
 
 import java.time.temporal.ChronoUnit;
 import java.util.regex.MatchResult;
@@ -20,7 +20,7 @@ public class LazyTiming {
         this.postfixLength = prefix.length();
     }
 
-    public final String valueOf(FileEntry entry) {
+    public final String valueOf(final FileEntry entry) {
         final String fileName = entry.path().getFileName().toString();
         return pattern.matcher(fileName)
                       .results()

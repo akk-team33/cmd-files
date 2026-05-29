@@ -2,13 +2,13 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Stream;
 
 class DirCopying implements Runnable {
 
@@ -36,18 +36,20 @@ class DirCopying implements Runnable {
         throw RequestException.format(DirCopying.class, "DirCopying.txt", Util.cmdLine(args), Util.cmdName(args));
     }
 
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.RESOLVE);
+
     @Override
     public void run() {
-        copy(FileEntry.of(source).resolved().entries());
+        copy(LISTER.list(FileEntry.resolved(source)));
     }
 
-    private void copy(final Stream<FileEntry> entries) {
+    private void copy(final List<FileEntry> entries) {
         entries.forEach(this::copy);
     }
 
     private void copy(final FileEntry entry) {
         if (entry.isDirectory()) {
-            copy(entry.entries());
+            copy(LISTER.list(entry));
             final Path relative = source.relativize(entry.path());
             out.printf("%s ...", relative);
             try {

@@ -4,7 +4,7 @@ import de.team33.cmd.files.cleaning.DirDeletion;
 import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -35,7 +35,7 @@ class Cleaning implements Runnable {
             final List<FileEntry> entries = args.stream()
                                                 .skip(2)
                                                 .map(Path::of)
-                                                .map(FileEntry::of)
+                                                .map(FileEntry::original)
                                                 .toList();
             return new Cleaning(out, entries);
         }

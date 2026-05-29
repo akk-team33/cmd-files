@@ -5,8 +5,8 @@ import de.team33.cmd.files.common.HashId;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.moving.Guard;
-import de.team33.patterns.io.phobos.FileEntry;
-import de.team33.patterns.io.phobos.FileIndex;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -52,21 +52,23 @@ class Deduping implements Runnable {
         throw RequestException.format(Moving.class, "Deduping.txt", Util.cmdLine(args), Util.cmdName(args));
     }
 
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+
     @Override
     public final void run() {
         stats.reset();
         out.printf("%s ...%n", mainPath);
-        FileIndex.of(mainPath)
-                 .skipPath(doubletPath::equals)
-                 .entries()
-                 .peek(stats::incExamined)
-                 .filter(FileEntry::isRegularFile)
-                 .filter(Guard::unprotected)
-                 .filter(index::isDuplicated)
-                 .map(FileEntry::path)
-                 .forEach(this::move);
+        STREAMER.skip(entry -> doubletPath.equals(entry.path()))
+                .stream(mainPath)
+                .peek(stats::incExamined)
+                .filter(FileEntry::isRegularFile)
+                .filter(Guard::unprotected)
+                .filter(index::isDuplicated)
+                .map(FileEntry::path)
+                .forEach(this::move);
         index.write();
-        deletion.clean(FileEntry.of(mainPath).entries());
+        deletion.clean(LISTER.list(mainPath).stream());
         out.printf("%n" +
                    "%,12d directories and a total of%n" +
                    "%,12d entries examined.%n%n" +

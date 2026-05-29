@@ -1,6 +1,6 @@
 package de.team33.cmd.files.balancing;
 
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
 
 import java.nio.file.Path;
 
@@ -13,8 +13,8 @@ public class Relative {
 
     Relative(final String path, final Path srcRoot, final Path tgtRoot) {
         this.path = path;
-        this.source = FileEntry.of(srcRoot.resolve(path));
-        this.target = FileEntry.of(tgtRoot.resolve(path));
+        this.source = FileEntry.original(srcRoot.resolve(path));
+        this.target = FileEntry.original(tgtRoot.resolve(path));
         this.state = State.of(source, target);
     }
 

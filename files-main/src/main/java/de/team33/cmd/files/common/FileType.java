@@ -1,6 +1,6 @@
 package de.team33.cmd.files.common;
 
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -38,7 +38,7 @@ public abstract class FileType {
         private static final ByFile DIR = new ByFile(FileEntry::isDirectory);
         private static final ByFile REG = new ByFile(FileEntry::isRegularFile);
         private static final ByFile SYM = new ByFile(FileEntry::isSymbolicLink);
-        private static final ByFile SPC = new ByFile(FileEntry::isSpecial);
+        private static final ByFile SPC = new ByFile(FileEntry::isSpecialFile);
         private static final ByFile ALL = new ByFile(path -> true);
 
         private final Predicate<FileEntry> testing;

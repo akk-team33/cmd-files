@@ -1,7 +1,7 @@
 package de.team33.cmd.files.matching.publics;
 
 import de.team33.cmd.files.matching.TypeMatcher;
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TypeMatcherTest {
 
     private FileEntry entry(final String path) {
-        return FileEntry.of(Path.of(path));
+        return FileEntry.original(Path.of(path));
     }
 
     @Test

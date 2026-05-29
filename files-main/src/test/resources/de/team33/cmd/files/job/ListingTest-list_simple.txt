@@ -77,7 +77,7 @@
           74 entries examined.
 
           74 entries listed
-              44 of type REGULAR
+              44 of type REGULAR_FILE
               30 of type DIRECTORY
 
 

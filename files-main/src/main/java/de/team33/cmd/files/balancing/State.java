@@ -1,6 +1,6 @@
 package de.team33.cmd.files.balancing;
 
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,17 +19,17 @@ public enum State {
         if (source.isRegularFile()) {
             if (target.isRegularFile()) {
                 return ofRegular(source, target);
-            } else if (target.exists()) {
+            } else if (target.isPresent()) {
                 return INCOMPATIBLE;
             } else {
                 return TARGET_IS_MISSING;
             }
-        } else if (source.exists()) {
+        } else if (source.isPresent()) {
             return INCOMPATIBLE;
         } else {
             if (target.isRegularFile()) {
                 return SOURCE_IS_MISSING;
-            } else if (target.exists()) {
+            } else if (target.isPresent()) {
                 return INCOMPATIBLE;
             } else {
                 return BALANCED;

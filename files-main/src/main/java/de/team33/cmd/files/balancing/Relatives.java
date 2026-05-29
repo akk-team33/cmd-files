@@ -1,7 +1,7 @@
 package de.team33.cmd.files.balancing;
 
-import de.team33.patterns.io.phobos.FileEntry;
-import de.team33.patterns.io.phobos.FileIndex;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -13,13 +13,9 @@ import java.util.stream.Stream;
 
 public class Relatives {
 
-    private final FileIndex index;
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
     private final Function<String, Relative> toRelative;
-
-    private Relatives(final Path srcRoot, final Path tgtRoot) {
-        this.index = FileIndex.of(List.of(srcRoot, tgtRoot));
-        this.toRelative = relative -> new Relative(relative, srcRoot, tgtRoot);
-    }
+    private final List<FileEntry> entries;
 
     public static Set<String> collect(final Path srcRoot, final Path tgtRoot) {
         return new Relatives(srcRoot, tgtRoot).collect();
@@ -33,21 +29,26 @@ public class Relatives {
         return collect().stream().map(toRelative);
     }
 
+    private Relatives(final Path srcRoot, final Path tgtRoot) {
+        this.entries = List.of(FileEntry.original(srcRoot), FileEntry.original(tgtRoot));
+        this.toRelative = relative -> new Relative(relative, srcRoot, tgtRoot);
+    }
+
     private Set<String> collect() {
-        return index.entries()
-                    .parallel()
-                    .filter(FileEntry::isRegularFile)
-                    .map(FileEntry::path)
-                    .flatMap(this::relatives)
-                    .map(Path::toString)
-                    .collect(Collectors.toCollection(TreeSet::new));
+        return entries.stream()
+                      .flatMap(STREAMER::stream)
+                      .parallel()
+                      .filter(FileEntry::isRegularFile)
+                      .map(FileEntry::path)
+                      .flatMap(this::relatives)
+                      .map(Path::toString)
+                      .collect(Collectors.toCollection(TreeSet::new));
     }
 
     private Stream<Path> relatives(final Path path) {
-        return index.roots()
-                    .stream()
-                    .map(FileEntry::path)
-                    .filter(path::startsWith)
-                    .map(root -> root.relativize(path));
+        return entries.stream()
+                      .map(FileEntry::path)
+                      .filter(path::startsWith)
+                      .map(root -> root.relativize(path));
     }
 }

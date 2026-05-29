@@ -1,7 +1,8 @@
 package de.team33.cmd.files.cleaning;
 
 import de.team33.cmd.files.common.Output;
-import de.team33.patterns.io.phobos.FileEntry;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,8 +26,10 @@ public class DirDeletion {
                       .reduce(true, Boolean::logicalAnd);
     }
 
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+
     private boolean clean(final FileEntry entry) {
-        return entry.isDirectory() && clean(entry.entries()) && clean(entry.path());
+        return entry.isDirectory() && clean(LISTER.list(entry).stream()) && clean(entry.path());
     }
 
     private boolean clean(final Path path) {

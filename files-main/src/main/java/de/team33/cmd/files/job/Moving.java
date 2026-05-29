@@ -5,8 +5,8 @@ import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.moving.Resolver;
-import de.team33.patterns.io.phobos.FileEntry;
-import de.team33.patterns.io.phobos.FileIndex;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,21 +63,23 @@ class Moving implements Runnable {
         throw RequestException.format(Moving.class, "Moving.txt", Util.cmdLine(args), Util.cmdName(args));
     }
 
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+
     private Stream<FileEntry> stream() {
         return switch (mode) {
-            case FLAT -> FileEntry.of(mainPath)
-                                  .entries();
-            case DEEP -> FileIndex.of(mainPath)
-                                  .entries()
-                                  .skip(1);
+            case FLAT -> LISTER.list(mainPath)
+                               .stream();
+            case DEEP -> STREAMER.stream(mainPath)
+                                 .skip(1);
         };
     }
 
     private Stream<FileEntry> entries() {
         return switch (mode) {
             case FLAT -> Stream.of();
-            case DEEP -> FileEntry.of(mainPath)
-                                  .entries();
+            case DEEP -> LISTER.list(mainPath)
+                               .stream();
         };
     }
 
