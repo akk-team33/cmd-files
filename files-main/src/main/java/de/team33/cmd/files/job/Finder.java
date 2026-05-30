@@ -2,6 +2,7 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.*;
 import de.team33.cmd.files.listing.Depth;
+import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.matching.TypeFilter;
 import de.team33.cmd.files.sorting.Order;
@@ -38,7 +39,7 @@ class Finder implements Runnable {
         this.order = order; // nullable!
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
+    static Runnable job(final Output out, final List<String> args) throws RequestException {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
@@ -87,14 +88,6 @@ class Finder implements Runnable {
                 .peek(stats::addFound)
                 .forEach(entry -> out.printf("%s%n", entry.path()));
         stats.print(out);
-    }
-
-    private enum Option implements Args.Key {
-        D,
-        N,
-        X,
-        T,
-        O
     }
 
     private static class Stats {

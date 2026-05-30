@@ -1,8 +1,13 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.cleaning.DirDeletion;
+import de.team33.cmd.files.common.Args;
+import de.team33.cmd.files.common.Filter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
+import de.team33.cmd.files.listing.Depth;
+import de.team33.cmd.files.listing.Option;
+import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.moving.Resolver;
 import de.team33.patterns.io.adrastea.FileEntry;
@@ -13,72 +18,87 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static java.util.function.Predicate.not;
+import static de.team33.cmd.files.job.Util.cmdLine;
+import static de.team33.cmd.files.job.Util.cmdName;
 
 class Moving implements Runnable {
 
     static final String EXCERPT = "Relocate regular files located in a given directory.";
 
+    private static final Set<Option> OPTIONS = EnumSet.of(Option.D, Option.N, Option.X);
+    private static final Function<List<String>, Args> ARGS = Args.stage(4, OPTIONS);
+    private static final Predicate<FileEntry> POSITIVE = Filter.positive();
     private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
     private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;
-    private final Mode mode;
-    private final Path mainPath;
+    private final FileEntry entry;
     private final Resolver resolver;
+    private final Depth depth;
+    private final Predicate<FileEntry> filter;
     private final Stats stats;
     private final DirDeletion deletion;
 
-    private Moving(final Output out, final Mode mode, final Path mainPath,
-                   final Resolver resolver) {
+    public Moving(final Output out, final Path path, final Resolver resolver, final Depth depth, final Predicate<FileEntry> filter) {
         this.out = out;
-        this.mode = mode;
-        this.mainPath = mainPath.toAbsolutePath().normalize();
+        this.entry = FileEntry.original(path);
         this.resolver = resolver;
+        this.depth = depth;
+        this.filter = filter;
         this.stats = new Stats();
-        this.deletion = new DirDeletion(out, mainPath, stats);
+        this.deletion = new DirDeletion(out, entry.path(), stats);
     }
 
     static Moving job(final Output out, final List<String> args) throws RequestException {
-        assert 1 < args.size();
-        assert Command.MOVE.name().equalsIgnoreCase(args.get(1));
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (args.stream().skip(2).findFirst().map("-r"::equalsIgnoreCase).orElse(false)) {
-            return job(out, Mode.DEEP, args, 3);
-        } else {
-            return job(out, Mode.FLAT, args, 2);
+        try {
+            return job(out, ARGS.apply(args));
+        } catch (final IllegalArgumentException e) {
+            throw RequestException.format(Moving.class, "Moving.txt", cmdLine(args), cmdName(args));
         }
     }
 
-    private static Moving job(final Output out, final Mode mode,
-                              final List<String> args, final int nextArg) throws RequestException {
-        if ((nextArg + 2) == args.size()) {
-            final Path mainPath = Path.of(args.get(nextArg));
-            final Resolver resolver = Resolver.parse(args.get(nextArg + 1));
-            return new Moving(out, mode, mainPath, resolver);
-        }
-        throw RequestException.format(Moving.class, "Moving.txt", Util.cmdLine(args), Util.cmdName(args));
+    private static Moving job(final Output out, final Args args) {
+        final Path path = Path.of(args.get(2));
+        final Resolver resolver = Resolver.parse(args.get(3));
+        final Depth depth = args.get(Option.D)
+                                .map(String::toUpperCase)
+                                .map(Depth::valueOf)
+                                .orElse(Depth.DEEP);
+        final Predicate<FileEntry> nameFilter = args.get(Option.N)
+                                                    .map(NameMatcher::parse)
+                                                    .map(NameMatcher::toFileEntryFilter)
+                                                    .orElse(null);
+        final Predicate<FileEntry> nameXFilter = args.get(Option.X)
+                                                     .map(NameMatcher::parse)
+                                                     .map(NameMatcher::toFileEntryFilter)
+                                                     .map(Predicate::negate)
+                                                     .orElse(null);
+        final Predicate<FileEntry> filter = Stream.of(nameFilter, nameXFilter)
+                                                  .filter(Objects::nonNull)
+                                                  .reduce(Predicate::and)
+                                                  .orElse(POSITIVE);
+        return new Moving(out, path, resolver, depth, filter);
     }
 
     private Stream<FileEntry> stream() {
-        return switch (mode) {
-            case FLAT -> LISTER.list(mainPath)
+        return switch (depth) {
+            case FLAT -> LISTER.list(entry)
                                .stream();
-            case DEEP -> STREAMER.stream(mainPath)
+            case DEEP -> STREAMER.stream(entry)
                                  .skip(1);
         };
     }
 
     private List<FileEntry> entries() {
-        return switch (mode) {
+        return switch (depth) {
             case FLAT -> List.of();
-            case DEEP -> LISTER.list(mainPath);
+            case DEEP -> LISTER.list(entry);
         };
     }
 
@@ -87,7 +107,7 @@ class Moving implements Runnable {
         stats.reset();
         stream().filter(FileEntry::isRegularFile)
                 .filter(Guard::unprotected)
-                .filter(not(entry -> entry.name().startsWith(".")))
+                .filter(filter)
                 .forEach(this::move);
         deletion.clean(entries());
         out.printf("%n" +
@@ -101,6 +121,7 @@ class Moving implements Runnable {
 
     private void move(final FileEntry entry) {
         final Path path = entry.path();
+        final Path mainPath = this.entry.path();
         out.printf("%s ...%n", mainPath.relativize(path));
         final Path newPath = mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
         out.printf("--> %s ... ", mainPath.relativize(newPath));
@@ -127,11 +148,6 @@ class Moving implements Runnable {
                        "    Exception : %s%n", e.getMessage(), e.getClass().getCanonicalName());
             stats.incMoveFailed();
         }
-    }
-
-    private enum Mode {
-        FLAT,
-        DEEP
     }
 
     private static class Stats implements DirDeletion.Stats {
