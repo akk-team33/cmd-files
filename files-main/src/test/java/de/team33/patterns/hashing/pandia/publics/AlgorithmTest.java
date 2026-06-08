@@ -56,4 +56,12 @@ class AlgorithmTest {
         final Hash result = given.algorithm.hash(given.bytes);
         assertEquals(given.expected, result);
     }
+
+    @ParameterizedTest
+    @EnumSource
+    final void hash_bytes_alt(final AlgorithmCase given) {
+        final Hash result = given.algorithm.hash(given.bytes);
+        assertEquals(given.expected.toBigInteger().toString(36),
+                     result.toString("0123456789abcdefghijklmnopqrstuvwxyz"));
+    }
 }
