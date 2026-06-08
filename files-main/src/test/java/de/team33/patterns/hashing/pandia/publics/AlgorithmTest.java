@@ -3,6 +3,9 @@ package de.team33.patterns.hashing.pandia.publics;
 import de.team33.patterns.hashing.pandia.Algorithm;
 import de.team33.patterns.hashing.pandia.AlgorithmCase;
 import de.team33.patterns.hashing.pandia.Hash;
+import de.team33.tools.io.FileHashing;
+import de.team33.tools.io.StrictHashing;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -11,10 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class AlgorithmTest {
-
-    @Test
-    void ident() {
-    }
 
     @ParameterizedTest
     @EnumSource
@@ -28,6 +27,16 @@ class AlgorithmTest {
     final void hash_file(final AlgorithmCase given) {
         final Hash result = given.algorithm.hash(given.path);
         assertEquals(given.expected, result);
+    }
+
+    @Disabled
+    @ParameterizedTest
+    @EnumSource
+    final void hash_file_alt(final AlgorithmCase given) {
+        final FileHashing altHashing = StrictHashing.valueOf(given.algorithm.name());
+        final String expected = altHashing.hash(given.path);
+        final Hash result = given.algorithm.hash(given.path);
+        assertEquals(expected, result.toHexString());
     }
 
     @Test
