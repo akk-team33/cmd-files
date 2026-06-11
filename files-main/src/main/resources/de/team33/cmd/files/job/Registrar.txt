@@ -1,0 +1,42 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    %2$s register PATH REGISTRY NAME_LEN [d:DEPTH] [n:PATTERN1] [x:PATTERN2]
+
+    ... to register unique regular files that meet certain criteria located in
+        a given processing directory and move duplicates into a trash directory.
+
+        Unique files will be renamed with a unique filename component.
+
+        Empty subdirectories will finally be removed (see CLEAN).
+
+Parameters:
+
+    PATH     - A path to the processing directory.
+    REGISTRY - A path to the registry directory.
+    NAME_LEN - The maximum length of the substring of the original filename
+               that will be retained to generate the new, unique filename.
+    DEPTH    - One of {flat, deep} (case-insensitive)
+               flat : list files directly within the given directory only.
+               deep : list files within the given directory and its
+                      subdirectories. Note that symbolic links to directories
+                      will not be resolved at this point!
+             - Default: deep
+    PATTERN1 - A pattern for matching the simple filenames of the files to be listed.
+               Consists of [METHOD[/OPTION]:]VALUE
+               METHOD - One of {rx, wc} (case-insensitive)
+                        rx : the VALUE is treated as a regular expression.
+                        wc : the VALUE is treated as the full file name,
+                             but allows the use of the usual wildcards (?*).
+                      - Default: wc (allow usual wildcards)
+               OPTION - One of {cs, ci} (case-insensitive)
+                        cs : the PATTERN will be applied case-sensitive.
+                        ci : the PATTERN will be applied case-insensitive.
+                      - Default: ci (case-insensitive)
+               VALUE  - A (constant) value to be applied to the METHOD along
+                        with the (variable) filenames in question.
+    PATTERN2 - A pattern for matching the simple filenames of the files to be excluded.
+               Consists of [METHOD[/OPTION]:]VALUE (see PATTERN1)

@@ -16,7 +16,7 @@ Expected request scheme:
 
 Parameters:
 
-    PATH - A path to the processing directory.
+    PATH     - A path to the processing directory.
     RULE     - A processing rule that has a similar structure to a relative path,
                but which can contain TOKENs that are interpreted during
                processing. A resulting relative path will be resolved from the

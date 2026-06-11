@@ -1,14 +1,23 @@
 package de.team33.cmd.files.job;
 
-import de.team33.cmd.files.common.*;
+import de.team33.cmd.files.cleaning.DirDeletion;
+import de.team33.cmd.files.common.Args;
+import de.team33.cmd.files.common.Filter;
+import de.team33.cmd.files.common.Output;
+import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.cmd.files.matching.TypeFilter;
-import de.team33.cmd.files.sorting.Order;
+import de.team33.cmd.files.moving.Guard;
+import de.team33.cmd.files.moving.Resolver;
 import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -19,36 +28,44 @@ import static de.team33.cmd.files.job.Util.cmdName;
 
 class Registrar implements Runnable {
 
-    static final String EXCERPT = "List files that meet certain criteria.";
+    static final String EXCERPT = "Register unique regular files to a registry and relocate duplicates.";
 
-    private static final Set<Option> OPTIONS = EnumSet.allOf(Option.class);
-    private static final Function<List<String>, Args> ARGS = Args.stage(3, OPTIONS);
+    private static final Set<Option> OPTIONS = EnumSet.of(Option.D, Option.N, Option.X);
+    private static final Function<List<String>, Args> ARGS = Args.stage(5, OPTIONS);
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
 
+    private final Set<Path> createDir = new HashSet<>();
     private final Output out;
     private final FileEntry entry;
+    private final Resolver resolver;
     private final Depth depth;
     private final Predicate<FileEntry> filter;
-    private final Comparator<FileEntry> order;
+    private final Stats stats;
+    private final DirDeletion deletion;
 
-    private Registrar(final Output out, final Path path, final Depth depth, final Predicate<FileEntry> filter, final Comparator<FileEntry> order) {
+    public Registrar(final Output out, final Path path, final Resolver resolver, final Depth depth, final Predicate<FileEntry> filter) {
         this.out = out;
         this.entry = FileEntry.original(path);
+        this.resolver = resolver;
         this.depth = depth;
         this.filter = filter;
-        this.order = order; // nullable!
+        this.stats = new Stats();
+        this.deletion = new DirDeletion(out, entry.path(), stats);
     }
 
-    static Runnable job(final Output out, final List<String> args) throws RequestException {
+    static Registrar job(final Output out, final List<String> args) throws RequestException {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.format(Registrar.class, "Finder.txt", cmdLine(args), cmdName(args));
+            throw RequestException.format(Registrar.class, "Registrar.txt", cmdLine(args), cmdName(args));
         }
     }
 
-    private static Runnable job(final Output out, final Args args) {
+    private static Registrar job(final Output out, final Args args) {
         final Path path = Path.of(args.get(2));
+        final Resolver resolver = Resolver.parse(args.get(3));
         final Depth depth = args.get(Option.D)
                                 .map(String::toUpperCase)
                                 .map(Depth::valueOf)
@@ -62,72 +79,111 @@ class Registrar implements Runnable {
                                                      .map(NameMatcher::toFileEntryFilter)
                                                      .map(Predicate::negate)
                                                      .orElse(null);
-        final Predicate<FileEntry> typeFilter = args.get(Option.T)
-                                                    .map(TypeFilter::parse)
-                                                    .orElse(null);
-        final Predicate<FileEntry> entryFilter = Stream.of(nameFilter, nameXFilter, typeFilter)
-                                                       .filter(Objects::nonNull)
-                                                       .reduce(Predicate::and)
-                                                       .orElse(POSITIVE);
-        final Comparator<FileEntry> order = args.get(Option.O)
-                                                .map(Order::parse)
-                                                .orElse(null);
-        return new Registrar(out, path, depth, entryFilter, order);
+        final Predicate<FileEntry> filter = Stream.of(nameFilter, nameXFilter)
+                                                  .filter(Objects::nonNull)
+                                                  .reduce(Predicate::and)
+                                                  .orElse(POSITIVE);
+        return new Registrar(out, path, resolver, depth, filter);
+    }
+
+    private Stream<FileEntry> stream() {
+        return switch (depth) {
+            case FLAT -> LISTER.list(entry)
+                               .stream();
+            case DEEP -> STREAMER.stream(entry)
+                                 .skip(1);
+        };
+    }
+
+    private List<FileEntry> entries() {
+        return switch (depth) {
+            case FLAT -> List.of();
+            case DEEP -> LISTER.list(entry);
+        };
     }
 
     @Override
-    public final void run() {
-        final Stats stats = new Stats(depth);
-        final Stream<FileEntry> stage = depth.stream(entry)
-                                             .peek(stats::addTotal)
-                                             .filter(filter);
-        //noinspection DataFlowIssue
-        Optional.ofNullable(order)
-                .map(stage::sorted)
-                .orElse(stage)
-                .peek(stats::addFound)
-                .forEach(entry -> out.printf("%s%n", entry.path()));
-        stats.print(out);
+    public void run() {
+        stats.reset();
+        stream().filter(FileEntry::isRegularFile)
+                .filter(Guard::unprotected)
+                .filter(filter)
+                .forEach(this::move);
+        deletion.clean(entries());
+        out.printf("%n" +
+                   "%12d files moved%n" +
+                   "%12d files skipped%n" +
+                   "%12d moves failed%n%n" +
+                   "%12d empty directories deleted%n" +
+                   "%12d deletions failed%n%n",
+                   stats.moved, stats.skipped, stats.moveFailed, stats.deleted, stats.deleteFailed);
     }
 
-    private static class Stats {
+    private void move(final FileEntry entry) {
+        final Path path = entry.path();
+        final Path mainPath = this.entry.path();
+        out.printf("%s ...%n", mainPath.relativize(path));
+        final Path newPath = mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
+        out.printf("--> %s ... ", mainPath.relativize(newPath));
 
-        private final Depth depth;
-        private final Counter totalCounter = new Counter();
-        private final Counter totalDirCounter = new Counter();
-        private final Counter foundCounter = new Counter();
-        private final Map<FileEntry.Type, Counter> foundTypeCounters = new TreeMap<>();
-
-        private Stats(final Depth depth) {
-            this.depth = depth;
+        if (path.equals(newPath)) {
+            out.printf("nothing to do%n");
+            stats.incSkipped();
+            return;
         }
 
-        private void addTotal(final FileEntry entry) {
-            totalCounter.increment();
-            if (Depth.DEEP == depth && entry.isDirectory()) {
-                totalDirCounter.increment();
+        try {
+            final FileTime lastModifiedTime = Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS);
+            final Path parent = newPath.getParent();
+            if (createDir.add(parent)) {
+                Files.createDirectories(parent);
             }
+            Files.move(path, newPath);
+            Files.setLastModifiedTime(newPath, lastModifiedTime);
+            out.printf("moved%n");
+            stats.incMoved();
+        } catch (final IOException e) {
+            out.printf("failed:%n" +
+                       "    Message   : %s%n" +
+                       "    Exception : %s%n", e.getMessage(), e.getClass().getCanonicalName());
+            stats.incMoveFailed();
+        }
+    }
+
+    private static class Stats implements DirDeletion.Stats {
+
+        private int skipped;
+        private int moved;
+        private int moveFailed;
+        private int deleted;
+        private int deleteFailed;
+
+        final void reset() {
+            skipped = 0;
+            moved = 0;
+            moveFailed = 0;
+            deleted = 0;
+            deleteFailed = 0;
         }
 
-        private void addFound(final FileEntry entry) {
-            foundCounter.increment();
-            foundTypeCounters.computeIfAbsent(entry.type(), type -> new Counter()).increment();
+        final void incSkipped() {
+            this.skipped += 1;
         }
 
-        private void print(final Output out) {
-            final String aTotalOf = (Depth.FLAT == depth) ? "           A total of%n"
-                                                          : "%1$,12d directories and a total of%n";
-            out.printf("%n" +
-                       aTotalOf +
-                       "%2$,12d entries examined.%n%n" +
-                       "%3$,12d entries found%n",
-                       totalDirCounter.value(), totalCounter.value(), foundCounter.value());
-            for (final Map.Entry<FileEntry.Type, Counter> entry : foundTypeCounters.entrySet()) {
-                FileEntry.Type fileType = entry.getKey();
-                Counter counter = entry.getValue();
-                out.printf("    %,12d of type %s%n", counter.value(), fileType);
-            }
-            out.printf("%n");
+        final void incMoved() {
+            this.moved += 1;
+        }
+
+        final void incMoveFailed() {
+            this.moveFailed += 1;
+        }
+
+        public final void incDeleted() {
+            this.deleted += 1;
+        }
+
+        public final void incDeleteFailed() {
+            this.deleteFailed += 1;
         }
     }
 }
