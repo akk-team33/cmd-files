@@ -2,29 +2,18 @@ package de.team33.tools.io;
 
 import java.nio.file.Path;
 import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
-
-import static java.lang.String.format;
 
 public class LazyHashing implements FileHashing {
 
-    private static final String PATTERN_FORMAT = "%s[0123456789abcdefABCDEF]{%d}";
-
     private final FileHashing backing;
-    private final Pattern pattern;
 
-    public LazyHashing(final String prefix, final FileHashing backing) {
+    public LazyHashing(final FileHashing backing) {
         this.backing = backing;
-        this.pattern = Pattern.compile(format(PATTERN_FORMAT, prefix, backing.resultLength()));
     }
 
     @Override
     public final String hash(final Path filePath) {
-        final String fileName = filePath.getFileName().toString();
-        return pattern.matcher(fileName)
-                      .results()
-                      .findAny()
-                      .map(match -> extract(fileName, match))
+        return Hashing.oldHashStringByName(filePath.getFileName().toString())
                       .orElseGet(() -> backing.hash(filePath));
     }
 

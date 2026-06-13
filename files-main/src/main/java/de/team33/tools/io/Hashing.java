@@ -12,11 +12,14 @@ public final class Hashing {
     private static final Pattern OLD_PATTERN = Pattern.compile("#[" + OLD_DIGITS + "]{40}",
                                                                Pattern.CASE_INSENSITIVE);
 
-    public static Optional<Hash> oldHashByName(final String name) {
+    public static Optional<String> oldHashStringByName(final String name) {
         return OLD_PATTERN.matcher(name)
                           .results()
                           .findAny()
-                          .map(match -> name.substring(match.start() + 1, match.end()))
-                          .map(hash -> Algorithm.SHA_1.parse(hash, OLD_DIGITS));
+                          .map(match -> name.substring(match.start() + 1, match.end()));
+    }
+
+    public static Optional<Hash> oldHashByName(final String name) {
+        return oldHashStringByName(name).map(hash -> Algorithm.SHA_1.parse(hash, OLD_DIGITS));
     }
 }

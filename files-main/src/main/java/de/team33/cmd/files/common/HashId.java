@@ -9,7 +9,7 @@ import java.nio.file.Path;
 public class HashId {
 
     private static final String PREFIX = "#";
-    private static final FileHashing CORE = new LazyHashing(PREFIX, StrictHashing.SHA_1);
+    private static final FileHashing CORE = new LazyHashing(StrictHashing.SHA_1);
 
     public static String valueOf(final Path path) {
         return PREFIX + CORE.hash(path);
