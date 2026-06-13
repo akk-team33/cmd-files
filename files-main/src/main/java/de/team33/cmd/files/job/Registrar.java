@@ -13,6 +13,7 @@ import de.team33.patterns.hashing.pandia.Algorithm;
 import de.team33.patterns.hashing.pandia.Hash;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
+import de.team33.tools.io.Hashing;
 import de.team33.tools.io.Registry;
 
 import java.io.IOException;
@@ -194,7 +195,8 @@ class Registrar implements Runnable {
     }
 
     private Hash newHashOf(final FileEntry entry) {
-        return Algorithm.SHA_1.hash(entry.path());
+        return Hashing.oldHashByName(entry.name())
+                      .orElseGet(() -> Algorithm.SHA_1.hash(entry.path()));
     }
 
     private Optional<Hash> oldHashOf(final FileEntry entry) {
