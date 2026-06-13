@@ -8,10 +8,17 @@ import java.util.Random;
 
 public class Supply implements Generator {
 
+    private static final String CHARACTERS = "0123456789_abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ " +
+                                             "!#$§%&*+,.?@äöüÄÖÜß";
+
     private final Random random = new SecureRandom();
 
     @Override
     public final BigInteger anyBits(final int numBits) {
         return new BigInteger(numBits, random);
+    }
+
+    public final String anyString(final int length) {
+        return anyString(length, CHARACTERS);
     }
 }

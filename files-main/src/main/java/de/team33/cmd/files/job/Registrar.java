@@ -9,9 +9,11 @@ import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
-import de.team33.cmd.files.moving.Resolver;
+import de.team33.patterns.hashing.pandia.Algorithm;
+import de.team33.patterns.hashing.pandia.Hash;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
+import de.team33.tools.io.Registry;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,6 +23,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
@@ -35,24 +38,32 @@ class Registrar implements Runnable {
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
     private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
     private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+    private static final String DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz";
+    private static final Pattern PATTERN = Pattern.compile("\\[#[" + DIGITS + "]+\\]",
+                                                           Pattern.CASE_INSENSITIVE);
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;
-    private final FileEntry entry;
-    private final Resolver resolver;
+    private final FileEntry cwdEntry;
+    private final Path regPath;
+    private final int keepOriginalName;
     private final Depth depth;
     private final Predicate<FileEntry> filter;
     private final Stats stats;
     private final DirDeletion deletion;
+    private final Path trashPath;
 
-    public Registrar(final Output out, final Path path, final Resolver resolver, final Depth depth, final Predicate<FileEntry> filter) {
+    private Registrar(final Output out, final Path path, final Path regPath, final int keepOriginalName,
+                      final Depth depth, final Predicate<FileEntry> filter) {
         this.out = out;
-        this.entry = FileEntry.original(path);
-        this.resolver = resolver;
+        this.cwdEntry = FileEntry.original(path);
+        this.trashPath = Path.of(cwdEntry.path().toString() + ".trash");
+        this.regPath = regPath;
+        this.keepOriginalName = keepOriginalName;
         this.depth = depth;
         this.filter = filter;
         this.stats = new Stats();
-        this.deletion = new DirDeletion(out, entry.path(), stats);
+        this.deletion = new DirDeletion(out, cwdEntry.path(), stats);
     }
 
     static Registrar job(final Output out, final List<String> args) throws RequestException {
@@ -65,7 +76,8 @@ class Registrar implements Runnable {
 
     private static Registrar job(final Output out, final Args args) {
         final Path path = Path.of(args.get(2));
-        final Resolver resolver = Resolver.parse(args.get(3));
+        final Path registry = Path.of(args.get(3));
+        final int keep = Integer.parseInt(args.get(4));
         final Depth depth = args.get(Option.D)
                                 .map(String::toUpperCase)
                                 .map(Depth::valueOf)
@@ -83,14 +95,18 @@ class Registrar implements Runnable {
                                                   .filter(Objects::nonNull)
                                                   .reduce(Predicate::and)
                                                   .orElse(POSITIVE);
-        return new Registrar(out, path, resolver, depth, filter);
+        return new Registrar(out, path, registry, keep, depth, filter);
+    }
+
+    private static void confirm(final Registry registry, final Hash hash, final String name) {
+        registry.confirm(hash, name);
     }
 
     private Stream<FileEntry> stream() {
         return switch (depth) {
-            case FLAT -> LISTER.list(entry)
+            case FLAT -> LISTER.list(cwdEntry)
                                .stream();
-            case DEEP -> STREAMER.stream(entry)
+            case DEEP -> STREAMER.stream(cwdEntry)
                                  .skip(1);
         };
     }
@@ -98,17 +114,19 @@ class Registrar implements Runnable {
     private List<FileEntry> entries() {
         return switch (depth) {
             case FLAT -> List.of();
-            case DEEP -> LISTER.list(entry);
+            case DEEP -> LISTER.list(cwdEntry);
         };
     }
 
     @Override
     public void run() {
         stats.reset();
-        stream().filter(FileEntry::isRegularFile)
-                .filter(Guard::unprotected)
-                .filter(filter)
-                .forEach(this::move);
+        try (final Registry registry = new Registry(regPath)) {
+            stream().filter(FileEntry::isRegularFile)
+                    .filter(Guard::unprotected)
+                    .filter(filter)
+                    .forEach(entry -> register(entry, registry));
+        }
         deletion.clean(entries());
         out.printf("%n" +
                    "%12d files moved%n" +
@@ -119,11 +137,73 @@ class Registrar implements Runnable {
                    stats.moved, stats.skipped, stats.moveFailed, stats.deleted, stats.deleteFailed);
     }
 
+    private void register(final FileEntry entry, final Registry registry) {
+        oldHashOf(entry).ifPresentOrElse(oldHash -> confirm(registry, oldHash, entry.name()),
+                                         () -> registerNew(registry, entry));
+    }
+
+    private void registerNew(final Registry registry, final FileEntry entry) {
+        final Hash newHash = newHashOf(entry);
+        final String newName = newNameOf(newHash, entry.name());
+        if (registry.register(newHash, newName)) {
+            rename(entry, newName);
+        } else {
+            moveToTrash(entry);
+        }
+    }
+
+    private void moveToTrash(final FileEntry entry) {
+        final Path relative = cwdEntry.path().relativize(entry.path());
+        try {
+            final Path target = trashPath.resolve(relative);
+            Files.createDirectories(target.getParent());
+            Files.move(entry.path(), target);
+        } catch (final IOException e) {
+            // TODO: no Exception at this point!
+            throw new IllegalStateException(Optional.ofNullable(e.getMessage()).orElseGet(e::toString), e);
+        }
+    }
+
+    private void rename(final FileEntry entry, final String newName) {
+        try {
+            Files.move(entry.path(), entry.path().getParent().resolve(newName));
+        } catch (final IOException e) {
+            // TODO: no Exception at this point!
+            throw new IllegalStateException(Optional.ofNullable(e.getMessage()).orElseGet(e::toString), e);
+        }
+    }
+
+    private String newNameOf(final Hash hash, final String name) {
+        final String[] parts = name.split("\\.", 2);
+        final String part0 = parts[0];
+        final int keep = Integer.min(part0.length(), keepOriginalName);
+        final String head = part0.substring(0, keep);
+        if (parts.length == 2) {
+            return "%s[#%s].%s".formatted(head, hash.toString(DIGITS), parts[1]);
+        } else {
+            return "%s[#%s]".formatted(head, hash.toString(DIGITS));
+        }
+    }
+
+    private Hash newHashOf(final FileEntry entry) {
+        return Algorithm.SHA_1.hash(entry.path());
+    }
+
+    private Optional<Hash> oldHashOf(final FileEntry entry) {
+        final String name = entry.name();
+        return PATTERN.matcher(name)
+                      .results()
+                      .findAny()
+                      .map(match -> name.substring(match.start() + 2, match.end() - 1))
+                      .map(String::toLowerCase)
+                      .map(hash -> Algorithm.SHA_1.parse(hash, DIGITS));
+    }
+
     private void move(final FileEntry entry) {
         final Path path = entry.path();
-        final Path mainPath = this.entry.path();
+        final Path mainPath = cwdEntry.path();
         out.printf("%s ...%n", mainPath.relativize(path));
-        final Path newPath = mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
+        final Path newPath = null; //mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
         out.printf("--> %s ... ", mainPath.relativize(newPath));
 
         if (path.equals(newPath)) {

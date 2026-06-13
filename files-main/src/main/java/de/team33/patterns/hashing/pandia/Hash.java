@@ -54,16 +54,16 @@ public class Hash {
     }
 
     /**
-     * Returns a {@link String} representation of this hash value using the given <em>chars</em> as digits.
+     * Returns a {@link String} representation of this hash value using the given <em>digits</em> as digits.
      */
-    public final String toString(final String chars) {
-        final BigInteger base = BigInteger.valueOf(chars.length());
+    public final String toString(final String digits) {
+        final BigInteger base = BigInteger.valueOf(digits.length());
         final StringBuilder result = new StringBuilder(0);
         for (BigInteger tail = toBigInteger(); BigInteger.ZERO.compareTo(tail) != 0; tail = tail.divide(base)) {
             final int digit = tail.mod(base).intValue();
-            result.insert(0, chars.charAt(digit));
+            result.insert(0, digits.charAt(digit));
         }
-        return result.isEmpty() ? chars.substring(0, 1) : result.toString();
+        return result.isEmpty() ? digits.substring(0, 1) : result.toString();
     }
 
     @Override

@@ -1,0 +1,130 @@
+%s : DIRECTORY {
+    left : DIRECTORY {
+        (dedupe-id).txt : REGULAR (37, 2024-01-01T00:00:00Z);
+        (deduped).txt : REGULAR (1.477, 2024-01-01T00:00:00Z);
+        de : DIRECTORY {
+            team33 : DIRECTORY {
+                cmd : DIRECTORY {
+                    files : DIRECTORY {
+                        main : DIRECTORY {
+                            Main.java : REGULAR (631, 2024-09-21T14:01:51Z);
+                            common : DIRECTORY {
+                                FileType.java : REGULAR (3.768, 2024-09-24T10:21:18Z);
+                                Output.java : REGULAR (700, 2024-09-21T14:01:51Z);
+                                RequestException.java : REGULAR (726, 2024-09-21T14:01:51Z);
+                            };
+                            copying : DIRECTORY {
+                                Relative.java : REGULAR (69, 2024-09-24T10:02:42Z);
+                            };
+                            finder : DIRECTORY {
+                                CaseSensitivity.java : REGULAR (1.093, 2024-09-21T14:01:51Z);
+                                Method.java : REGULAR (959, 2024-09-21T14:01:51Z);
+                                Pattern.java : REGULAR (1.524, 2024-09-22T15:36:05Z);
+                                WildcardString.java : REGULAR (1.335, 2024-09-21T14:01:51Z);
+                            };
+                            job : DIRECTORY {
+                                About.java : REGULAR (488, 2024-09-21T14:01:51Z);
+                                Copying.java : REGULAR (4.680, 2024-09-24T09:41:21Z);
+                                DirFinder.java : REGULAR (3.152, 2024-09-24T09:41:21Z);
+                                Finder.java : REGULAR (2.826, 2024-09-24T09:41:21Z);
+                                Keeping.java : REGULAR (4.244, 2024-09-21T14:01:51Z);
+                                Listing.java : REGULAR (3.113, 2024-09-21T14:01:51Z);
+                                Regular.java : REGULAR (2.712, 2024-09-24T09:41:21Z);
+                                Util.java : REGULAR (674, 2024-09-21T14:01:51Z);
+                            };
+                        };
+                    };
+                };
+                patterns : DIRECTORY {
+                    enums : DIRECTORY {
+                        alpha : DIRECTORY {
+                            Values.java : REGULAR (1.757, 2024-09-21T14:01:51Z);
+                        };
+                    };
+                    io : DIRECTORY {
+                        alpha : DIRECTORY {
+                            FileEntry.java : REGULAR (9.954, 2024-09-24T10:19:46Z);
+                            FileIndex.java : REGULAR (1.853, 2024-09-21T14:01:51Z);
+                            FilePolicy.java : REGULAR (390, 2024-09-24T10:20:11Z);
+                            FileType.java : REGULAR (1.232, 2024-09-21T14:01:51Z);
+                        };
+                    };
+                };
+            };
+        };
+    };
+    right : DIRECTORY {
+        (dedupe-id).txt : REGULAR (37, 2024-01-01T00:00:00Z);
+        (deduped).txt : REGULAR (1.669, 2024-01-01T00:00:00Z);
+        de : DIRECTORY {
+            team33 : DIRECTORY {
+                cmd : DIRECTORY {
+                    files : DIRECTORY {
+                        main : DIRECTORY {
+                            Main.java : REGULAR (631, 2024-09-21T14:01:51Z);
+                            copying : DIRECTORY {
+                                Relative.java : REGULAR (69, 2024-09-24T10:02:42Z);
+                            };
+                            finder : DIRECTORY {
+                                CaseSensitivity.java : REGULAR (1.093, 2024-09-21T14:01:51Z);
+                                Method.java : REGULAR (959, 2024-09-21T14:01:51Z);
+                                Pattern.java : REGULAR (1.439, 2024-09-24T10:11:44Z);
+                                WildcardString.java : REGULAR (1.335, 2024-09-21T14:01:51Z);
+                            };
+                            job : DIRECTORY {
+                                About.java : REGULAR (488, 2024-09-21T14:01:51Z);
+                                Copying.java : REGULAR (4.633, 2024-09-24T10:12:34Z);
+                                DirFinder.java : REGULAR (3.152, 2024-09-24T09:41:21Z);
+                                Finder.java : REGULAR (2.826, 2024-09-24T09:41:21Z);
+                                Keeping.java : REGULAR (4.196, 2024-09-24T10:12:34Z);
+                                Listing.java : REGULAR (3.113, 2024-09-21T14:01:51Z);
+                                Regulary.java : REGULAR (2.712, 2024-09-24T09:41:21Z);
+                                Util.java : REGULAR (674, 2024-09-21T14:01:51Z);
+                            };
+                            shared : DIRECTORY {
+                                Output.java : REGULAR (700, 2024-09-21T14:01:51Z);
+                                RequestException.java : REGULAR (726, 2024-09-21T14:01:51Z);
+                            };
+                        };
+                    };
+                };
+                patterns : DIRECTORY {
+                    enums : DIRECTORY {
+                        alpha : DIRECTORY {
+                            Values.java : REGULAR (1.757, 2024-09-21T14:01:51Z);
+                        };
+                    };
+                    io : DIRECTORY {
+                        alpha : DIRECTORY {
+                            FileIndex.java : REGULAR (1.853, 2024-09-21T14:01:51Z);
+                            FileType.java : REGULAR (1.232, 2024-09-21T14:01:51Z);
+                        };
+                    };
+                };
+            };
+        };
+    };
+    right.(dupes) : DIRECTORY {
+        de : DIRECTORY {
+            team33 : DIRECTORY {
+                cmd : DIRECTORY {
+                    files : DIRECTORY {
+                        main : DIRECTORY {
+                            shared : DIRECTORY {
+                                FileType.java : REGULAR (3.768, 2024-09-21T14:01:51Z);
+                            };
+                        };
+                    };
+                };
+                patterns : DIRECTORY {
+                    io : DIRECTORY {
+                        alpha : DIRECTORY {
+                            FileEntry.java : REGULAR (9.954, 2024-09-23T14:23:50Z);
+                            FilePolicy.java : REGULAR (390, 2024-09-21T14:01:51Z);
+                        };
+                    };
+                };
+            };
+        };
+    };
+};

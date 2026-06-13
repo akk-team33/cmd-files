@@ -52,7 +52,7 @@ class Deduping implements Runnable {
         if (3 == args.size()) {
             return new Deduping(out, Path.of(args.get(2)));
         }
-        throw RequestException.format(Moving.class, "Deduping.txt", Util.cmdLine(args), Util.cmdName(args));
+        throw RequestException.format(Deduping.class, "Deduping.txt", Util.cmdLine(args), Util.cmdName(args));
     }
 
     @Override
