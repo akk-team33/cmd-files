@@ -17,9 +17,7 @@ import de.team33.tools.io.Registry;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -42,7 +40,6 @@ class Registrar implements Runnable {
     private static final Pattern PATTERN = Pattern.compile("\\[#[" + DIGITS + "]+\\]",
                                                            Pattern.CASE_INSENSITIVE);
 
-    private final Set<Path> createDir = new HashSet<>();
     private final Output out;
     private final FileEntry cwdEntry;
     private final Path regPath;
@@ -98,10 +95,6 @@ class Registrar implements Runnable {
         return new Registrar(out, path, registry, keep, depth, filter);
     }
 
-    private static void confirm(final Registry registry, final Hash hash, final String name) {
-        registry.confirm(hash, name);
-    }
-
     private Stream<FileEntry> stream() {
         return switch (depth) {
             case FLAT -> LISTER.list(cwdEntry)
@@ -127,19 +120,30 @@ class Registrar implements Runnable {
                     .filter(filter)
                     .forEach(entry -> register(entry, registry));
         }
+        out.printf("%ncleaning ...%n");
         deletion.clean(entries());
         out.printf("%n" +
-                   "%12d files moved%n" +
-                   "%12d files skipped%n" +
-                   "%12d moves failed%n%n" +
+                   "%12d unique files confirmed%n" +
+                   "%12d unique files registered%n" +
+                   "%12d duplicate files trashed%n" +
+                   "%12d register attempts failed%n" +
+                   "%12d trash attempts failed%n" +
                    "%12d empty directories deleted%n" +
                    "%12d deletions failed%n%n",
-                   stats.moved, stats.skipped, stats.moveFailed, stats.deleted, stats.deleteFailed);
+                   stats.confirmed, stats.registered, stats.trashed, stats.registerFailed, stats.trashFailed,
+                   stats.deleted, stats.deleteFailed);
     }
 
     private void register(final FileEntry entry, final Registry registry) {
+        out.printf("%s ... ", entry.path());
         oldHashOf(entry).ifPresentOrElse(oldHash -> confirm(registry, oldHash, entry.name()),
                                          () -> registerNew(registry, entry));
+    }
+
+    private void confirm(final Registry registry, final Hash hash, final String name) {
+        registry.confirm(hash, name);
+        stats.incConfirmed();
+        out.printf("confirmed%n");
     }
 
     private void registerNew(final Registry registry, final FileEntry entry) {
@@ -158,18 +162,22 @@ class Registrar implements Runnable {
             final Path target = trashPath.resolve(relative);
             Files.createDirectories(target.getParent());
             Files.move(entry.path(), target);
+            stats.incTrashed();
+            out.printf("trashed%n");
         } catch (final IOException e) {
-            // TODO: no Exception at this point!
-            throw new IllegalStateException(Optional.ofNullable(e.getMessage()).orElseGet(e::toString), e);
+            stats.incTrashFailed();
+            out.printf("failed: %s%n", e);
         }
     }
 
     private void rename(final FileEntry entry, final String newName) {
         try {
             Files.move(entry.path(), entry.path().getParent().resolve(newName));
+            stats.incRegistered();
+            out.printf("registered (%s)%n", newName);
         } catch (final IOException e) {
-            // TODO: no Exception at this point!
-            throw new IllegalStateException(Optional.ofNullable(e.getMessage()).orElseGet(e::toString), e);
+            stats.incRegisterFailed();
+            out.printf("failed: %s%n", e);
         }
     }
 
@@ -199,63 +207,24 @@ class Registrar implements Runnable {
                       .map(hash -> Algorithm.SHA_1.parse(hash, DIGITS));
     }
 
-    private void move(final FileEntry entry) {
-        final Path path = entry.path();
-        final Path mainPath = cwdEntry.path();
-        out.printf("%s ...%n", mainPath.relativize(path));
-        final Path newPath = null; //mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
-        out.printf("--> %s ... ", mainPath.relativize(newPath));
-
-        if (path.equals(newPath)) {
-            out.printf("nothing to do%n");
-            stats.incSkipped();
-            return;
-        }
-
-        try {
-            final FileTime lastModifiedTime = Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS);
-            final Path parent = newPath.getParent();
-            if (createDir.add(parent)) {
-                Files.createDirectories(parent);
-            }
-            Files.move(path, newPath);
-            Files.setLastModifiedTime(newPath, lastModifiedTime);
-            out.printf("moved%n");
-            stats.incMoved();
-        } catch (final IOException e) {
-            out.printf("failed:%n" +
-                       "    Message   : %s%n" +
-                       "    Exception : %s%n", e.getMessage(), e.getClass().getCanonicalName());
-            stats.incMoveFailed();
-        }
-    }
-
     private static class Stats implements DirDeletion.Stats {
 
-        private int skipped;
-        private int moved;
-        private int moveFailed;
         private int deleted;
         private int deleteFailed;
+        private int confirmed;
+        private int registered;
+        private int trashed;
+        private int registerFailed;
+        private int trashFailed;
 
         final void reset() {
-            skipped = 0;
-            moved = 0;
-            moveFailed = 0;
             deleted = 0;
             deleteFailed = 0;
-        }
-
-        final void incSkipped() {
-            this.skipped += 1;
-        }
-
-        final void incMoved() {
-            this.moved += 1;
-        }
-
-        final void incMoveFailed() {
-            this.moveFailed += 1;
+            confirmed = 0;
+            registered = 0;
+            registerFailed = 0;
+            trashed = 0;
+            trashFailed = 0;
         }
 
         public final void incDeleted() {
@@ -264,6 +233,26 @@ class Registrar implements Runnable {
 
         public final void incDeleteFailed() {
             this.deleteFailed += 1;
+        }
+
+        public final void incConfirmed() {
+            this.confirmed += 1;
+        }
+
+        public final void incRegistered() {
+            this.registered += 1;
+        }
+
+        public void incTrashed() {
+            this.trashed += 1;
+        }
+
+        public void incRegisterFailed() {
+            this.registerFailed += 1;
+        }
+
+        public void incTrashFailed() {
+            this.trashFailed += 1;
         }
     }
 }

@@ -1,130 +1,72 @@
-%s : DIRECTORY {
-    left : DIRECTORY {
-        (dedupe-id).txt : REGULAR (37, 2024-01-01T00:00:00Z);
-        (deduped).txt : REGULAR (1.477, 2024-01-01T00:00:00Z);
-        de : DIRECTORY {
-            team33 : DIRECTORY {
-                cmd : DIRECTORY {
-                    files : DIRECTORY {
-                        main : DIRECTORY {
-                            Main.java : REGULAR (631, 2024-09-21T14:01:51Z);
-                            common : DIRECTORY {
-                                FileType.java : REGULAR (3.768, 2024-09-24T10:21:18Z);
-                                Output.java : REGULAR (700, 2024-09-21T14:01:51Z);
-                                RequestException.java : REGULAR (726, 2024-09-21T14:01:51Z);
-                            };
-                            copying : DIRECTORY {
-                                Relative.java : REGULAR (69, 2024-09-24T10:02:42Z);
-                            };
-                            finder : DIRECTORY {
-                                CaseSensitivity.java : REGULAR (1.093, 2024-09-21T14:01:51Z);
-                                Method.java : REGULAR (959, 2024-09-21T14:01:51Z);
-                                Pattern.java : REGULAR (1.524, 2024-09-22T15:36:05Z);
-                                WildcardString.java : REGULAR (1.335, 2024-09-21T14:01:51Z);
-                            };
-                            job : DIRECTORY {
-                                About.java : REGULAR (488, 2024-09-21T14:01:51Z);
-                                Copying.java : REGULAR (4.680, 2024-09-24T09:41:21Z);
-                                DirFinder.java : REGULAR (3.152, 2024-09-24T09:41:21Z);
-                                Finder.java : REGULAR (2.826, 2024-09-24T09:41:21Z);
-                                Keeping.java : REGULAR (4.244, 2024-09-21T14:01:51Z);
-                                Listing.java : REGULAR (3.113, 2024-09-21T14:01:51Z);
-                                Regular.java : REGULAR (2.712, 2024-09-24T09:41:21Z);
-                                Util.java : REGULAR (674, 2024-09-21T14:01:51Z);
-                            };
-                        };
-                    };
-                };
-                patterns : DIRECTORY {
-                    enums : DIRECTORY {
-                        alpha : DIRECTORY {
-                            Values.java : REGULAR (1.757, 2024-09-21T14:01:51Z);
-                        };
-                    };
-                    io : DIRECTORY {
-                        alpha : DIRECTORY {
-                            FileEntry.java : REGULAR (9.954, 2024-09-24T10:19:46Z);
-                            FileIndex.java : REGULAR (1.853, 2024-09-21T14:01:51Z);
-                            FilePolicy.java : REGULAR (390, 2024-09-24T10:20:11Z);
-                            FileType.java : REGULAR (1.232, 2024-09-21T14:01:51Z);
-                        };
-                    };
-                };
-            };
-        };
-    };
-    right : DIRECTORY {
-        (dedupe-id).txt : REGULAR (37, 2024-01-01T00:00:00Z);
-        (deduped).txt : REGULAR (1.669, 2024-01-01T00:00:00Z);
-        de : DIRECTORY {
-            team33 : DIRECTORY {
-                cmd : DIRECTORY {
-                    files : DIRECTORY {
-                        main : DIRECTORY {
-                            Main.java : REGULAR (631, 2024-09-21T14:01:51Z);
-                            copying : DIRECTORY {
-                                Relative.java : REGULAR (69, 2024-09-24T10:02:42Z);
-                            };
-                            finder : DIRECTORY {
-                                CaseSensitivity.java : REGULAR (1.093, 2024-09-21T14:01:51Z);
-                                Method.java : REGULAR (959, 2024-09-21T14:01:51Z);
-                                Pattern.java : REGULAR (1.439, 2024-09-24T10:11:44Z);
-                                WildcardString.java : REGULAR (1.335, 2024-09-21T14:01:51Z);
-                            };
-                            job : DIRECTORY {
-                                About.java : REGULAR (488, 2024-09-21T14:01:51Z);
-                                Copying.java : REGULAR (4.633, 2024-09-24T10:12:34Z);
-                                DirFinder.java : REGULAR (3.152, 2024-09-24T09:41:21Z);
-                                Finder.java : REGULAR (2.826, 2024-09-24T09:41:21Z);
-                                Keeping.java : REGULAR (4.196, 2024-09-24T10:12:34Z);
-                                Listing.java : REGULAR (3.113, 2024-09-21T14:01:51Z);
-                                Regulary.java : REGULAR (2.712, 2024-09-24T09:41:21Z);
-                                Util.java : REGULAR (674, 2024-09-21T14:01:51Z);
-                            };
-                            shared : DIRECTORY {
-                                Output.java : REGULAR (700, 2024-09-21T14:01:51Z);
-                                RequestException.java : REGULAR (726, 2024-09-21T14:01:51Z);
-                            };
-                        };
-                    };
-                };
-                patterns : DIRECTORY {
-                    enums : DIRECTORY {
-                        alpha : DIRECTORY {
-                            Values.java : REGULAR (1.757, 2024-09-21T14:01:51Z);
-                        };
-                    };
-                    io : DIRECTORY {
-                        alpha : DIRECTORY {
-                            FileIndex.java : REGULAR (1.853, 2024-09-21T14:01:51Z);
-                            FileType.java : REGULAR (1.232, 2024-09-21T14:01:51Z);
-                        };
-                    };
-                };
-            };
-        };
-    };
-    right.(dupes) : DIRECTORY {
-        de : DIRECTORY {
-            team33 : DIRECTORY {
-                cmd : DIRECTORY {
-                    files : DIRECTORY {
-                        main : DIRECTORY {
-                            shared : DIRECTORY {
-                                FileType.java : REGULAR (3.768, 2024-09-21T14:01:51Z);
-                            };
-                        };
-                    };
-                };
-                patterns : DIRECTORY {
-                    io : DIRECTORY {
-                        alpha : DIRECTORY {
-                            FileEntry.java : REGULAR (9.954, 2024-09-23T14:23:50Z);
-                            FilePolicy.java : REGULAR (390, 2024-09-21T14:01:51Z);
-                        };
-                    };
-                };
-            };
-        };
-    };
-};
+.../left/de/team33/cmd/files/main/common/FileType.java ... registered ([#3ozp1iqvnqlbs062j9qxaw9yzle404x].java)
+.../left/de/team33/cmd/files/main/common/Output.java ... registered ([#2ewq47bul96114tpyq5rchvug9f3wlv].java)
+.../left/de/team33/cmd/files/main/common/RequestException.java ... registered ([#2q2xr2lv786gij3jvunx5pekxc0ktch].java)
+.../left/de/team33/cmd/files/main/copying/Relative.java ... registered ([#5f51iieboixfclybbgzpuozosz6bi70].java)
+.../left/de/team33/cmd/files/main/finder/CaseSensitivity.java ... registered ([#rjl77xhqtrrbx8vat7ctxvud42wqpg].java)
+.../left/de/team33/cmd/files/main/finder/Method.java ... registered ([#cjt0jlybije9izvcezm7h464qiygmr7].java)
+.../left/de/team33/cmd/files/main/finder/Pattern.java ... registered ([#d2jh8pzcvhvhztmjfeh32dbh80xisi5].java)
+.../left/de/team33/cmd/files/main/finder/WildcardString.java ... registered ([#lv6r2tkbvua7gktvj6xm3zhjrvepi2v].java)
+.../left/de/team33/cmd/files/main/job/About.java ... registered ([#cqws8loh5qog3w72zv94yux55j2i9wz].java)
+.../left/de/team33/cmd/files/main/job/Copying.java ... registered ([#61atq5yj1i6h6vz39uwoagalhfexwjq].java)
+.../left/de/team33/cmd/files/main/job/DirFinder.java ... registered ([#bwt9t734ugltroo4l66a6v269u6sz4g].java)
+.../left/de/team33/cmd/files/main/job/Finder.java ... registered ([#djhsmmxiny0ul1vii1bpktmfwjzmvdl].java)
+.../left/de/team33/cmd/files/main/job/Keeping.java ... registered ([#rpu9ijbstdyofjm8jv7tn57y2vqv7bp].java)
+.../left/de/team33/cmd/files/main/job/Listing.java ... registered ([#rcgdawo6n19papn5dv7j4za4294kzoh].java)
+.../left/de/team33/cmd/files/main/job/Regular.java ... registered ([#p3ffqwct2q8q5hdknqky9x8epczbo46].java)
+.../left/de/team33/cmd/files/main/job/Util.java ... registered ([#tvtqryzhu0hp2r7m8hrjnusedojekvh].java)
+.../left/de/team33/cmd/files/main/Main.java ... registered ([#1zn8jl5xilq0g2a4tx5khk25dgsguvt].java)
+.../left/de/team33/patterns/enums/alpha/Values.java ... registered ([#4cebi99n1k8u32y7mcinmc97tojii2d].java)
+.../left/de/team33/patterns/io/alpha/FileEntry.java ... registered ([#8mok5y69z2ixyt27bheutnjdywpaffc].java)
+.../left/de/team33/patterns/io/alpha/FileIndex.java ... registered ([#jvnmd6fa8090efrog7pig8aqrfnhfzf].java)
+.../left/de/team33/patterns/io/alpha/FilePolicy.java ... registered ([#oppaa94soprla1zzo3ebnze0gqsgsbt].java)
+.../left/de/team33/patterns/io/alpha/FileType.java ... registered ([#4v0ltzh34nh3cttwa0uxd6240ifhb8d].java)
+
+cleaning ...
+
+           0 unique files confirmed
+          22 unique files registered
+           0 duplicate files trashed
+           0 register attempts failed
+           0 trash attempts failed
+           0 empty directories deleted
+           0 deletions failed
+
+.../right/de/team33/cmd/files/main/copying/Relative.java ... trashed
+.../right/de/team33/cmd/files/main/finder/CaseSensitivity.java ... trashed
+.../right/de/team33/cmd/files/main/finder/Method.java ... trashed
+.../right/de/team33/cmd/files/main/finder/Pattern.java ... registered ([#8b55frppzyc5cllv64kzst7msa2zm6y].java)
+.../right/de/team33/cmd/files/main/finder/WildcardString.java ... trashed
+.../right/de/team33/cmd/files/main/job/About.java ... trashed
+.../right/de/team33/cmd/files/main/job/Copying.java ... registered ([#knnvaxitmymgb0qnr1ia23d84jdpvhh].java)
+.../right/de/team33/cmd/files/main/job/DirFinder.java ... trashed
+.../right/de/team33/cmd/files/main/job/Finder.java ... trashed
+.../right/de/team33/cmd/files/main/job/Keeping.java ... registered ([#4tjpgduvh9fm1f238d1b1rwipzf4izx].java)
+.../right/de/team33/cmd/files/main/job/Listing.java ... trashed
+.../right/de/team33/cmd/files/main/job/Regulary.java ... trashed
+.../right/de/team33/cmd/files/main/job/Util.java ... trashed
+.../right/de/team33/cmd/files/main/Main.java ... trashed
+.../right/de/team33/cmd/files/main/shared/FileType.java ... trashed
+.../right/de/team33/cmd/files/main/shared/Output.java ... trashed
+.../right/de/team33/cmd/files/main/shared/RequestException.java ... trashed
+.../right/de/team33/patterns/enums/alpha/Values.java ... trashed
+.../right/de/team33/patterns/io/alpha/FileEntry.java ... trashed
+.../right/de/team33/patterns/io/alpha/FileIndex.java ... trashed
+.../right/de/team33/patterns/io/alpha/FilePolicy.java ... trashed
+.../right/de/team33/patterns/io/alpha/FileType.java ... trashed
+
+cleaning ...
+de/team33/cmd/files/main/copying ... deleted
+de/team33/cmd/files/main/shared ... deleted
+de/team33/patterns/enums/alpha ... deleted
+de/team33/patterns/enums ... deleted
+de/team33/patterns/io/alpha ... deleted
+de/team33/patterns/io ... deleted
+de/team33/patterns ... deleted
+
+           0 unique files confirmed
+           3 unique files registered
+          19 duplicate files trashed
+           0 register attempts failed
+           0 trash attempts failed
+           7 empty directories deleted
+           0 deletions failed%n%n
