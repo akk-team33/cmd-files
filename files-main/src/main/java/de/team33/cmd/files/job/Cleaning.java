@@ -39,7 +39,7 @@ class Cleaning implements Runnable {
                                                 .toList();
             return new Cleaning(out, entries);
         }
-        throw RequestException.format(Listing.class, "Cleaning.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(Cleaning.class, "Cleaning.txt", cmdLine(args), cmdName(args));
     }
 
     @Override

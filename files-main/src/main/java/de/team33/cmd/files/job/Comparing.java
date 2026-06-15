@@ -39,7 +39,7 @@ class Comparing implements Runnable {
             final Path target = Path.of(args.get(3));
             return new Comparing(out, source, target);
         }
-        throw RequestException.format(Listing.class, "Comparing.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(Comparing.class, "Comparing.txt", cmdLine(args), cmdName(args));
     }
 
     @Override

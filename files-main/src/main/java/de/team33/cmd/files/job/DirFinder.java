@@ -43,7 +43,7 @@ class DirFinder implements Runnable {
             final List<Path> paths = args.stream().skip(3).map(Path::of).toList();
             return new DirFinder(out, expression, paths);
         }
-        throw RequestException.format(Listing.class, "DirFinder.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(DirFinder.class, "DirFinder.txt", cmdLine(args), cmdName(args));
     }
 
     @Override

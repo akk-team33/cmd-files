@@ -23,7 +23,6 @@ public enum Command {
     DELETE(Deletion::job, Deletion.EXCERPT),
     FIND(Finder::job, Finder.EXCERPT),
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
-    LIST(Listing::job, Listing.EXCERPT),
     MOVE(Moving::job, Moving.EXCERPT),
     REGISTER(Registrar::job, Registrar.EXCERPT);
 
