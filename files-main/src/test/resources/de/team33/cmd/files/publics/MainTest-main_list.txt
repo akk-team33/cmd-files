@@ -1,10 +1,13 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
 Your request:
 
-    %1$s
+    MainTest list
 
 Expected request scheme:
 
-    %2$s find PATH [d:DEPTH] [n:PATTERN1] [x:PATTERN2] [t:TYPES] [o:ORDER]
+    MainTest list PATH [d:DEPTH] [n:PATTERN1] [x:PATTERN2] [t:TYPES] [o:ORDER]
 
     ... to list files that meet certain criteria within a specific directory.
 
@@ -56,23 +59,23 @@ Parameters:
 
 Examples:
 
-[1] %2$s find path/to/images deep 'n:*.jpg'
+[1] MainTest list path/to/images deep 'n:*.jpg'
 
-    ... to find files whose names end with ".jpg" in the directory
+    ... to list files whose names end with ".jpg" in the directory
         "path/to/images" and its subdirectories. Output in default order.
 
-[2] %2$s find path/to/images flat 'x:myFile.*'
+[2] MainTest list path/to/images flat 'x:myFile.*'
 
-    ... to find files whose names do not start with "myFile." in the directory
+    ... to list files whose names do not start with "myFile." in the directory
         "path/to/images". Output in default order.
 
-[3] %2$s find path/to/images deep 't:fl'
+[3] MainTest list path/to/images deep 't:fl'
 
-    ... to find regular files and symbolic links in the directory
+    ... to list regular files and symbolic links in the directory
         "path/to/images" and its subdirectories. Output in default order.
 
-[4] %2$s find . flat 'n:rx:.*\.(jpg|jpe|jpeg)' 'o:d:d'
+[4] MainTest list . flat 'n:rx:.*\.(jpg|jpe|jpeg)' 'o:d:d'
 
-    ... to find files with any of the extensions {"jpg", "jpe", "jpeg"}
+    ... to list files with any of the extensions {"jpg", "jpe", "jpeg"}
         in the current working directory. Output order by date / time
-        of last modification, descending.
+        of last modification, descending.%n%n

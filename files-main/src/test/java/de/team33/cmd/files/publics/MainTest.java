@@ -59,10 +59,10 @@ class MainTest {
     }
 
     @Test
-    final void main_find() throws Exception {
-        final String expected = TextIO.read(MainTest.class, "MainTest-main_find.txt").formatted();
+    final void main_list() throws Exception {
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_list.txt").formatted();
 
-        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "find"));
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "list"));
         // System.out.println(result);
 
         assertEquals(expected, result);

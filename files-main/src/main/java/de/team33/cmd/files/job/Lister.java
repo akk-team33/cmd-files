@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
 
-class Finder implements Runnable {
+class Lister implements Runnable {
 
     static final String EXCERPT = "List files that meet certain criteria.";
 
@@ -31,7 +31,7 @@ class Finder implements Runnable {
     private final Predicate<FileEntry> filter;
     private final Comparator<FileEntry> order;
 
-    private Finder(final Output out, final Path path, final Depth depth, final Predicate<FileEntry> filter, final Comparator<FileEntry> order) {
+    private Lister(final Output out, final Path path, final Depth depth, final Predicate<FileEntry> filter, final Comparator<FileEntry> order) {
         this.out = out;
         this.entry = FileEntry.original(path);
         this.depth = depth;
@@ -43,7 +43,7 @@ class Finder implements Runnable {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.format(Finder.class, "Finder.txt", cmdLine(args), cmdName(args));
+            throw RequestException.format(Lister.class, "Lister.txt", cmdLine(args), cmdName(args));
         }
     }
 
@@ -72,7 +72,7 @@ class Finder implements Runnable {
         final Comparator<FileEntry> order = args.get(Option.O)
                                                 .map(Order::parse)
                                                 .orElse(null);
-        return new Finder(out, path, depth, entryFilter, order);
+        return new Lister(out, path, depth, entryFilter, order);
     }
 
     @Override
