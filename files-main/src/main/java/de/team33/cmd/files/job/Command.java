@@ -19,7 +19,6 @@ public enum Command {
     CMP(Comparing::job, Comparing.EXCERPT),
     COPY(Copying::job, Copying.EXCERPT),
     DCOPY(DirCopying::job, DirCopying.EXCERPT),
-    DEDUPE(Deduping::job, Deduping.EXCERPT),
     DELETE(Deletion::job, Deletion.EXCERPT),
     LIST(Lister::job, Lister.EXCERPT),
     FINDIR(DirFinder::job, DirFinder.EXCERPT),
