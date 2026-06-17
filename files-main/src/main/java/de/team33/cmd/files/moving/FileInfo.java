@@ -27,7 +27,7 @@ class FileInfo {
         this.relativePath = cwd.relativize(entry.path().getParent());
         this.processingDir = cwd.getFileName();
         this.fullName = entry.name();
-        this.dotIndex = fullName.lastIndexOf('.');
+        this.dotIndex = fullName.indexOf('.');
 
         this.fileName = Lazy.init(() -> (dotIndex < 0) ? fullName : fullName.substring(0, dotIndex));
         this.extension = Lazy.init(() -> (dotIndex < 0) ? "" : fullName.substring(dotIndex + 1));
