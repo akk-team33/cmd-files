@@ -1,6 +1,6 @@
 package de.team33.cmd.files.job;
 
-import de.team33.cmd.files.cleaning.DirDeletion;
+import de.team33.cmd.files.cleaning.Cleaner;
 import de.team33.cmd.files.common.Args;
 import de.team33.cmd.files.common.Filter;
 import de.team33.cmd.files.common.Output;
@@ -42,26 +42,26 @@ class Registrar implements Runnable {
                                                            Pattern.CASE_INSENSITIVE);
 
     private final Output out;
-    private final FileEntry cwdEntry;
+    private final FileEntry mainEntry;
     private final Path regPath;
     private final int keepOriginalName;
     private final Depth depth;
     private final Predicate<FileEntry> filter;
     private final Stats stats;
-    private final DirDeletion deletion;
+    private final Cleaner cleaner;
     private final Path trashPath;
 
     private Registrar(final Output out, final Path path, final Path regPath, final int keepOriginalName,
                       final Depth depth, final Predicate<FileEntry> filter) {
         this.out = out;
-        this.cwdEntry = FileEntry.original(path);
-        this.trashPath = Path.of(cwdEntry.path().toString() + ".trash");
+        this.mainEntry = FileEntry.original(path);
+        this.trashPath = Path.of(mainEntry.path().toString() + ".trash");
         this.regPath = regPath;
         this.keepOriginalName = keepOriginalName;
         this.depth = depth;
         this.filter = filter;
         this.stats = new Stats();
-        this.deletion = new DirDeletion(out, cwdEntry.path(), stats);
+        this.cleaner = new Cleaner(out, stats);
     }
 
     static Registrar job(final Output out, final List<String> args) throws RequestException {
@@ -98,17 +98,10 @@ class Registrar implements Runnable {
 
     private Stream<FileEntry> stream() {
         return switch (depth) {
-            case FLAT -> LISTER.list(cwdEntry)
+            case FLAT -> LISTER.list(mainEntry)
                                .stream();
-            case DEEP -> STREAMER.stream(cwdEntry)
+            case DEEP -> STREAMER.stream(mainEntry)
                                  .skip(1);
-        };
-    }
-
-    private List<FileEntry> entries() {
-        return switch (depth) {
-            case FLAT -> List.of();
-            case DEEP -> LISTER.list(cwdEntry);
         };
     }
 
@@ -122,7 +115,7 @@ class Registrar implements Runnable {
                     .forEach(entry -> register(entry, registry));
         }
         out.printf("%ncleaning ...%n");
-        deletion.clean(entries());
+        cleaner.clean(mainEntry);
         out.printf("%n" +
                    "%12d unique files confirmed%n" +
                    "%12d unique files registered%n" +
@@ -158,7 +151,7 @@ class Registrar implements Runnable {
     }
 
     private void moveToTrash(final FileEntry entry) {
-        final Path relative = cwdEntry.path().relativize(entry.path());
+        final Path relative = mainEntry.path().relativize(entry.path());
         try {
             final Path target = trashPath.resolve(relative);
             Files.createDirectories(target.getParent());
@@ -209,7 +202,7 @@ class Registrar implements Runnable {
                       .map(hash -> Algorithm.SHA_1.parse(hash, DIGITS));
     }
 
-    private static class Stats implements DirDeletion.Stats {
+    private static class Stats implements Cleaner.Stats {
 
         private int deleted;
         private int deleteFailed;

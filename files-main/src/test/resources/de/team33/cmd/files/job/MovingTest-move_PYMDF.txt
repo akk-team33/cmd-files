@@ -1,5 +1,4 @@
 %s : DIRECTORY {
-    left : DIRECTORY {};
     left.moved : DIRECTORY {
         2024 : DIRECTORY {
             09 : DIRECTORY {

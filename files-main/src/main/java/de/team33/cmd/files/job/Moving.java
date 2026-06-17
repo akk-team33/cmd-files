@@ -1,6 +1,6 @@
 package de.team33.cmd.files.job;
 
-import de.team33.cmd.files.cleaning.DirDeletion;
+import de.team33.cmd.files.cleaning.Cleaner;
 import de.team33.cmd.files.common.Args;
 import de.team33.cmd.files.common.Filter;
 import de.team33.cmd.files.common.Output;
@@ -38,21 +38,21 @@ class Moving implements Runnable {
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;
-    private final FileEntry entry;
+    private final FileEntry mainEntry;
     private final Resolver resolver;
     private final Depth depth;
     private final Predicate<FileEntry> filter;
     private final Stats stats;
-    private final DirDeletion deletion;
+    private final Cleaner cleaner;
 
     public Moving(final Output out, final Path path, final Resolver resolver, final Depth depth, final Predicate<FileEntry> filter) {
         this.out = out;
-        this.entry = FileEntry.original(path);
+        this.mainEntry = FileEntry.original(path);
         this.resolver = resolver;
         this.depth = depth;
         this.filter = filter;
         this.stats = new Stats();
-        this.deletion = new DirDeletion(out, entry.path(), stats);
+        this.cleaner = new Cleaner(out, stats);
     }
 
     static Moving job(final Output out, final List<String> args) throws RequestException {
@@ -88,17 +88,10 @@ class Moving implements Runnable {
 
     private Stream<FileEntry> stream() {
         return switch (depth) {
-            case FLAT -> LISTER.list(entry)
+            case FLAT -> LISTER.list(mainEntry)
                                .stream();
-            case DEEP -> STREAMER.stream(entry)
+            case DEEP -> STREAMER.stream(mainEntry)
                                  .skip(1);
-        };
-    }
-
-    private List<FileEntry> entries() {
-        return switch (depth) {
-            case FLAT -> List.of();
-            case DEEP -> LISTER.list(entry);
         };
     }
 
@@ -109,7 +102,7 @@ class Moving implements Runnable {
                 .filter(Guard::unprotected)
                 .filter(filter)
                 .forEach(this::move);
-        deletion.clean(entries());
+        cleaner.clean(mainEntry);
         out.printf("%n" +
                    "%12d files moved%n" +
                    "%12d files skipped%n" +
@@ -121,7 +114,7 @@ class Moving implements Runnable {
 
     private void move(final FileEntry entry) {
         final Path path = entry.path();
-        final Path mainPath = this.entry.path();
+        final Path mainPath = this.mainEntry.path();
         out.printf("%s ...%n", mainPath.relativize(path));
         final Path newPath = mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
         out.printf("--> %s ... ", mainPath.relativize(newPath));
@@ -150,7 +143,7 @@ class Moving implements Runnable {
         }
     }
 
-    private static class Stats implements DirDeletion.Stats {
+    private static class Stats implements Cleaner.Stats {
 
         private int skipped;
         private int moved;

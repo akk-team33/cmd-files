@@ -55,13 +55,13 @@ cleaning ...
 .../right/de/team33/patterns/io/alpha/FileType.java ... trashed
 
 cleaning ...
-de/team33/cmd/files/main/copying ... deleted
-de/team33/cmd/files/main/shared ... deleted
-de/team33/patterns/enums/alpha ... deleted
-de/team33/patterns/enums ... deleted
-de/team33/patterns/io/alpha ... deleted
-de/team33/patterns/io ... deleted
-de/team33/patterns ... deleted
+.../right/de/team33/cmd/files/main/copying ... deleted
+.../right/de/team33/cmd/files/main/shared ... deleted
+.../right/de/team33/patterns/enums/alpha ... deleted
+.../right/de/team33/patterns/enums ... deleted
+.../right/de/team33/patterns/io/alpha ... deleted
+.../right/de/team33/patterns/io ... deleted
+.../right/de/team33/patterns ... deleted
 
            0 unique files confirmed
            3 unique files registered

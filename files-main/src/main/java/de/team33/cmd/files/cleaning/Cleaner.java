@@ -9,32 +9,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class DirDeletion {
+public class Cleaner {
+
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
 
     private final Output out;
-    private final Path mainPath;
     private final Stats stats;
 
-    public DirDeletion(final Output out, final Path mainPath, final Stats stats) {
+    public Cleaner(final Output out, final Stats stats) {
         this.out = out;
-        this.mainPath = mainPath.toAbsolutePath().normalize();
         this.stats = stats;
     }
 
-    public boolean clean(final List<FileEntry> entries) {
+    public boolean clean(final FileEntry entry) {
+        return entry.isDirectory() && clean(LISTER.list(entry)) && clean(entry.path());
+    }
+
+    private boolean clean(final List<FileEntry> entries) {
         return entries.stream()
                       .map(this::clean)
                       .reduce(true, Boolean::logicalAnd);
     }
 
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-
-    private boolean clean(final FileEntry entry) {
-        return entry.isDirectory() && clean(LISTER.list(entry)) && clean(entry.path());
-    }
-
     private boolean clean(final Path path) {
-        out.printf("%s ... ", mainPath.relativize(path));
+        out.printf("%s ... ", path);
         try {
             Files.delete(path);
             out.printf("deleted%n");
