@@ -7,11 +7,10 @@ Your request:
 
 Expected request scheme:
 
-    MainTest clean PATH [PATH [...]]
+    MainTest clean PATH
 
-    ... to remove given directories if they are empty
-        after cleaning all their subdirectories.
+    ... to remove empty directories within a specific directory.
 
 Parameters:
 
-    PATH   - A directory path to be examined. Multiple PATHs are possible.%n%n
+    PATH - A path to be examined. Subdirectories are included if existing.%n%n

@@ -4,11 +4,10 @@ Your request:
 
 Expected request scheme:
 
-    %2$s clean PATH [PATH [...]]
+    %2$s clean PATH
 
-    ... to remove given directories if they are empty
-        after cleaning all their subdirectories.
+    ... to remove empty directories within a specific directory.
 
 Parameters:
 
-    PATH   - A directory path to be examined. Multiple PATHs are possible.
+    PATH - A path to be examined. Subdirectories are included if existing.
