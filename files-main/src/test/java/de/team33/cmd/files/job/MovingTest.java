@@ -6,7 +6,6 @@ import de.team33.patterns.io.deimos.TextIO;
 import de.team33.testing.io.hydra.FileInfo;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,8 +53,7 @@ class MovingTest extends ModifyingTestBase {
     final void move_RpNX() throws RequestException {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_RpNX.txt"), testID());
 
-        Moving.job(MUTE,
-                   Arrays.asList("files", "move", leftPath().toString(), "@R/../@p-@N.@X", "d:deep"))
+        Moving.job(MUTE, List.of("files", "move", leftPath().toString(), "@R/../@p-@N.@X", "d:deep"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -66,8 +64,7 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_hms_hash_X.txt"),
                                               testID());
 
-        Moving.job(MUTE,
-                   Arrays.asList("files", "move", leftPath().toString(), "@h/@m/@s/@#.@X"))
+        Moving.job(MUTE, List.of("files", "move", leftPath().toString(), "@h/@m/@s/@#.@X"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -78,11 +75,9 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_R_hash_time_X.txt"),
                                               testID());
 
-        Moving.job(MUTE,
-                   Arrays.asList("files", "move", leftPath().toString(), "@R/@#@!.@X"))
+        Moving.job(MUTE, List.of("files", "move", leftPath().toString(), "@R/@#@!.@X"))
               .run();
-        Moving.job(MUTE,
-                   Arrays.asList("files", "move", leftPath().toString(), "@R/@#@!.@X", "d:deep"))
+        Moving.job(MUTE, List.of("files", "move", leftPath().toString(), "@R/@#@!.@X", "d:deep"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -93,8 +88,7 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_RF.txt"),
                                               testID());
 
-        Moving.job(MUTE,
-                   Arrays.asList("files", "move", leftPath().toString(), "@R/@F"))
+        Moving.job(MUTE, List.of("files", "move", leftPath().toString(), "@R/@F"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -105,8 +99,7 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_RF.txt"),
                                               testID());
 
-        Moving.job(MUTE,
-                   Arrays.asList("files", "move", leftPath().toString(), "@Y/@M/@D/@#", "d:flat"))
+        Moving.job(MUTE, List.of("files", "move", leftPath().toString(), "@Y/@M/@D/@#", "d:flat"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());

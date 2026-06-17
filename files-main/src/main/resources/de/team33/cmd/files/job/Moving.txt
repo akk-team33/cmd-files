@@ -33,6 +33,8 @@ Parameters:
                @P -> the actual filename of the processing directory.
                @p -> the filename of the current parent directory of the file
                      in question.
+               @R -> the relative path from the processing directory to the
+                     file in question.
                @# -> a hex encoded SHA1 hash value over the content of the file
                      in question. If the actual file name already contains such a
                      hash value, that value is used instead of recalculating it.
