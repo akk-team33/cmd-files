@@ -21,8 +21,8 @@
 [PATH]/de/team33/patterns/io/alpha/FilePolicy.java
 [PATH]/de/team33/patterns/io/alpha/FileType.java
 
-          15 directories and a total of
-          37 entries examined.
+          14 directories and a total of
+          36 entries examined.
 
           22 entries found
               22 of type REGULAR_FILE

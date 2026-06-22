@@ -38,7 +38,7 @@ class DeletionTest extends ModifyingTestBase {
     final void delete_MPsi() throws RequestException {
         final String expected = String.format(TextIO.read(DeletionTest.class,
                                                           "DeletionTest-delete_MPsi.txt"), testID());
-        Deletion.job(MUTE, Arrays.asList("files", "delete", "rx/cs:[MPsi].*",
+        Deletion.job(MUTE, Arrays.asList("files", "delete", "rx:cs:[MPsi].*",
                                          leftPath().toString(), rightPath().toString()))
                 .run();
         assertEquals(expected, FileInfo.of(testPath()).toString());

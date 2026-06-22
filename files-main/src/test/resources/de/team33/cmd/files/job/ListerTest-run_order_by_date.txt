@@ -12,7 +12,6 @@
 [PATH]/de/team33/cmd/files
 [PATH]/de/team33/cmd
 [PATH]/de
-[PATH]
 [PATH]/de/team33/cmd/files/main/common/FileType.java
 [PATH]/de/team33/patterns/io/alpha/FilePolicy.java
 [PATH]/de/team33/patterns/io/alpha/FileEntry.java
@@ -36,11 +35,11 @@
 [PATH]/de/team33/cmd/files/main/common/RequestException.java
 [PATH]/de/team33/cmd/files/main/common/Output.java
 
-          15 directories and a total of
-          37 entries examined.
+          14 directories and a total of
+          36 entries examined.
 
-          37 entries found
+          36 entries found
               22 of type REGULAR_FILE
-              15 of type DIRECTORY
+              14 of type DIRECTORY
 
 

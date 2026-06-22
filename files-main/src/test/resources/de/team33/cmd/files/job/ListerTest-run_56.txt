@@ -6,8 +6,8 @@
 [PATH]/de/team33/patterns/enums/alpha
 [PATH]/de/team33/patterns/io/alpha
 
-          15 directories and a total of
-          37 entries examined.
+          14 directories and a total of
+          36 entries examined.
 
            7 entries found
                7 of type DIRECTORY
