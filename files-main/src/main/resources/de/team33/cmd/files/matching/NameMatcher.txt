@@ -8,7 +8,7 @@ Problem:
 
 Expected syntax:
 
-    [METHOD[/OPTION]:]VALUE
+    [METHOD[:OPTION]:]VALUE
 
     METHOD - Optional one of {rx, wc} (case-insensitive)
              rx : the VALUE is treated as a regular expression.
