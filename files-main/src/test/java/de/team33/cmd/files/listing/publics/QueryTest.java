@@ -3,11 +3,14 @@ package de.team33.cmd.files.listing.publics;
 import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Query;
 import de.team33.cmd.files.testing.ModifyingTestBase;
+import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.deimos.TextIO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,6 +33,20 @@ class QueryTest extends ModifyingTestBase {
         assertEquals(expected.subQueryString, query.subQueryString());
         assertEquals(expected.depth, query.depth());
         assertEquals(expected.basePath, query.basePath());
+    }
+
+    @Test
+    final void stream_left_all() {
+        final List<String> expected = TextIO.read(QueryTest.class, "QueryTest-stream_left_all.txt")
+                                            .lines()
+                                            .toList();
+        final Query query = Query.parse(leftPath().resolve("**").toString());
+        final List<String> result = query.stream()
+                                         .map(FileEntry::path)
+                                         .map(path -> query.basePath().relativize(path))
+                                         .map(Path::toString)
+                                         .toList();
+        assertEquals(expected, result);
     }
 
     @Test

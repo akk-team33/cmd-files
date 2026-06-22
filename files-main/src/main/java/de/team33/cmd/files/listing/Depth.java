@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public enum Depth {
 
     FLAT(entry -> Constants.LISTER.list(entry).stream()),
-    DEEP(Constants.STREAMER::stream);
+    DEEP(entry -> Constants.STREAMER.stream(entry).skip(1));
 
     private final Function<FileEntry, Stream<FileEntry>> toStream;
 

@@ -1,19 +1,25 @@
 package de.team33.cmd.files.listing;
 
+import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.nio.file.Path;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class Query {
 
     private static final String DEEP_WILDCARD = "**";
+    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
 
-    private final Path basePath;
+    private final FileEntry baseEntry;
     private final Depth depth;
     private final String subQueryString;
 
     private Query(final Path basePath, final Depth depth, final String subQueryString) {
-        this.basePath = basePath;
+        this.baseEntry = FileEntry.resolved(basePath);
         this.depth = depth;
         this.subQueryString = subQueryString;
     }
@@ -49,8 +55,12 @@ public class Query {
         }
     }
 
+    public final FileEntry baseEntry() {
+        return baseEntry;
+    }
+
     public final Path basePath() {
-        return basePath;
+        return baseEntry.path();
     }
 
     public final Depth depth() {
@@ -59,5 +69,15 @@ public class Query {
 
     public final String subQueryString() {
         return subQueryString;
+    }
+
+    public Stream<FileEntry> stream() {
+        return depth.stream(baseEntry)
+                    .filter(filter());
+    }
+
+    private Predicate<FileEntry> filter() {
+        return NameMatcher.parse(subQueryString)
+                          .toFileEntryFilter();
     }
 }
