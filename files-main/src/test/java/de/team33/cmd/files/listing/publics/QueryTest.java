@@ -27,9 +27,9 @@ class QueryTest extends ModifyingTestBase {
         final Path queryPath = path.resolve(Path.of(pattern));
         final Query query = Query.parse(queryPath.toString());
 
-        assertEquals(expected.subQueryString, query.subQueryString);
-        assertEquals(expected.depth, query.depth);
-        assertEquals(expected.basePath, query.basePath);
+        assertEquals(expected.subQueryString, query.subQueryString());
+        assertEquals(expected.depth, query.depth());
+        assertEquals(expected.basePath, query.basePath());
     }
 
     @Test

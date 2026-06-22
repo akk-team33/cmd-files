@@ -8,9 +8,9 @@ public class Query {
 
     private static final String DEEP_WILDCARD = "**";
 
-    public final Path basePath;
-    public final Depth depth;
-    public final String subQueryString;
+    private final Path basePath;
+    private final Depth depth;
+    private final String subQueryString;
 
     private Query(final Path basePath, final Depth depth, final String subQueryString) {
         this.basePath = basePath;
@@ -47,5 +47,17 @@ public class Query {
         } else {
             return new Query(queryHead, Depth.FLAT, queryName);
         }
+    }
+
+    public final Path basePath() {
+        return basePath;
+    }
+
+    public final Depth depth() {
+        return depth;
+    }
+
+    public final String subQueryString() {
+        return subQueryString;
     }
 }
