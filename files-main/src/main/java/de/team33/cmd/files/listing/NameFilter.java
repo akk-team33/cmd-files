@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * <p>
  * Use {@link #parse(String)} to get an Instance.
  */
-public class NameQuery {
+public class NameFilter {
 
     private static final String DOT = ".";
     private static final String COLON = ":";
@@ -18,14 +18,14 @@ public class NameQuery {
 
     private final Pattern pattern;
 
-    private NameQuery(final String regExp) {
+    private NameFilter(final String regExp) {
         this.pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
     }
 
     /**
      * Parses a string that represents a query relating to (file) names.
      */
-    public static NameQuery parse(final String queryString) {
+    public static NameFilter parse(final String queryString) {
         if (queryString.startsWith(COLON)) {
             return parse("", queryString.substring(1));
         } else if (queryString.startsWith(DOT)) {
@@ -35,8 +35,8 @@ public class NameQuery {
         }
     }
 
-    private static NameQuery parse(final String rxHead, final String queryString) {
-        return new NameQuery(rxHead + WildcardString.toRegExp(queryString));
+    private static NameFilter parse(final String rxHead, final String queryString) {
+        return new NameFilter(rxHead + WildcardString.toRegExp(queryString));
     }
 
     public final boolean matches(final String name) {

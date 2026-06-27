@@ -1,6 +1,6 @@
 package de.team33.cmd.files.listing.publics;
 
-import de.team33.cmd.files.listing.NameQuery;
+import de.team33.cmd.files.listing.NameFilter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class NameQueryTest {
+class NameFilterTest {
 
     private static final List<String> FILE_NAMES = List.of(
             "",
@@ -28,7 +28,7 @@ class NameQueryTest {
 
     static Stream<Arguments> matchesCases() {
         return Stream.of(BaseCase.values())
-                     .flatMap(NameQueryTest::matchesCases);
+                     .flatMap(NameFilterTest::matchesCases);
     }
 
     private static Stream<Arguments> matchesCases(final BaseCase baseCase) {
@@ -38,7 +38,7 @@ class NameQueryTest {
 
     @Test
     void parse() {
-        final NameQuery query = NameQuery.parse("*");
+        final NameFilter query = NameFilter.parse("*");
         assertNotNull(query);
     }
 
@@ -67,12 +67,12 @@ class NameQueryTest {
         FILENAME_HIDDEN(".filename*", "\\.filename.*");
 
         private final String queryString;
-        private final NameQuery query;
+        private final NameFilter query;
         private final Pattern pattern;
 
         BaseCase(final String queryString, final String regExp) {
             this.queryString = queryString;
-            this.query = NameQuery.parse(queryString);
+            this.query = NameFilter.parse(queryString);
             this.pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
         }
 
@@ -95,6 +95,6 @@ class NameQueryTest {
         }
     }
 
-    record Given(NameQuery query, String fileName, boolean expected) {
+    record Given(NameFilter query, String fileName, boolean expected) {
     }
 }
