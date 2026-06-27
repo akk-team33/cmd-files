@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
 
-class WildcardString {
+public class WildcardString {
 
     private static final Pattern WILDCARD = Pattern.compile("[*?]");
 
-    static String parse(final String origin) {
+    public static String toRegExp(final String origin) {
         final Matcher matcher = WILDCARD.matcher(origin);
         final List<String> result = new LinkedList<>();
         final Index index = new Index();
