@@ -26,12 +26,12 @@ class NameFilterTest {
             "fIlenAme.txt",
             ".FIleNAme.TXT");
 
-    static Stream<Arguments> matchesCases() {
+    static Stream<Arguments> testCases() {
         return Stream.of(BaseCase.values())
-                     .flatMap(NameFilterTest::matchesCases);
+                     .flatMap(NameFilterTest::testCases);
     }
 
-    private static Stream<Arguments> matchesCases(final BaseCase baseCase) {
+    private static Stream<Arguments> testCases(final BaseCase baseCase) {
         return FILE_NAMES.stream()
                          .map(fileName -> Arguments.of(baseCase, fileName));
     }
@@ -43,11 +43,11 @@ class NameFilterTest {
     }
 
     @ParameterizedTest
-    @MethodSource("matchesCases")
-    final void matches(final BaseCase baseCase, final String fileName) {
+    @MethodSource("testCases")
+    final void test(final BaseCase baseCase, final String fileName) {
         final Given given = baseCase.given(fileName);
-        final boolean result = given.query().matches(given.fileName());
-        System.out.printf("%s: '%s' -> '%s' -> %s%n", baseCase, baseCase.queryString, given.fileName, result);
+        final boolean result = given.query().test(given.fileName());
+        // System.out.printf("%s: '%s' -> '%s' -> %s%n", baseCase, baseCase.queryString, given.fileName, result);
         assertEquals(given.expected(), result);
     }
 

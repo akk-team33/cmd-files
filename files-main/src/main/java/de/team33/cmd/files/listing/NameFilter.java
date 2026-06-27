@@ -14,7 +14,6 @@ public class NameFilter {
 
     private static final String DOT = ".";
     private static final String COLON = ":";
-    private static final Pattern WILDCARD = Pattern.compile("[*?]");
 
     private final Pattern pattern;
 
@@ -39,7 +38,7 @@ public class NameFilter {
         return new NameFilter(rxHead + WildcardString.toRegExp(queryString));
     }
 
-    public final boolean matches(final String name) {
+    public final boolean test(final String name) {
         return pattern.matcher(name).matches();
     }
 }
