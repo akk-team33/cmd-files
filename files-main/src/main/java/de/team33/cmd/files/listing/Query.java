@@ -1,26 +1,25 @@
 package de.team33.cmd.files.listing;
 
 import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class Query {
 
     private static final String DEEP_WILDCARD = "**";
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+    private static final NameFilter STD_NAME_FILTER = NameFilter.parse("*");
 
     private final FileEntry baseEntry;
     private final Depth depth;
     private final NameFilter nameFilter;
 
-    private Query(final Path basePath, final Depth depth, final String subQueryString) {
-        this.baseEntry = FileEntry.resolved(basePath);
+    private Query(final FileEntry baseEntry, final Depth depth, final NameFilter nameFilter) {
+        this.baseEntry = baseEntry;
         this.depth = depth;
-        this.nameFilter = NameFilter.parse(subQueryString);
+        this.nameFilter = nameFilter;
     }
 
     public static Query parse(final String queryString) {
@@ -30,7 +29,7 @@ public class Query {
     private static Query parse(final Path queryPath) {
         final FileEntry queryEntry = FileEntry.resolved(queryPath);
         if (queryEntry.isDirectory()) {
-            return new Query(queryEntry.path(), Depth.FLAT, "*");
+            return compose(queryEntry.path(), Depth.FLAT, STD_NAME_FILTER);
         } else {
             return parse(queryEntry);
         }
@@ -40,22 +39,26 @@ public class Query {
         final String queryTail = queryEntry.name();
         final Path queryHead = queryEntry.path().getParent();
         if (DEEP_WILDCARD.equals(queryTail)) {
-            return new Query(queryHead, Depth.DEEP, "*");
+            return compose(queryHead, Depth.DEEP, STD_NAME_FILTER);
         } else {
             return parse(queryHead, queryTail);
         }
     }
 
-    private static Query parse(final Path queryHead, final String queryName) {
+    private static Query parse(final Path queryHead, final String namePattern) {
         if (queryHead.endsWith(DEEP_WILDCARD)) {
-            return new Query(queryHead.getParent(), Depth.DEEP, queryName);
+            return compose(queryHead.getParent(), Depth.DEEP, namePattern);
         } else {
-            return new Query(queryHead, Depth.FLAT, queryName);
+            return compose(queryHead, Depth.FLAT, namePattern);
         }
     }
 
-    public final FileEntry baseEntry() {
-        return baseEntry;
+    public static Query compose(final Path basePath, final Depth depth, final String namePattern) {
+        return compose(basePath, depth, NameFilter.parse(namePattern));
+    }
+
+    public static Query compose(final Path basePath, final Depth depth, final NameFilter nameFilter) {
+        return new Query(FileEntry.resolved(basePath), depth, nameFilter);
     }
 
     public final Path basePath() {
@@ -70,12 +73,31 @@ public class Query {
         return nameFilter;
     }
 
-    public Stream<FileEntry> stream() {
+    public final Stream<FileEntry> stream() {
         return depth.stream(baseEntry)
                     .filter(filter());
     }
 
     private Predicate<FileEntry> filter() {
         return nameFilter::test;
+    }
+
+    private List<?> toList() {
+        return List.of(baseEntry.path(), depth, nameFilter);
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        return (this == obj) || ((obj instanceof Query other) && toList().equals(other.toList()));
+    }
+
+    @Override
+    public final int hashCode() {
+        return toList().hashCode();
+    }
+
+    @Override
+    public final String toString() {
+        return toList().toString();
     }
 }
