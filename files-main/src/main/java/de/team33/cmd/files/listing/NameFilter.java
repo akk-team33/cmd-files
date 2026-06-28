@@ -51,4 +51,19 @@ public class NameFilter {
     public final boolean test(final FileEntry entry) {
         return test(entry.name());
     }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        return (this == obj) || ((obj instanceof NameFilter other) && toString().equals(other.toString()));
+    }
+
+    @Override
+    public final int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public final String toString() {
+        return pattern.toString();
+    }
 }

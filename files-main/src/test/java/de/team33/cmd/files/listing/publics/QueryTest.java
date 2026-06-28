@@ -1,111 +1,75 @@
 package de.team33.cmd.files.listing.publics;
 
 import de.team33.cmd.files.listing.Depth;
+import de.team33.cmd.files.listing.NameFilter;
 import de.team33.cmd.files.listing.Query;
-import de.team33.cmd.files.testing.ModifyingTestBase;
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.deimos.TextIO;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class QueryTest extends ModifyingTestBase {
+class QueryTest /*extends ModifyingTestBase*/ {
 
-    QueryTest() {
-        super(RELATIVE, InitMode.FILL_LEFT_ONLY);
+    static Stream<Arguments> parseParameters() {
+        return Stream.of(Arguments.of("", "", Depth.FLAT, "*"),
+                         Arguments.of("*", "", Depth.FLAT, "*"),
+                         Arguments.of("**", "", Depth.DEEP, "*"),
+                         Arguments.of("**/*", "", Depth.DEEP, "*"),
+
+                         Arguments.of(":", "", Depth.FLAT, ":"),
+                         Arguments.of(":*", "", Depth.FLAT, ":*"),
+                         Arguments.of("**/:", "", Depth.DEEP, ":"),
+                         Arguments.of("**/:*", "", Depth.DEEP, ":*"),
+
+                         Arguments.of(".", "", Depth.FLAT, "*"),
+                         Arguments.of(".*", "", Depth.FLAT, ".*"),
+                         Arguments.of("**/.", "", Depth.DEEP, "."),
+                         Arguments.of("**/.*", "", Depth.DEEP, ".*"),
+
+                         Arguments.of(".", "", Depth.FLAT, "*"),
+                         Arguments.of("./*", "", Depth.FLAT, "*"),
+                         Arguments.of("./**", "", Depth.DEEP, "*"),
+                         Arguments.of("./**/*", "", Depth.DEEP, "*"),
+
+                         Arguments.of("..", "..", Depth.FLAT, "*"),
+                         Arguments.of("../*", "..", Depth.FLAT, "*"),
+                         Arguments.of("../**", "..", Depth.DEEP, "*"),
+                         Arguments.of("../**/*", "..", Depth.DEEP, "*"),
+
+                         Arguments.of("target", "target", Depth.FLAT, "*"),
+                         Arguments.of("target/*", "target", Depth.FLAT, "*"),
+                         Arguments.of("target/**", "target", Depth.DEEP, "*"),
+                         Arguments.of("target/**/*", "target", Depth.DEEP, "*"));
     }
 
-    private static <E> Optional<E> opt(final E[] array, final int index) {
-        return (index < array.length) ? Optional.of(array[index]) : Optional.empty();
-    }
+    @ParameterizedTest
+    @MethodSource("parseParameters")
+    final void parse(final String queryString, final String basePath, final Depth depth, final String nameExpression) {
+        final Expected expected = Expected.of(basePath, depth, nameExpression);
+        System.out.printf(("Given :%n" +
+                           "    queryString : '%s'%n" +
+                           "    expected :%n" +
+                           "        basePath :    <%s>%n" +
+                           "        depth:        %s%n" +
+                           "        nameFilter:   %s%n"),
+                          queryString, expected.basePath, expected.depth, expected.nameFilter);
 
-    private void parse(final Path path, final String pattern) {
-        final Expected expected = new Expected(path, pattern);
-        final Path queryPath = path.resolve(Path.of(pattern));
-        final Query query = Query.parse(queryPath.toString());
+        final Query query = Query.parse(queryString);
 
-        assertEquals(expected.subQueryString, query.subQueryString());
-        assertEquals(expected.depth, query.depth());
         assertEquals(expected.basePath, query.basePath());
+        assertEquals(expected.depth, query.depth());
+        assertEquals(expected.nameFilter, query.nameFilter());
     }
 
-    @Test
-    final void stream_left_all() {
-        final List<String> expected = TextIO.read(QueryTest.class, "QueryTest-stream_left_all.txt")
-                                            .lines()
-                                            .toList();
-        final Query query = Query.parse(leftPath().resolve("**").toString());
-        final List<String> result = query.stream()
-                                         .map(FileEntry::path)
-                                         .map(path -> query.basePath().relativize(path))
-                                         .map(Path::toString)
-                                         .toList();
-        assertEquals(expected, result);
-    }
+    record Expected(Path basePath, Depth depth, NameFilter nameFilter) {
 
-    @Test
-    final void parse_empty() {
-        parse(Path.of(""), "");
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "?", "wc:?", "rx:.", "**/?", "**/wc:?", "**/rx:.",
-            "*", "wc:*", "rx:.*", "**/*", "**/wc:*", "**/rx:.*", "**", ""})
-    final void parse_left(final String pattern) {
-        parse(leftPath(), pattern);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "?", "wc:?", "rx:.", "**/?", "**/wc:?", "**/rx:.",
-            "*", "wc:*", "rx:.*", "**/*", "**/wc:*", "**/rx:.*", "**", ""})
-    final void parse_root(final String pattern) {
-        parse(Path.of("/"), pattern);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "?", "wc:?", "rx:.", "**/?", "**/wc:?", "**/rx:.",
-            "*", "wc:*", "rx:.*", "**/*", "**/wc:*", "**/rx:.*", "**", ""})
-    final void parse_cwd(final String pattern) {
-        parse(Path.of("."), pattern);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "?", "wc:?", "rx:.", "**/?", "**/wc:?", "**/rx:.",
-            "*", "wc:*", "rx:.*", "**/*", "**/wc:*", "**/rx:.*", "**"})
-    final void parse_empty(final String pattern) {
-        parse(Path.of(""), pattern);
-    }
-
-    static class Expected {
-
-        final Depth depth;
-        final String subQueryString;
-        final Path basePath;
-
-        Expected(final Path path, final String pattern) {
-            this.basePath = path.toAbsolutePath().normalize();
-            if (pattern.isEmpty()) {
-                this.subQueryString = "*";
-                this.depth = Depth.FLAT;
-            } else {
-                if (pattern.startsWith("**")) {
-                    this.subQueryString = opt(pattern.split("/"), 1).orElse("*");
-                    this.depth = Depth.DEEP;
-                } else {
-                    this.subQueryString = pattern;
-                    this.depth = Depth.FLAT;
-                }
-            }
+        public static Expected of(final String basePath, final Depth depth, final String nameExpression) {
+            final Path path = Path.of(basePath).toAbsolutePath().normalize();
+            return new Expected(path, depth, NameFilter.parse(nameExpression));
         }
     }
 }

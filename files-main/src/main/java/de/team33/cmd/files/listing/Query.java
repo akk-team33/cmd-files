@@ -1,6 +1,5 @@
 package de.team33.cmd.files.listing;
 
-import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 
@@ -16,12 +15,12 @@ public class Query {
 
     private final FileEntry baseEntry;
     private final Depth depth;
-    private final String subQueryString;
+    private final NameFilter nameFilter;
 
     private Query(final Path basePath, final Depth depth, final String subQueryString) {
         this.baseEntry = FileEntry.resolved(basePath);
         this.depth = depth;
-        this.subQueryString = subQueryString;
+        this.nameFilter = NameFilter.parse(subQueryString);
     }
 
     public static Query parse(final String queryString) {
@@ -67,8 +66,8 @@ public class Query {
         return depth;
     }
 
-    public final String subQueryString() {
-        return subQueryString;
+    public final NameFilter nameFilter() {
+        return nameFilter;
     }
 
     public Stream<FileEntry> stream() {
@@ -77,7 +76,6 @@ public class Query {
     }
 
     private Predicate<FileEntry> filter() {
-        return NameMatcher.parse(subQueryString)
-                          .toFileEntryFilter();
+        return nameFilter::test;
     }
 }
