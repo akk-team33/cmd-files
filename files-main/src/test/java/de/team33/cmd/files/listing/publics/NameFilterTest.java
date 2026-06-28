@@ -1,20 +1,45 @@
 package de.team33.cmd.files.listing.publics;
 
 import de.team33.cmd.files.listing.NameFilter;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class NameFilterTest {
 
+    private static final List<List<String>> PARSE_CASES =
+            List.of(List.of("", "(?!\\.)", ""),
+                    List.of(":", "", ""),
+                    List.of(".", "\\Q.\\E", "\\."),
+                    List.of("*", "(?!\\.).*", ".*"),
+                    List.of(":*", ".*", ".*"),
+                    List.of(".*", "\\Q.\\E.*", "\\..*"),
+                    List.of("?", "(?!\\.).", "."),
+                    List.of(":?", ".", "."),
+                    List.of(".?", "\\Q.\\E.", "\\.."),
+                    List.of("*.*", "(?!\\.).*\\Q.\\E.*", ".*\\..*"),
+                    List.of(":*.*", ".*\\Q.\\E.*", ".*\\..*"),
+                    List.of(".*.*", "\\Q.\\E.*\\Q.\\E.*", "\\..*\\..*"),
+                    List.of("*.???", "(?!\\.).*\\Q.\\E...", ".*\\...."),
+                    List.of(":*.???", ".*\\Q.\\E...", ".*\\...."),
+                    List.of(".*.???", "\\Q.\\E.*\\Q.\\E...", "\\..*\\...."),
+                    List.of("*.jpg", "(?!\\.).*\\Q.jpg\\E", ".*\\.jpg"),
+                    List.of(":*.jpg", ".*\\Q.jpg\\E", ".*\\.jpg"),
+                    List.of(".*.jpg", "\\Q.\\E.*\\Q.jpg\\E", "\\..*\\.jpg"),
+                    List.of("file*.*", "(?!\\.)\\Qfile\\E.*\\Q.\\E.*", "file.*\\..*"),
+                    List.of(":file*.*", "\\Qfile\\E.*\\Q.\\E.*", "file.*\\..*"),
+                    List.of(".file*.*", "\\Q.file\\E.*\\Q.\\E.*", "\\.file.*\\..*"),
+                    List.of("*name.*", "(?!\\.).*\\Qname.\\E.*", ".*name\\..*"),
+                    List.of(":*name.*", ".*\\Qname.\\E.*", ".*name\\..*"),
+                    List.of(".*name.*", "\\Q.\\E.*\\Qname.\\E.*", ".*name\\..*"));
     private static final List<String> FILE_NAMES = List.of(
             "",
             ".",
@@ -23,78 +48,94 @@ class NameFilterTest {
             ".fileNAME",
             "filename.JPG",
             ".FILENAME.jpg",
+            "filename.jpeg",
+            ".FILENAME.JPEG",
             "fIlenAme.txt",
             ".FIleNAme.TXT");
+    @SuppressWarnings("unused")
+    private static final String TEST_FORMAT = "Given:%n" +
+                                              "    pattern : '%s'%n" +
+                                              "    sample :  '%s'%n" +
+                                              "    result :  <%s>%n";
 
-    static Stream<Arguments> testCases() {
-        return Stream.of(BaseCase.values())
-                     .flatMap(NameFilterTest::testCases);
+    static Stream<Arguments> parseCases() {
+        return PARSE_CASES.stream()
+                          .map(list -> Arguments.of(list.get(0), list.get(1)));
     }
 
-    private static Stream<Arguments> testCases(final BaseCase baseCase) {
-        return FILE_NAMES.stream()
-                         .map(fileName -> Arguments.of(baseCase, fileName));
+    static Stream<TestCase> testCases() {
+        return PARSE_CASES.stream().flatMap(NameFilterTest::testCases);
     }
 
-    @Test
-    void parse() {
-        final NameFilter query = NameFilter.parse("*");
-        assertNotNull(query);
+    private static Stream<TestCase> testCases(final List<String> parseCase) {
+        final Pattern rxPattern = Pattern.compile(parseCase.get(2), Pattern.CASE_INSENSITIVE);
+        final String wcPattern = parseCase.get(0);
+        return FILE_NAMES.stream().map(sample -> new TestCase(wcPattern, sample,
+                                                              expectation(wcPattern, rxPattern, sample)));
+    }
+
+    private static boolean expectation(final String wcPattern, final Pattern rxPattern, final String sample) {
+        return precondition(wcPattern, sample) && rxPattern.matcher(sample).matches();
+    }
+
+    private static boolean precondition(final String wcPattern, final String sample) {
+        if (wcPattern.startsWith(".")) {
+            return sample.startsWith(".");
+        } else if (wcPattern.startsWith(":")) {
+            return true;
+        } else {
+            return !sample.startsWith(".");
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("parseCases")
+    final void equals(final String pattern, final String other) {
+        final NameFilter expected = NameFilter.parse(pattern);
+        //noinspection EqualsWithItself
+        assertEquals(expected, expected);
+        assertEquals(expected, NameFilter.parse(pattern));
+        assertNotEquals(expected, NameFilter.parse(other));
+        //noinspection AssertBetweenInconvertibleTypes
+        assertNotEquals(expected, other);
+    }
+
+    @ParameterizedTest
+    @MethodSource("parseCases")
+    final void hashCode(final String pattern, @SuppressWarnings("unused") final String other) {
+        assertEquals(NameFilter.parse(pattern).hashCode(), NameFilter.parse(pattern).hashCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("parseCases")
+    final void parse(final String pattern, final String expected) {
+        final NameFilter filter = NameFilter.parse(pattern);
+        assertEquals(expected, filter.toString());
     }
 
     @ParameterizedTest
     @MethodSource("testCases")
-    final void test(final BaseCase baseCase, final String fileName) {
-        final Given given = baseCase.given(fileName);
-        final boolean result = given.query().test(given.fileName());
-        // System.out.printf("%s: '%s' -> '%s' -> %s%n", baseCase, baseCase.queryString, given.fileName, result);
-        assertEquals(given.expected(), result);
+    final void test(final TestCase given) {
+        // System.out.printf(TEST_FORMAT, given.pattern, given.sample, given.expected);
+        final boolean result = given.filter().test(given.sample);
+        assertEquals(given.expected, result);
     }
 
-    enum BaseCase {
+    @ParameterizedTest
+    @MethodSource("testCases")
+    final void testPath(final TestCase given) {
+        // cases that won't work ...
+        if ("".equals(given.sample) || ".".equals(given.sample)) return;
 
-        EMPTY("", ""),
-        DOT(".", "\\."),
-        COLON(":", ""),
-        ALL(":*", ".*"),
-        ALL_VISIBLE("*", ".*"),
-        ALL_HIDDEN(".*", "\\..*"),
-        JPG(":*.jpg", ".*\\.jpg"),
-        JPG_VISIBLE("*.jpg", ".*\\.jpg"),
-        JPG_HIDDEN(".*.jpg", "\\..*\\.jpg"),
-        FILE(":file*.*", "file.*\\..*"),
-        NAME_VISIBLE("*name.*", ".*name\\..*"),
-        FILENAME_HIDDEN(".filename*", "\\.filename.*");
-
-        private final String queryString;
-        private final NameFilter query;
-        private final Pattern pattern;
-
-        BaseCase(final String queryString, final String regExp) {
-            this.queryString = queryString;
-            this.query = NameFilter.parse(queryString);
-            this.pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
-        }
-
-        final Given given(final String fileName) {
-            return new Given(query, fileName, matches(fileName));
-        }
-
-        private boolean matches(final String fileName) {
-            return precondition(fileName) && pattern.matcher(fileName).matches();
-        }
-
-        private boolean precondition(final String fileName) {
-            if (queryString.startsWith(".")) {
-                return fileName.startsWith(".");
-            } else if (queryString.startsWith(":")) {
-                return true;
-            } else {
-                return !fileName.startsWith(".");
-            }
-        }
+        final Path path = Path.of("target", given.sample);
+        final boolean result = given.filter().test(path);
+        assertEquals(given.expected, result);
     }
 
-    record Given(NameFilter query, String fileName, boolean expected) {
+    record TestCase(String pattern, String sample, boolean expected) {
+
+        public final NameFilter filter() {
+            return NameFilter.parse(pattern);
+        }
     }
 }

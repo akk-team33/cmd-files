@@ -4,6 +4,7 @@ import de.team33.cmd.files.matching.WildcardString;
 import de.team33.patterns.io.adrastea.FileEntry;
 
 import java.nio.file.Path;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 /**
@@ -14,30 +15,39 @@ import java.util.regex.Pattern;
  */
 public class NameFilter {
 
-    private static final String DOT = ".";
+    private static final String PERIOD = ".";
     private static final String COLON = ":";
 
     private final Pattern pattern;
 
-    private NameFilter(final String regExp) {
-        this.pattern = Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
+    private NameFilter(final String regExp, final Mode mode) {
+        this.pattern = mode.compiler.apply(regExp);
     }
 
     /**
-     * Parses a string that represents a query relating to (file) names.
+     * Parses a string that represents a <em>pattern</em> for filenames.
+     * The string can contain the usual wildcards ('?', '*'), with their corresponding standard meanings.
+     * <p>
+     * Normally, the resulting NameFilter will reject filenames that begin with a period ('.')
+     * (the Unix standard for 'hidden' files).
+     * However, if the <em>pattern</em> begins with a colon (':'), the rest of the <em>pattern</em> is applied
+     * equally to any filename.
+     * <p>
+     * If the <em>pattern</em> begins with a period, it makes sense not to reject filenames that begin with a period.
+     * Naturally, all filenames that do NOT begin with a period will then be rejected.
      */
-    public static NameFilter parse(final String queryString) {
-        if (queryString.startsWith(COLON)) {
-            return parse("", queryString.substring(1));
-        } else if (queryString.startsWith(DOT)) {
-            return parse("", queryString);
+    public static NameFilter parse(final String pattern) {
+        if (pattern.startsWith(COLON)) {
+            return parse("", pattern.substring(1));
+        } else if (pattern.startsWith(PERIOD)) {
+            return parse("", pattern);
         } else {
-            return parse("(?!\\.)", queryString);
+            return parse("(?!\\.)", pattern);
         }
     }
 
-    private static NameFilter parse(final String rxHead, final String queryString) {
-        return new NameFilter(rxHead + WildcardString.toRegExp(queryString));
+    private static NameFilter parse(final String rxHead, final String wildcardString) {
+        return new NameFilter(rxHead + WildcardString.toRegExp(wildcardString), Mode.IGNORE_CASE);
     }
 
     public final boolean test(final String name) {
@@ -65,5 +75,17 @@ public class NameFilter {
     @Override
     public final String toString() {
         return pattern.toString();
+    }
+
+    public enum Mode {
+
+        IGNORE_CASE(regExp -> Pattern.compile(regExp, Pattern.CASE_INSENSITIVE)),
+        RESPECT_CASE(Pattern::compile);
+
+        private final Function<String, Pattern> compiler;
+
+        Mode(final Function<String, Pattern> compiler) {
+            this.compiler = compiler;
+        }
     }
 }
