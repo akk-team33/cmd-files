@@ -1,5 +1,6 @@
 package de.team33.cmd.files.listing;
 
+import de.team33.patterns.io.adrastea.Directory;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 
@@ -22,7 +23,7 @@ public enum Depth {
     }
 
     private static class Constants {
-        private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-        private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+        private static final Directory.Lister LISTER = Directory.lister(LinkHandling.ORIGINAL);
+        private static final Directory.Streamer STREAMER = Directory.streamer(LISTER);
     }
 }

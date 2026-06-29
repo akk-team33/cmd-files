@@ -2,19 +2,20 @@ package de.team33.patterns.io.adrastea.publics;
 
 import de.team33.patterns.exceptional.dione.XConsumer;
 import de.team33.patterns.io.adrastea.Directory;
+import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.TUtil;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
-import java.time.Instant;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
 import static de.team33.patterns.io.adrastea.LinkHandling.RESOLVE;
@@ -54,18 +55,6 @@ class DirectoryListerTest {
         Files.createSymbolicLink(linkLink, regularLink.toAbsolutePath().normalize());
     }
 
-    private static String nameOf(final Path path) {
-        return Optional.ofNullable(path.getFileName()).orElse(path).toString();
-    }
-
-    private static BasicFileAttributes readAttributes(final Path path, final LinkOption[] options) {
-        try {
-            return Files.readAttributes(path, BasicFileAttributes.class, options);
-        } catch (IOException e) {
-            return TUtil.MISSING_FILE_ATTRIBUTES;
-        }
-    }
-
     private static <X extends Exception> void forbidden(final Path path, final XConsumer<Path, X> method)
             throws IOException, X {
         final Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(path);
@@ -93,191 +82,13 @@ class DirectoryListerTest {
     }
 
     @Test
-    final void path() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, ORIGINAL);
-            assertTrue(entry.path().isAbsolute());
-        });
-    }
-
-    @Test
-    final void name() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, ORIGINAL);
-            assertEquals(nameOf(path), entry.name());
-        });
-    }
-
-    @Test
-    final void testToString() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, ORIGINAL);
-            assertEquals(path.toAbsolutePath().normalize().toString(), entry.toString());
-        });
-    }
-
-    @Test
-    final void isDirectory() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, RESOLVE);
-            assertEquals(Files.isDirectory(path), entry.isDirectory());
-        });
-    }
-
-    @Test
-    final void isRegularFile() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, RESOLVE);
-            assertEquals(Files.isRegularFile(path), entry.isRegularFile());
-        });
-    }
-
-    @Test
-    final void isSymbolicLink() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, ORIGINAL);
-            assertEquals(Files.isSymbolicLink(path), entry.isSymbolicLink());
-        });
-    }
-
-    @Test
-    final void isSpecialFile() {
-        for (final Path path : paths()) {
-            // System.out.println(path);
-            final boolean expected = readAttributes(path, TUtil.RESOLVE_LINKS).isOther();
-            final Directory entry = Directory.of(path, RESOLVE);
-            assertEquals(expected, entry.isSpecialFile());
-        }
-    }
-
-    @Test
-    final void isMissing() {
-        paths().forEach(path -> {
-            // System.out.println(path);
-            final Directory entry = Directory.of(path, RESOLVE);
-            assertEquals(!Files.exists(path, TUtil.RESOLVE_LINKS), entry.isMissing());
-        });
-    }
-
-    @Test
-    final void isPresent() {
-        paths().forEach(path -> {
-            // System.out.println(path);
-            final Directory entry = Directory.of(path, ORIGINAL);
-            assertEquals(Files.exists(path, TUtil.ORIGINAL_LINKS), entry.isPresent());
-        });
-    }
-
-    @Test
-    final void lastModified() {
-        for (final Path path : paths()) {
-            // System.out.println(path);
-            final Directory entry = Directory.of(path, RESOLVE);
-            try {
-                final Instant result = entry.lastModified();
-                assertFalse(entry.isMissing());
-                final Instant expected = readAttributes(path, TUtil.RESOLVE_LINKS).lastModifiedTime()
-                                                                                  .toInstant();
-                assertEquals(expected, result);
-            } catch (final UnsupportedOperationException caught) {
-                assertTrue(entry.isMissing());
-                assertEquals(entry.isSymbolicLink(), entry.isPresent());
-            }
-        }
-    }
-
-    @Test
-    final void lastAccess() {
-        for (final Path path : paths()) {
-            // System.out.println(path);
-            final Directory entry = Directory.of(path, RESOLVE);
-            try {
-                final Instant result = entry.lastAccess();
-                assertFalse(entry.isMissing());
-                final Instant expected = readAttributes(path, TUtil.RESOLVE_LINKS).lastAccessTime()
-                                                                                  .toInstant();
-                assertEquals(expected, result);
-            } catch (final UnsupportedOperationException caught) {
-                assertTrue(entry.isMissing());
-                assertEquals(entry.isSymbolicLink(), entry.isPresent());
-            }
-        }
-    }
-
-    @Test
-    final void creation() {
-        for (final Path path : paths()) {
-            // System.out.println(path);
-            final Directory entry = Directory.of(path, ORIGINAL);
-            try {
-                final Instant result = entry.creation();
-                assertTrue(entry.isPresent());
-                final Instant expected = readAttributes(path, TUtil.ORIGINAL_LINKS).creationTime()
-                                                                                   .toInstant();
-                assertEquals(expected, result);
-            } catch (final UnsupportedOperationException caught) {
-                assertTrue(entry.isMissing());
-                assertFalse(entry.isSymbolicLink());
-            }
-        }
-    }
-
-    @Test
-    final void size() throws IOException {
-        for (final Path path : paths()) {
-            final Directory entry = Directory.of(path, RESOLVE);
-            if (entry.isMissing()) {
-                assertEquals(0L, entry.size());
-            } else {
-                assertEquals(Files.size(path), entry.size());
-            }
-        }
-    }
-
-    @Test
-    final void isOriginal() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.original(path);
-            assertTrue(entry.isOriginal());
-            assertEquals(!Files.isSymbolicLink(path), entry.isResolved());
-        });
-    }
-
-    @Test
-    final void original() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, RESOLVE).original();
-            assertTrue(entry.isOriginal());
-            assertEquals(!Files.isSymbolicLink(path), entry.isResolved());
-        });
-    }
-
-    @Test
-    final void isResolved() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.resolved(path);
-            assertTrue(entry.isResolved());
-            assertEquals(!Files.isSymbolicLink(path), entry.isOriginal());
-        });
-    }
-
-    @Test
-    final void resolved() {
-        paths().forEach(path -> {
-            final Directory entry = Directory.of(path, ORIGINAL).resolved();
-            assertTrue(entry.isResolved());
-            assertEquals(!Files.isSymbolicLink(path), entry.isOriginal());
-        });
-    }
-
-    @Test
     final void list() {
         for (final Path path : paths()) {
             final List<Directory.Problem> problems = new LinkedList<>();
-            final Directory entry = Directory.of(path, RESOLVE);
+            final FileEntry entry = FileEntry.of(path, RESOLVE);
             final Directory.Lister lister = Directory.lister(RESOLVE);
 
-            final List<Directory> result = lister.list(path, problems::add);
+            final List<FileEntry> result = lister.list(path, problems::add);
 
             assertNotEquals(entry.isDirectory(), result.isEmpty());
             assertTrue(problems.isEmpty());
@@ -296,7 +107,7 @@ class DirectoryListerTest {
 
         final List<String> result = lister.list(testPath)
                                           .stream()
-                                          .map(Directory::name)
+                                          .map(FileEntry::name)
                                           .toList();
 
         assertNotEquals(unexpected, result);
@@ -308,13 +119,13 @@ class DirectoryListerTest {
         final List<String> expected = List.of(
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<Directory.Problem> problems = new LinkedList<>();
-        final Directory entry = Directory.of(testPath, ORIGINAL);
+        final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
         final Directory.Lister lister = Directory.lister(ORIGINAL)
-                                                 .entryOrder(comparing(Directory::name).reversed());
+                                                 .entryOrder(comparing(FileEntry::name).reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()
-                                          .map(Directory::name)
+                                          .map(FileEntry::name)
                                           .toList();
 
         assertEquals(expected, result);
@@ -326,13 +137,13 @@ class DirectoryListerTest {
         final List<String> expected = List.of(
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<Directory.Problem> problems = new LinkedList<>();
-        final Directory entry = Directory.of(testPath, ORIGINAL);
+        final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
         final Directory.Lister lister = Directory.lister(ORIGINAL)
                                                  .pathOrder(TUtil.PATH_ORDER.reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()
-                                          .map(Directory::name)
+                                          .map(FileEntry::name)
                                           .toList();
 
         assertEquals(expected, result);
@@ -344,14 +155,14 @@ class DirectoryListerTest {
         final List<String> expected = List.of(
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<Directory.Problem> problems = new LinkedList<>();
-        final Directory entry = Directory.of(testPath, RESOLVE);
+        final FileEntry entry = FileEntry.of(testPath, RESOLVE);
         final Directory.Lister lister = Directory.lister(RESOLVE)
                                                  .noOrder()
-                                                 .entryOrder(comparing(Directory::name).reversed());
+                                                 .entryOrder(comparing(FileEntry::name).reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()
-                                          .map(Directory::name)
+                                          .map(FileEntry::name)
                                           .toList();
 
         assertEquals(expected, result);
@@ -377,7 +188,7 @@ class DirectoryListerTest {
                                                      .skip(entry -> entry.path().endsWith("patterns"));
 
         final List<String> result = streamer.stream(testPath, problems::add)
-                                            .map(Directory::name)
+                                            .map(FileEntry::name)
                                             .toList();
 
         assertEquals(expected, result);
@@ -387,9 +198,9 @@ class DirectoryListerTest {
     @Test
     final void stream_skip_origin() {
         final Directory.Streamer streamer = Directory.streamer(RESOLVE)
-                                                     .skip(Directory::isDirectory);
+                                                     .skip(FileEntry::isDirectory);
 
-        final List<Directory> result = streamer.stream(testPath)
+        final List<FileEntry> result = streamer.stream(testPath)
                                                .toList();
 
         assertEquals(List.of(), result);
@@ -399,10 +210,10 @@ class DirectoryListerTest {
     final void stream_forbidden() throws IOException {
         final List<Directory.Problem> problems = new LinkedList<>();
         forbidden(testPath, path -> {
-            final Directory entry = Directory.of(path, ORIGINAL);
+            final FileEntry entry = FileEntry.of(path, ORIGINAL);
             final Directory.Streamer streamer = Directory.streamer(ORIGINAL);
 
-            final List<Directory> result = streamer.stream(entry, problems::add)
+            final List<FileEntry> result = streamer.stream(entry, problems::add)
                                                    .toList();
 
             assertEquals(List.of(entry), result);

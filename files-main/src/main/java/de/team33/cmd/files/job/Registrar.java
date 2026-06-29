@@ -11,6 +11,7 @@ import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.patterns.hashing.pandia.Algorithm;
 import de.team33.patterns.hashing.pandia.Hash;
+import de.team33.patterns.io.adrastea.Directory;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 import de.team33.tools.io.Hashing;
@@ -35,8 +36,8 @@ class Registrar implements Runnable {
     private static final Set<Option> OPTIONS = EnumSet.of(Option.D, Option.N, Option.X);
     private static final Function<List<String>, Args> ARGS = Args.stage(5, OPTIONS);
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+    private static final Directory.Lister LISTER = Directory.lister(LinkHandling.ORIGINAL);
+    private static final Directory.Streamer STREAMER = Directory.streamer(LISTER);
     private static final String DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz";
     private static final Pattern PATTERN = Pattern.compile("\\[#[" + DIGITS + "]+\\]",
                                                            Pattern.CASE_INSENSITIVE);

@@ -3,6 +3,7 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
+import de.team33.patterns.io.adrastea.Directory;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 
@@ -20,8 +21,8 @@ import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
 class Deletion implements Runnable {
 
     static final String EXCERPT = "Delete files whose names match a pattern.";
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+    private static final Directory.Lister LISTER = Directory.lister(LinkHandling.ORIGINAL);
+    private static final Directory.Streamer STREAMER = Directory.streamer(LISTER);
 
     private final Output out;
     private final NameMatcher nameMatcher;

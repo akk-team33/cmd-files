@@ -3,6 +3,7 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.testing.Buffer;
 import de.team33.cmd.files.testing.ModifyingTestBase;
+import de.team33.patterns.io.adrastea.Directory;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 import de.team33.patterns.io.deimos.TextIO;
@@ -47,7 +48,7 @@ class RegistrarTest extends ModifyingTestBase {
         Registrar.job(MUTE, List.of("files", "register", rightPath().toString(), registryPath.toString(), "8"))
                  .run();
 
-        FileEntry.streamer(LinkHandling.ORIGINAL)
+        Directory.streamer(LinkHandling.ORIGINAL)
                  .stream(registryPath)
                  .map(FileEntry::path)
                  .forEach(RegistrarTest::setDefiniteTime);

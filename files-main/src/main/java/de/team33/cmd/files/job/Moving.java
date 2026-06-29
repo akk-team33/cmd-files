@@ -10,6 +10,7 @@ import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.moving.Resolver;
+import de.team33.patterns.io.adrastea.Directory;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 
@@ -33,8 +34,8 @@ class Moving implements Runnable {
     private static final Set<Option> OPTIONS = EnumSet.of(Option.D, Option.N, Option.X);
     private static final Function<List<String>, Args> ARGS = Args.stage(4, OPTIONS);
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LISTER);
+    private static final Directory.Lister LISTER = Directory.lister(LinkHandling.ORIGINAL);
+    private static final Directory.Streamer STREAMER = Directory.streamer(LISTER);
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;

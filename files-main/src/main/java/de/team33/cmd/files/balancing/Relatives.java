@@ -1,5 +1,6 @@
 package de.team33.cmd.files.balancing;
 
+import de.team33.patterns.io.adrastea.Directory;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
 
 public class Relatives {
 
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
+    private static final Directory.Streamer STREAMER = Directory.streamer(LinkHandling.ORIGINAL);
 
     private final Function<String, Relative> toRelative;
     private final List<FileEntry> entries;

@@ -1,6 +1,7 @@
 package de.team33.cmd.files.cleaning;
 
 import de.team33.cmd.files.common.Output;
+import de.team33.patterns.io.adrastea.Directory;
 import de.team33.patterns.io.adrastea.FileEntry;
 import de.team33.patterns.io.adrastea.LinkHandling;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Cleaner {
 
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final Directory.Lister LISTER = Directory.lister(LinkHandling.ORIGINAL);
 
     private final Output out;
     private final Stats stats;

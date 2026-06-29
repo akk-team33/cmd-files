@@ -1,18 +1,14 @@
 package de.team33.patterns.io.adrastea;
 
 import de.team33.patterns.decision.thyone.Choices;
-import de.team33.patterns.enums.pan.Values;
 import de.team33.patterns.lazy.narvi.Lazy;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -24,29 +20,7 @@ import static de.team33.patterns.io.adrastea.LinkHandling.RESOLVE;
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.WARNING;
 
-/**
- * Represents a directory entry.
- * Includes some meta information about a file, particularly the file system path, file type, size,
- * and some timestamps.
- * <p>
- * Strictly speaking, the meta information only applies to the moment of instantiation.
- * Therefore, an instance should be short-lived. The longer an instance "lives", the more likely it is
- * that the meta information is out of date because the underlying file may have been changed in the meantime.
- * <p>
- * Use {@link #of(Path, LinkHandling)}, {@link #original(Path)} or {@link #resolved(Path)}
- * to get a new instance.
- */
 public class Directory {
-
-    private final Path path;
-    private final Lazy<BasicFileAttributes> lazyAttributes;
-    private final Lazy<Type> lazyType;
-
-    private Directory(final Path path, final Normality normality, final LinkHandling linkHandling) {
-        this.path = normality.apply(path);
-        this.lazyAttributes = Lazy.init(() -> newAttributes(linkHandling));
-        this.lazyType = Lazy.init(() -> Type.of(this));
-    }
 
     private static BasicFileAttributes newAttributes(final Path path, final LinkHandling handling) {
         try {
@@ -54,37 +28,6 @@ public class Directory {
         } catch (final IOException ignored) {
             return Util.MISSING_FILE_ATTRIBUTES;
         }
-    }
-
-    /**
-     * Returns a new {@link Directory} based on a given {@link Path} and a given {@link LinkHandling}.
-     */
-    public static Directory of(final Path path, final LinkHandling linkHandling) {
-        return new Directory(path, Normality.UNKNOWN, linkHandling);
-    }
-
-    /**
-     * Returns a new {@link Directory} based on a given {@link Path} that {@link #isOriginal()}.
-     *
-     * @see #of(Path, LinkHandling)
-     * @see LinkHandling#ORIGINAL
-     */
-    public static Directory original(final Path path) {
-        return of(path, ORIGINAL);
-    }
-
-    /**
-     * Returns a new {@link Directory} based on a given {@link Path} that {@link #isResolved()}.
-     *
-     * @see #of(Path, LinkHandling)
-     * @see LinkHandling#RESOLVE
-     */
-    public static Directory resolved(final Path path) {
-        return of(path, RESOLVE);
-    }
-
-    private static Directory ofDefinite(final Path path, final LinkHandling linkHandling) {
-        return new Directory(path, Normality.DEFINITE, linkHandling);
     }
 
     /**
@@ -112,249 +55,13 @@ public class Directory {
         return new Streamer(lister, Streamer.NEVER);
     }
 
-    private static BasicFileAttributes effective(final BasicFileAttributes attributes) {
-        return (attributes instanceof LinkAttributes linkAttributes) ? linkAttributes.backing() : attributes;
-    }
-
-    private BasicFileAttributes newAttributes(final LinkHandling handling) {
-        final BasicFileAttributes original = newAttributes(path, ORIGINAL);
-        if (original.isSymbolicLink()) {
-            return newLinkAttributes(handling, original);
-        } else {
-            return original;
-        }
-    }
-
-    private LinkAttributes newLinkAttributes(final LinkHandling handling, final BasicFileAttributes original) {
-        if (ORIGINAL == handling) {
-            return new LinkAttributes(ORIGINAL, original);
-        } else {
-            return new LinkAttributes(handling, newAttributes(path, handling));
-        }
-    }
-
-    private BasicFileAttributes attributes() {
-        return lazyAttributes.get();
-    }
-
-    /**
-     * Returns the file system path of the represented file as an
-     * {@linkplain Path#toAbsolutePath() absolute} {@linkplain Path#normalize() normalized} {@link Path}.
-     */
-    public final Path path() {
-        return path;
-    }
-
-    /**
-     * Returns the simple name of the represented file.
-     */
-    public final String name() {
-        return Optional.ofNullable(path.getFileName()).orElse(path).toString();
-    }
-
-    /**
-     * Returns a {@link Directory} based on <em>this</em>' {@link #path()} that definitely {@link #isOriginal()}.
-     */
-    public final Directory original() {
-        return isOriginal() ? this : new Directory(path, Normality.DEFINITE, ORIGINAL);
-    }
-
-    /**
-     * Returns a {@link Directory} based on <em>this</em>' {@link #path()} that definitely {@link #isResolved()}.
-     */
-    public final Directory resolved() {
-        return isResolved() ? this : new Directory(path, Normality.DEFINITE, RESOLVE);
-    }
-
-    /**
-     * Returns the {@link Type} of <em>this</em> {@link Directory}.
-     */
-    public final Type type() {
-        return lazyType.get();
-    }
-
-    /**
-     * Determines whether <em>this</em> {@link Directory} exposes its original attributes,
-     * even if it {@linkplain #isSymbolicLink() is a symbolic link}.
-     *
-     * @see #isResolved()
-     */
-    public final boolean isOriginal() {
-        if (attributes() instanceof LinkAttributes linkAttributes) {
-            return ORIGINAL == linkAttributes.handling();
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * Determines whether <em>this</em> {@link Directory} resolves its final attributes,
-     * even if it {@linkplain #isSymbolicLink() is a symbolic link}.
-     *
-     * @see #isOriginal()
-     */
-    public final boolean isResolved() {
-        if (attributes() instanceof LinkAttributes linkAttributes) {
-            return RESOLVE == linkAttributes.handling();
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * Determines if the represented file is a directory.
-     * <p>
-     * This may also be the case if it {@link #isSymbolicLink()} and {@link #isResolved()}.
-     */
-    public final boolean isDirectory() {
-        return attributes().isDirectory();
-    }
-
-    /**
-     * Determines if the represented file is a regular file.
-     * <p>
-     * This may also be the case if it {@link #isSymbolicLink()} and {@link #isResolved()}.
-     */
-    public final boolean isRegularFile() {
-        return attributes().isRegularFile();
-    }
-
-    /**
-     * Determines if the represented file is a special file (typically, a <em>device</em>).
-     * <p>
-     * This may also be the case if it {@link #isSymbolicLink()} and {@link #isResolved()}.
-     */
-    public final boolean isSpecialFile() {
-        return attributes().isOther();
-    }
-
-    /**
-     * Determines if the represented file is a symbolic link.
-     * <p>
-     * No matter if it {@link #isOriginal()} or {@link #isResolved()}.
-     */
-    public final boolean isSymbolicLink() {
-        return attributes().isSymbolicLink();
-    }
-
-    /**
-     * Determines if the represented file is missing.
-     * <p>
-     * This may also be the case if it {@link #isSymbolicLink()} and {@link #isResolved()}.
-     * <p>
-     * <b>NOTE</b> that in this case, it also {@link #isPresent()}!
-     */
-    public final boolean isMissing() {
-        return effective(attributes()) == Util.MISSING_FILE_ATTRIBUTES;
-    }
-
-    /**
-     * Determines if the represented file is present.
-     * <p>
-     * That is always the case if {@link #isRegularFile()}, {@link #isDirectory()}, {@link #isSpecialFile()}
-     * or {@link #isSymbolicLink()}, and therefore especially if a (resolved) symbolic link {@link #isMissing()}!
-     */
-    public final boolean isPresent() {
-        return attributes() != Util.MISSING_FILE_ATTRIBUTES;
-    }
-
-    /**
-     * Returns the timestamp of the last modification of the represented file as an {@link Instant}.
-     *
-     * @throws UnsupportedOperationException if <em>this</em> {@link #isMissing()}
-     */
-    public final Instant lastModified() {
-        return attributes().lastModifiedTime().toInstant();
-    }
-
-    /**
-     * Returns the timestamp of the last access to the represented file as an {@link Instant}.
-     *
-     * @throws UnsupportedOperationException if <em>this</em> {@link #isMissing()}
-     */
-    public final Instant lastAccess() {
-        return attributes().lastAccessTime().toInstant();
-    }
-
-    /**
-     * Returns the timestamp of the creation of the represented file as an {@link Instant}.
-     *
-     * @throws UnsupportedOperationException if <em>this</em> {@link #isMissing()}
-     */
-    public final Instant creation() {
-        return attributes().creationTime().toInstant();
-    }
-
-    /**
-     * Returns the size of the represented file.
-     * <p>
-     * If <em>this</em> {@link #isMissing()} returns {@code 0L}.
-     */
-    public final long size() {
-        return attributes().size();
-    }
-
-    @Override
-    public final String toString() {
-        return path.toString();
-    }
-
-    /**
-     * Symbolizes possible types of a file represented by a {@link Directory}.
-     */
-    public enum Type {
-
-        /**
-         * Symbolizes a regular file
-         * (maybe a resolved symbolic link if it is not {@linkplain Directory#isOriginal() original}).
-         */
-        REGULAR_FILE(Directory::isRegularFile),
-
-        /**
-         * Symbolizes a directory
-         * (maybe a resolved symbolic link if it is not {@linkplain Directory#isOriginal() original}).
-         */
-        DIRECTORY(Directory::isDirectory),
-
-        /**
-         * Symbolizes a special file (typically, a <em>device</em>)
-         * (maybe a resolved symbolic link if it is not {@linkplain Directory#isOriginal() original}).
-         */
-        SPECIAL_FILE(Directory::isSpecialFile),
-
-        /**
-         * Symbolizes a symbolic link (if it is not {@linkplain Directory#isResolved() resolved}).
-         */
-        SYMBOLIC_LINK(Util.and(Directory::isOriginal, Directory::isSymbolicLink)),
-
-        /**
-         * Symbolizes a missing file
-         * (maybe a resolved symbolic link if it is not {@linkplain Directory#isOriginal() original}).
-         */
-        MISSING(Directory::isMissing);
-
-        private static final Values<Type> VALUES = Values.of(Type.class);
-        private static final String UNKNOWN_TYPE = "Unknown type: <%s>";
-
-        private final Predicate<Directory> predicate;
-
-        Type(final Predicate<Directory> predicate) {
-            this.predicate = predicate;
-        }
-
-        private static Type of(final Directory entry) {
-            return VALUES.findFirst(type -> type.predicate.test(entry))
-                         .orElseThrow(() -> new NoSuchElementException(UNKNOWN_TYPE.formatted(entry)));
-        }
-    }
-
     /**
      * Reports a problem regarding a file operation.
      *
      * @param entry the {@link Directory} the problem is related to.
      * @param cause an {@link IOException} that represents the problem.
      */
-    public record Problem(Directory entry, IOException cause) {
+    public record Problem(FileEntry entry, IOException cause) {
 
         private static final System.Logger LOGGER = System.getLogger(Problem.class.getCanonicalName());
         private static final String MESSAGE = "Cannot access file:%n" +
@@ -373,7 +80,7 @@ public class Directory {
 
     /**
      * A tool that serves to list the immediate contents of any file represented by a
-     * {@link Path} or {@link Directory}.
+     * {@link Path} or {@link FileEntry}.
      */
     public static final class Lister {
 
@@ -381,27 +88,27 @@ public class Directory {
 
         private final LinkHandling linkHandling;
         private final Comparator<? super Path> pathOrder;
-        private final Comparator<? super Directory> entryOrder;
-        private final Lazy<Function<Stream<Path>, Stream<Directory>>> mapping;
+        private final Comparator<? super FileEntry> entryOrder;
+        private final Lazy<Function<Stream<Path>, Stream<FileEntry>>> mapping;
 
         private Lister(final LinkHandling linkHandling,
                        final Comparator<? super Path> pathOrder,
-                       final Comparator<? super Directory> entryOrder) {
+                       final Comparator<? super FileEntry> entryOrder) {
             this.linkHandling = linkHandling;
             this.pathOrder = pathOrder;
             this.entryOrder = entryOrder;
             this.mapping = Lazy.init(this::newMapping);
         }
 
-        private Directory entryOfDefinite(final Path path) {
-            return ofDefinite(path, linkHandling);
+        private FileEntry entryOfDefinite(final Path path) {
+            return FileEntry.ofDefinite(path, linkHandling);
         }
 
-        private Directory entryOf(final Path path) {
-            return of(path, linkHandling);
+        private FileEntry entryOf(final Path path) {
+            return FileEntry.of(path, linkHandling);
         }
 
-        private Function<Stream<Path>, Stream<Directory>> newMapping() {
+        private Function<Stream<Path>, Stream<FileEntry>> newMapping() {
             return switch (CHOICES.apply(this)) {
                 case 0b11 -> paths -> paths.sorted(pathOrder)
                                            .map(this::entryOfDefinite)
@@ -455,14 +162,14 @@ public class Directory {
          * Also returns an empty {@link List} if the given <em>path</em> refuses access to its contents
          * and throws an exception. In that case, the problem will be logged to a {@link System.Logger}.
          * <p>
-         * NOTE: an original {@link Directory} will be created from the given <em>path</em> using the associated
-         * {@link LinkHandling}. If this does not meet your requirements, use {@link #list(Directory)} instead.
+         * NOTE: an original {@link FileEntry} will be created from the given <em>path</em> using the associated
+         * {@link LinkHandling}. If this does not meet your requirements, use {@link #list(FileEntry)} instead.
          *
-         * @see #list(Directory)
+         * @see #list(FileEntry)
          * @see #list(Path, Consumer)
-         * @see #list(Directory, Consumer)
+         * @see #list(FileEntry, Consumer)
          */
-        public final List<Directory> list(final Path path) {
+        public final List<FileEntry> list(final Path path) {
             return list(entryOf(path));
         }
 
@@ -477,9 +184,9 @@ public class Directory {
          *
          * @see #list(Path)
          * @see #list(Path, Consumer)
-         * @see #list(Directory, Consumer)
+         * @see #list(FileEntry, Consumer)
          */
-        public final List<Directory> list(final Directory entry) {
+        public final List<FileEntry> list(final FileEntry entry) {
             return list(entry, Problem::log);
         }
 
@@ -493,15 +200,15 @@ public class Directory {
          * and thus throws an exception. In that case, a corresponding {@link Problem} will be reported
          * to the given {@link Consumer}.
          * <p>
-         * NOTE: an original {@link Directory} will be created from the given <em>path</em> using the associated
-         * {@link LinkHandling}. If this does not meet your requirements, use {@link #list(Directory, Consumer)}
+         * NOTE: an original {@link FileEntry} will be created from the given <em>path</em> using the associated
+         * {@link LinkHandling}. If this does not meet your requirements, use {@link #list(FileEntry, Consumer)}
          * instead.
          *
-         * @see #list(Directory, Consumer)
+         * @see #list(FileEntry, Consumer)
          * @see #list(Path)
-         * @see #list(Directory)
+         * @see #list(FileEntry)
          */
-        public final List<Directory> list(final Path path, final Consumer<? super Problem> onProblem) {
+        public final List<FileEntry> list(final Path path, final Consumer<? super Problem> onProblem) {
             return list(entryOf(path), onProblem);
         }
 
@@ -516,10 +223,10 @@ public class Directory {
          * to the given {@link Consumer}.
          *
          * @see #list(Path, Consumer)
-         * @see #list(Directory)
+         * @see #list(FileEntry)
          * @see #list(Path)
          */
-        public final List<Directory> list(final Directory entry, final Consumer<? super Problem> onProblem) {
+        public final List<FileEntry> list(final FileEntry entry, final Consumer<? super Problem> onProblem) {
             if (entry.isDirectory()) {
                 try (final Stream<Path> paths = Files.list(entry.path())) {
                     return mapping.get().apply(paths).toList();
@@ -532,7 +239,7 @@ public class Directory {
 
         /**
          * Returns a copy of <em>this</em> {@link Lister}, with no order applied to the
-         * {@linkplain #list(Directory, Consumer) listing}.
+         * {@linkplain #list(FileEntry, Consumer) listing}.
          */
         public final Lister noOrder() {
             return new Lister(linkHandling, Util.NO_ORDER, Util.NO_ORDER);
@@ -540,7 +247,7 @@ public class Directory {
 
         /**
          * Returns a copy of <em>this</em> {@link Lister}, with the given path order applied to the
-         * {@linkplain #list(Directory, Consumer) listing}.
+         * {@linkplain #list(FileEntry, Consumer) listing}.
          */
         public final Lister pathOrder(final Comparator<? super Path> order) {
             return new Lister(linkHandling, order, entryOrder);
@@ -548,16 +255,16 @@ public class Directory {
 
         /**
          * Returns a copy of <em>this</em> {@link Lister}, with the given entry order applied to the
-         * {@linkplain #list(Directory, Consumer) listing}.
+         * {@linkplain #list(FileEntry, Consumer) listing}.
          */
-        public final Lister entryOrder(final Comparator<? super Directory> order) {
+        public final Lister entryOrder(final Comparator<? super FileEntry> order) {
             return new Lister(linkHandling, pathOrder, order);
         }
     }
 
     /**
      * A tool that serves to stream the recursive contents of any directory represented by a
-     * {@link Path} or {@link Directory}.
+     * {@link Path} or {@link FileEntry}.
      */
     public static final class Streamer {
 
@@ -576,15 +283,15 @@ public class Directory {
         };
 
         private final Lister lister;
-        private final Predicate<Directory> skipCondition;
+        private final Predicate<FileEntry> skipCondition;
 
-        private Streamer(final Lister lister, final Predicate<Directory> skipCondition) {
+        private Streamer(final Lister lister, final Predicate<FileEntry> skipCondition) {
             this.lister = lister;
             this.skipCondition = skipCondition;
         }
 
-        private Directory entryOf(final Path path) {
-            return of(path, lister.linkHandling());
+        private FileEntry entryOf(final Path path) {
+            return FileEntry.of(path, lister.linkHandling());
         }
 
         /**
@@ -611,25 +318,25 @@ public class Directory {
          * Returns a new {@link Streamer} that skips all entries that meet the given <em>condition</em>,
          * as well as their entire content.
          */
-        public final Streamer skip(final Predicate<? super Directory> condition) {
+        public final Streamer skip(final Predicate<? super FileEntry> condition) {
             return new Streamer(lister, skipCondition.or(condition));
         }
 
         /**
-         * Returns a {@link Stream} starting with a {@link Directory} based on the given <em>path</em>
+         * Returns a {@link Stream} starting with a {@link FileEntry} based on the given <em>path</em>
          * followed by its recursive contents.
          * <p>
          * If an involved file refuses access to its contents and thus throws an {@link IOException},
          * the problem will be logged to a {@link System.Logger}.
          * <p>
-         * NOTE: the starting {@link Directory} will be created using the {@link LinkHandling} of the associated
-         * {@link Lister}. If this does not meet your requirements, use {@link #stream(Directory)} instead.
+         * NOTE: the starting {@link FileEntry} will be created using the {@link LinkHandling} of the associated
+         * {@link Lister}. If this does not meet your requirements, use {@link #stream(FileEntry)} instead.
          *
-         * @see #stream(Directory)
+         * @see #stream(FileEntry)
          * @see #stream(Path, Consumer)
-         * @see #stream(Directory, Consumer)
+         * @see #stream(FileEntry, Consumer)
          */
-        public final Stream<Directory> stream(final Path path) {
+        public final Stream<FileEntry> stream(final Path path) {
             return stream(entryOf(path));
         }
 
@@ -641,27 +348,27 @@ public class Directory {
          *
          * @see #stream(Path)
          * @see #stream(Path, Consumer)
-         * @see #stream(Directory, Consumer)
+         * @see #stream(FileEntry, Consumer)
          */
-        public final Stream<Directory> stream(final Directory entry) {
+        public final Stream<FileEntry> stream(final FileEntry entry) {
             return stream(entry, Problem::log);
         }
 
         /**
-         * Returns a {@link Stream} starting with a {@link Directory} based on the given <em>path</em>
+         * Returns a {@link Stream} starting with a {@link FileEntry} based on the given <em>path</em>
          * followed by its recursive contents.
          * <p>
          * If an involved file refuses access to its contents and thus throws an {@link IOException},
          * a corresponding {@link Problem} will be reported to the given {@link Consumer}.
          * <p>
-         * NOTE: the starting {@link Directory} will be created using the {@link LinkHandling} of the associated
-         * {@link Lister}. If this does not meet your requirements, use {@link #stream(Directory, Consumer)} instead.
+         * NOTE: the starting {@link FileEntry} will be created using the {@link LinkHandling} of the associated
+         * {@link Lister}. If this does not meet your requirements, use {@link #stream(FileEntry, Consumer)} instead.
          *
-         * @see #stream(Directory, Consumer)
+         * @see #stream(FileEntry, Consumer)
          * @see #stream(Path)
-         * @see #stream(Directory)
+         * @see #stream(FileEntry)
          */
-        public final Stream<Directory> stream(final Path path, final Consumer<? super Problem> onProblem) {
+        public final Stream<FileEntry> stream(final Path path, final Consumer<? super Problem> onProblem) {
             return stream(entryOf(path), onProblem);
         }
 
@@ -672,10 +379,10 @@ public class Directory {
          * a corresponding {@link Problem} will be reported to the given {@link Consumer}.
          *
          * @see #stream(Path, Consumer)
-         * @see #stream(Directory)
+         * @see #stream(FileEntry)
          * @see #stream(Path)
          */
-        public final Stream<Directory> stream(final Directory entry, final Consumer<? super Problem> onProblem) {
+        public final Stream<FileEntry> stream(final FileEntry entry, final Consumer<? super Problem> onProblem) {
             return new Actor(onProblem).stream(entry);
         }
 
@@ -687,13 +394,13 @@ public class Directory {
                 this.onProblem = onProblem;
             }
 
-            private Stream<Directory> stream(final Directory entry) {
-                final Stream<Directory> head = Stream.of(entry);
+            private Stream<FileEntry> stream(final FileEntry entry) {
+                final Stream<FileEntry> head = Stream.of(entry);
                 return skipCondition.test(entry) ? Stream.empty() // TODO: head
                                                  : stream(head, lister.list(entry, onProblem));
             }
 
-            private Stream<Directory> stream(final Stream<Directory> head, final List<Directory> tail) {
+            private Stream<FileEntry> stream(final Stream<FileEntry> head, final List<FileEntry> tail) {
                 return tail.isEmpty() ? head : Stream.concat(head, tail.stream().flatMap(this::stream));
             }
         }

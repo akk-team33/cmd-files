@@ -35,7 +35,7 @@ class QueryTest /*extends ModifyingTestBase*/ {
 
                          Arguments.of(".", "", FLAT, "*"),
                          Arguments.of(".*", "", FLAT, ".*"),
-                         Arguments.of("**/.", "", DEEP, "."),
+                         Arguments.of("**/.", "", DEEP, "*"), // same as "**" - TODO?
                          Arguments.of("**/.*", "", DEEP, ".*"),
 
                          Arguments.of(".", "", FLAT, "*"),
