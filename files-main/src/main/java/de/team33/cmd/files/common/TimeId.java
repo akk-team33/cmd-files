@@ -1,6 +1,6 @@
 package de.team33.cmd.files.common;
 
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.files.iocaste.FileEntry;
 import de.team33.tools.io.LazyTiming;
 
 public class TimeId {

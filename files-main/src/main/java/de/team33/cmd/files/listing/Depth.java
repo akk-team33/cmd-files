@@ -1,7 +1,7 @@
 package de.team33.cmd.files.listing;
 
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
+import de.team33.patterns.files.iocaste.FileEntry;
+import de.team33.patterns.files.iocaste.LinkHandling;
 
 import java.util.function.Function;
 import java.util.stream.Stream;

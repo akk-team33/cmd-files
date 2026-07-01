@@ -1,6 +1,6 @@
 package de.team33.cmd.files.matching;
 
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.files.iocaste.FileEntry;
 import de.team33.patterns.io.deimos.TextIO;
 
 import java.nio.file.Path;

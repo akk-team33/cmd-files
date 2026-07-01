@@ -1,7 +1,7 @@
 package de.team33.cmd.files.matching.publics;
 
 import de.team33.cmd.files.matching.TypeMatcher;
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.files.iocaste.FileEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

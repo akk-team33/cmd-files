@@ -1,8 +1,8 @@
 package de.team33.cmd.files.cleaning;
 
 import de.team33.cmd.files.common.Output;
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
+import de.team33.patterns.files.iocaste.FileEntry;
+import de.team33.patterns.files.iocaste.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;

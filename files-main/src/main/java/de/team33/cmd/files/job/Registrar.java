@@ -9,10 +9,10 @@ import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
+import de.team33.patterns.files.iocaste.FileEntry;
+import de.team33.patterns.files.iocaste.LinkHandling;
 import de.team33.patterns.hashing.pandia.Algorithm;
 import de.team33.patterns.hashing.pandia.Hash;
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
 import de.team33.tools.io.Hashing;
 import de.team33.tools.io.Registry;
 

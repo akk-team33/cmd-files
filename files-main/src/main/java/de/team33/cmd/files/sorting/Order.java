@@ -1,7 +1,7 @@
 package de.team33.cmd.files.sorting;
 
 import de.team33.patterns.enums.pan.Values;
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.files.iocaste.FileEntry;
 
 import java.nio.file.Path;
 import java.util.Comparator;

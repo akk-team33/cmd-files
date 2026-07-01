@@ -1,4 +1,4 @@
-package de.team33.patterns.io.adrastea;
+package de.team33.patterns.files.iocaste;
 
 import org.junit.jupiter.api.Test;
 

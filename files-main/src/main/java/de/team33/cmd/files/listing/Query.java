@@ -1,8 +1,8 @@
 package de.team33.cmd.files.listing;
 
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
+import de.team33.patterns.files.iocaste.FileEntry;
+import de.team33.patterns.files.iocaste.LinkHandling;
 
 import java.nio.file.Path;
 import java.util.function.Predicate;

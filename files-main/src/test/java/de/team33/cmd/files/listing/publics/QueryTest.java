@@ -3,7 +3,7 @@ package de.team33.cmd.files.listing.publics;
 import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Query;
 import de.team33.cmd.files.testing.ModifyingTestBase;
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.files.iocaste.FileEntry;
 import de.team33.patterns.io.deimos.TextIO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -4,8 +4,8 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
+import de.team33.patterns.files.iocaste.FileEntry;
+import de.team33.patterns.files.iocaste.LinkHandling;
 
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
-import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
+import static de.team33.patterns.files.iocaste.LinkHandling.ORIGINAL;
 
 class DirFinder implements Runnable {
 

@@ -1,6 +1,6 @@
 package de.team33.cmd.files.balancing;
 
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.files.iocaste.FileEntry;
 
 import java.nio.file.Path;
 

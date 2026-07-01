@@ -1,4 +1,4 @@
-package de.team33.patterns.io.adrastea;
+package de.team33.patterns.files.iocaste;
 
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
