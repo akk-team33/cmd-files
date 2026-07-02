@@ -2,7 +2,6 @@ package de.team33.patterns.io.adrastea;
 
 import de.team33.patterns.decision.thyone.Choices;
 import de.team33.patterns.enums.pan.Values;
-import de.team33.patterns.hierarchy.mab.Nodes;
 import de.team33.patterns.lazy.narvi.Lazy;
 
 import java.io.IOException;
@@ -17,10 +16,13 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
 import static de.team33.patterns.io.adrastea.LinkHandling.RESOLVE;
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.WARNING;
 
 /**
  * Represents an entry from an imaginary file index.
@@ -292,6 +294,23 @@ public class FileEntry {
         return attributes().size();
     }
 
+//    private final Lazy<List<FileEntry>> lazyList = Lazy.init(this::newList);
+//
+//    private List<FileEntry> newList() {
+//        if (isDirectory()) {
+//            try (final Stream<Path> paths = Files.list(path())) {
+//                return paths.map(path -> ofDefinite(path, )).toList();
+//            } catch (final IOException caught) {
+//                onProblem.accept(new Problem(entry, caught));
+//            }
+//        }
+//        return List.of();
+//    }
+//
+//    public final List<FileEntry> list() {
+//        return lazyList.get();
+//    }
+
     @Override
     public final String toString() {
         return path.toString();
@@ -346,14 +365,22 @@ public class FileEntry {
         }
     }
 
-    public record Problem(FileEntry node, IOException cause) implements Nodes.Problem<FileEntry> {
+    public record Problem(FileEntry node, IOException cause) {
+
+        private static final System.Logger LOGGER = System.getLogger(Problem.class.getCanonicalName());
+
+        final void log() {
+            final Supplier<String> msgSupplier = () -> "Cannot access file entry <%s>".formatted(node());
+            LOGGER.log(WARNING, msgSupplier);
+            LOGGER.log(DEBUG, msgSupplier, cause());
+        }
     }
 
     /**
      * A tool that serves to list the immediate contents of any file represented by a
      * {@link Path} or {@link FileEntry}.
      */
-    public static final class Lister implements Nodes.Lister<FileEntry, Problem> {
+    public static final class Lister {
 
         private static final Choices<Lister> CHOICES = Choices.parallel(Lister::isPathOrder, Lister::isEntryOrder);
 
@@ -457,9 +484,8 @@ public class FileEntry {
          * @see #list(Path, Consumer)
          * @see #list(FileEntry, Consumer)
          */
-        @Override
         public final List<FileEntry> list(final FileEntry entry) {
-            return Nodes.Lister.super.list(entry);
+            return list(entry, Problem::log);
         }
 
         /**
@@ -498,7 +524,6 @@ public class FileEntry {
          * @see #list(FileEntry)
          * @see #list(Path)
          */
-        @Override
         public final List<FileEntry> list(final FileEntry entry, final Consumer<? super Problem> onProblem) {
             if (entry.isDirectory()) {
                 try (final Stream<Path> paths = Files.list(entry.path())) {
@@ -539,14 +564,32 @@ public class FileEntry {
      * A tool that serves to stream the recursive contents of any directory represented by a
      * {@link Path} or {@link FileEntry}.
      */
-    public static final class Streamer extends Nodes.Streamer<FileEntry, Problem, Lister> {
+    public static final class Streamer {
 
+        @SuppressWarnings("rawtypes")
+        private static final Predicate NEVER = new Predicate() {
+            @Override
+            public boolean test(final Object any) {
+                return false;
+            }
+
+            @Override
+            public Predicate or(final Predicate other) {
+                return other;
+            }
+        };
+
+        private final Lister lister;
+        private final Predicate<FileEntry> skipCondition;
+
+        @SuppressWarnings("unchecked")
         private Streamer(final Lister lister, final Predicate<FileEntry> skipCondition) {
-            super(lister, skipCondition);
+            this.lister = lister;
+            this.skipCondition = (null == skipCondition) ? NEVER : skipCondition;
         }
 
         private FileEntry entryOf(final Path path) {
-            return of(path, lister().linkHandling());
+            return of(path, lister.linkHandling());
         }
 
         /**
@@ -556,7 +599,7 @@ public class FileEntry {
          * @see FileEntry#streamer(LinkHandling)
          */
         public final Streamer resolved() {
-            return (RESOLVE == lister().linkHandling) ? this : new Streamer(lister().resolved(), skipCondition());
+            return (RESOLVE == lister.linkHandling) ? this : new Streamer(lister.resolved(), skipCondition);
         }
 
         /**
@@ -566,7 +609,7 @@ public class FileEntry {
          * @see FileEntry#streamer(LinkHandling)
          */
         public final Streamer original() {
-            return (ORIGINAL == lister().linkHandling) ? this : new Streamer(lister().original(), skipCondition());
+            return (ORIGINAL == lister.linkHandling) ? this : new Streamer(lister.original(), skipCondition);
         }
 
         /**
@@ -574,7 +617,7 @@ public class FileEntry {
          * as well as their entire content.
          */
         public final Streamer skip(final Predicate<? super FileEntry> condition) {
-            return new Streamer(lister(), skipCondition().or(condition));
+            return new Streamer(lister, skipCondition.or(condition));
         }
 
         /**
@@ -605,9 +648,8 @@ public class FileEntry {
          * @see #stream(Path, Consumer)
          * @see #stream(FileEntry, Consumer)
          */
-        @Override
         public final Stream<FileEntry> stream(final FileEntry entry) {
-            return super.stream(entry);
+            return stream(entry, Problem::log);
         }
 
         /**
@@ -638,9 +680,26 @@ public class FileEntry {
          * @see #stream(FileEntry)
          * @see #stream(Path)
          */
-        @Override
         public final Stream<FileEntry> stream(final FileEntry entry, final Consumer<? super Problem> onProblem) {
-            return super.stream(entry, onProblem);
+            return new Actor(onProblem).stream(entry);
+        }
+
+        private class Actor {
+
+            private final Consumer<? super Problem> onProblem;
+
+            private Actor(final Consumer<? super Problem> onProblem) {
+                this.onProblem = onProblem;
+            }
+
+            private Stream<FileEntry> stream(final FileEntry entry) {
+                return skipCondition.test(entry) ? Stream.empty()
+                                                 : stream(Stream.of(entry), lister.list(entry, onProblem));
+            }
+
+            private Stream<FileEntry> stream(final Stream<FileEntry> head, final List<FileEntry> tail) {
+                return tail.isEmpty() ? head : Stream.concat(head, tail.stream().flatMap(this::stream));
+            }
         }
     }
 }
