@@ -3,8 +3,8 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
+import de.team33.patterns.io.iocaste.FileEntry;
+import de.team33.patterns.io.iocaste.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
-import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
+import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
 
 class Deletion implements Runnable {
 

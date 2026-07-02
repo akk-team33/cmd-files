@@ -1,6 +1,6 @@
 package de.team33.cmd.files.moving;
 
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.iocaste.FileEntry;
 
 import java.util.Set;
 

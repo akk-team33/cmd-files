@@ -1,4 +1,4 @@
-package de.team33.patterns.io.adrastea;
+package de.team33.patterns.io.iocaste;
 
 import de.team33.patterns.decision.thyone.Choices;
 import de.team33.patterns.enums.pan.Values;
@@ -19,8 +19,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static de.team33.patterns.io.adrastea.LinkHandling.ORIGINAL;
-import static de.team33.patterns.io.adrastea.LinkHandling.RESOLVE;
+import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
+import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.WARNING;
 

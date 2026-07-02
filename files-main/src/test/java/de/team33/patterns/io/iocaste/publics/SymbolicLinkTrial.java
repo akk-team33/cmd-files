@@ -1,6 +1,6 @@
-package de.team33.patterns.io.adrastea.publics;
+package de.team33.patterns.io.iocaste.publics;
 
-import de.team33.patterns.io.adrastea.TUtil;
+import de.team33.patterns.io.iocaste.TUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

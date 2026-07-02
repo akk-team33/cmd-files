@@ -2,7 +2,7 @@ package de.team33.cmd.files.matching;
 
 import de.team33.cmd.files.common.Filter;
 import de.team33.patterns.enums.pan.Values;
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.iocaste.FileEntry;
 
 import java.util.TreeSet;
 import java.util.function.Predicate;

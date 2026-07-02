@@ -3,9 +3,9 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.testing.Buffer;
 import de.team33.cmd.files.testing.ModifyingTestBase;
-import de.team33.patterns.io.adrastea.FileEntry;
-import de.team33.patterns.io.adrastea.LinkHandling;
 import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.iocaste.FileEntry;
+import de.team33.patterns.io.iocaste.LinkHandling;
 import de.team33.testing.io.hydra.FileInfo;
 import org.junit.jupiter.api.Test;
 

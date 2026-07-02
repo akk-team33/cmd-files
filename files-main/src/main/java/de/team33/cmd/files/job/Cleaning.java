@@ -6,7 +6,7 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.listing.Option;
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.iocaste.FileEntry;
 
 import java.nio.file.Path;
 import java.util.EnumSet;

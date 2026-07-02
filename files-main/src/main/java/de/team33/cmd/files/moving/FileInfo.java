@@ -2,7 +2,7 @@ package de.team33.cmd.files.moving;
 
 import de.team33.cmd.files.common.HashId;
 import de.team33.cmd.files.common.TimeId;
-import de.team33.patterns.io.adrastea.FileEntry;
+import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.lazy.narvi.Lazy;
 
 import java.nio.file.Path;
