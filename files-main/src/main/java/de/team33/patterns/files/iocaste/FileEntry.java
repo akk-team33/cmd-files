@@ -294,22 +294,43 @@ public class FileEntry {
         return attributes().size();
     }
 
-//    private final Lazy<List<FileEntry>> lazyList = Lazy.init(this::newList);
-//
-//    private List<FileEntry> newList() {
-//        if (isDirectory()) {
-//            try (final Stream<Path> paths = Files.list(path())) {
-//                return paths.map(path -> ofDefinite(path, )).toList();
-//            } catch (final IOException caught) {
-//                onProblem.accept(new Problem(entry, caught));
-//            }
-//        }
-//        return List.of();
-//    }
-//
-//    public final List<FileEntry> list() {
-//        return lazyList.get();
-//    }
+    public final List<FileEntry> list() {
+        return list(ORIGINAL, Problem::log);
+    }
+
+    public final List<FileEntry> list(final LinkHandling linkHandling) {
+        return list(linkHandling, Problem::log);
+    }
+
+    public final List<FileEntry> list(final Consumer<? super Problem> onProblem) {
+        return list(ORIGINAL, onProblem);
+    }
+
+    /**
+     * Returns a {@link List} of the immediate contents of <em>this</em> entry
+     * if it {@link #isDirectory() represents a directory}.
+     * <p>
+     * Returns an empty {@link List} if it does NOT {@link #isDirectory() represent a directory}
+     * and thus cannot have any directory contents.
+     * <p>
+     * Also returns an empty {@link List} if it refuses access to its contents throwing an exception.
+     * In that case, a corresponding {@link Problem} will be reported to the given {@link Consumer}.
+     *
+     * @param linkHandling determines how to handle symbolic links within the contents.
+     * @see #list(Consumer)
+     * @see #list(LinkHandling)
+     * @see #list()
+     */
+    public final List<FileEntry> list(final LinkHandling linkHandling, final Consumer<? super Problem> onProblem) {
+        if (isDirectory()) {
+            try (final Stream<Path> paths = Files.list(path())) {
+                return paths.map(path -> ofDefinite(path, linkHandling)).toList();
+            } catch (final IOException caught) {
+                onProblem.accept(new Problem(this, caught));
+            }
+        }
+        return List.of();
+    }
 
     @Override
     public final String toString() {
@@ -365,12 +386,12 @@ public class FileEntry {
         }
     }
 
-    public record Problem(FileEntry node, IOException cause) {
+    public record Problem(FileEntry entry, IOException cause) {
 
         private static final System.Logger LOGGER = System.getLogger(Problem.class.getCanonicalName());
 
         final void log() {
-            final Supplier<String> msgSupplier = () -> "Cannot access file entry <%s>".formatted(node());
+            final Supplier<String> msgSupplier = () -> "Cannot access file entry <%s>".formatted(entry());
             LOGGER.log(WARNING, msgSupplier);
             LOGGER.log(DEBUG, msgSupplier, cause());
         }
