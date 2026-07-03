@@ -408,6 +408,6 @@ class FileEntryTest {
             assertEquals(List.of(entry), result);
         });
         assertEquals(1, problems.size());
-        assertEquals(testPath.toAbsolutePath().normalize(), problems.get(0).node().path());
+        assertEquals(testPath.toAbsolutePath().normalize(), problems.get(0).entry().path());
     }
 }

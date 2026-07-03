@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static de.team33.patterns.io.iocaste.LinkAttributes.effective;
@@ -294,14 +293,20 @@ public class FileEntry {
         return path.toString();
     }
 
-    public record Problem(FileEntry node, IOException cause) {
+    public record Problem(FileEntry entry, IOException cause) {
 
         private static final System.Logger LOGGER = System.getLogger(Problem.class.getCanonicalName());
+        private static final String MESSAGE = "Cannot access file entry ...%n" +
+                                              "    path:      <%s>%n" +
+                                              "    exception: <%s>%n" +
+                                              "    message:   '%s'%n";
 
         final void log() {
-            final Supplier<String> msgSupplier = () -> "Cannot access file entry <%s>".formatted(node());
-            LOGGER.log(WARNING, msgSupplier);
-            LOGGER.log(DEBUG, msgSupplier, cause());
+            final Lazy<String> lazyMessage = Lazy.init(() -> MESSAGE.formatted(entry.path(),
+                                                                               cause.getClass().getCanonicalName(),
+                                                                               cause.getMessage()));
+            LOGGER.log(WARNING, lazyMessage);
+            LOGGER.log(DEBUG, lazyMessage, cause());
         }
     }
 
