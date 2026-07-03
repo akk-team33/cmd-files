@@ -627,7 +627,7 @@ public class FileEntry {
             }
 
             private Stream<FileEntry> stream(final FileEntry entry) {
-                return skipCondition.test(entry) ? Stream.empty()
+                return skipCondition.test(entry) ? Stream.of(entry)
                                                  : stream(Stream.of(entry), lister.list(entry, onProblem));
             }
 
