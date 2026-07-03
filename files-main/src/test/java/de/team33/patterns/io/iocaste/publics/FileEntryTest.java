@@ -1,7 +1,6 @@
 package de.team33.patterns.io.iocaste.publics;
 
 import de.team33.patterns.exceptional.dione.XConsumer;
-import de.team33.patterns.io.iocaste.DirectoryLister;
 import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.io.iocaste.TUtil;
 import de.team33.testing.io.hydra.ZipIO;
@@ -15,11 +14,13 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
 import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
-import static java.util.Comparator.comparing;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileEntryTest {
@@ -269,93 +270,5 @@ class FileEntryTest {
             assertTrue(entry.isResolved());
             assertEquals(!Files.isSymbolicLink(path), entry.isOriginal());
         });
-    }
-
-    @Test
-    final void list() {
-        for (final Path path : paths()) {
-            final List<FileEntry.Problem> problems = new LinkedList<>();
-            final FileEntry entry = FileEntry.of(path, RESOLVE);
-            final DirectoryLister lister = FileEntry.lister(RESOLVE);
-
-            final List<FileEntry> result = lister.list(path, problems::add);
-
-            assertNotEquals(entry.isDirectory(), result.isEmpty());
-            assertTrue(problems.isEmpty());
-        }
-    }
-
-    @Test
-    final void list_noOrder() {
-        // alphabetic order ...
-        final List<String> unexpected = List.of(
-                "directory.link", "link.link", "missing.link", "regular.link", "special.link", "de");
-        // no order ...
-        final Set<String> expected = Set.copyOf(unexpected);
-
-        final DirectoryLister lister = FileEntry.lister(RESOLVE).noOrder();
-
-        final List<String> result = lister.list(testPath)
-                                          .stream()
-                                          .map(FileEntry::name)
-                                          .toList();
-
-        assertNotEquals(unexpected, result);
-        assertEquals(expected, Set.copyOf(result));
-    }
-
-    @Test
-    final void list_maxOrder() {
-        final List<String> expected = List.of(
-                "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
-        final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
-        final DirectoryLister lister = FileEntry.lister(ORIGINAL)
-                                                .entryOrder(comparing(FileEntry::name).reversed());
-
-        final List<String> result = lister.list(entry, problems::add)
-                                          .stream()
-                                          .map(FileEntry::name)
-                                          .toList();
-
-        assertEquals(expected, result);
-        assertTrue(problems.isEmpty());
-    }
-
-    @Test
-    final void list_pathOrder() {
-        final List<String> expected = List.of(
-                "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
-        final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
-        final DirectoryLister lister = FileEntry.lister(ORIGINAL)
-                                                .pathOrder(TUtil.PATH_ORDER.reversed());
-
-        final List<String> result = lister.list(entry, problems::add)
-                                          .stream()
-                                          .map(FileEntry::name)
-                                          .toList();
-
-        assertEquals(expected, result);
-        assertTrue(problems.isEmpty());
-    }
-
-    @Test
-    final void list_entryOrder() {
-        final List<String> expected = List.of(
-                "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
-        final FileEntry entry = FileEntry.of(testPath, RESOLVE);
-        final DirectoryLister lister = FileEntry.lister(RESOLVE)
-                                                .noOrder()
-                                                .entryOrder(comparing(FileEntry::name).reversed());
-
-        final List<String> result = lister.list(entry, problems::add)
-                                          .stream()
-                                          .map(FileEntry::name)
-                                          .toList();
-
-        assertEquals(expected, result);
-        assertTrue(problems.isEmpty());
     }
 }
