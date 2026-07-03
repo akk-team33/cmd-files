@@ -360,14 +360,15 @@ class FileEntryTest {
 
     @Test
     final void stream() {
-        final List<String> expected = List.of(uuid, "de", "team33", "cmd", "files", "common", "Counter.java",
-                                              "FileType.java", "HashId.java", "Output.java", "RequestException.java",
-                                              "TimeId.java", "Main.java", "matching", "CaseSensitivity.java",
-                                              "InternalException.java", "Method.java", "NameMatcher.java",
-                                              "TypeMatcher.java", "WildcardString.java", "tools", "io", "Bytes.java",
-                                              "FileHashing.java", "LazyHashing.java", "LazyTiming.java",
-                                              "StrictHashing.java", "directory.link", "link.link", "missing.link",
-                                              "regular.link", "special.link");
+        final List<String> expected = List.of(uuid, "de", "team33", "cmd", "files", "balancing", "cleaning",
+                                              "common", "Counter.java", "FileType.java", "HashId.java", "Output.java",
+                                              "RequestException.java", "TimeId.java", "job", "Main.java", "matching",
+                                              "CaseSensitivity.java", "InternalException.java", "Method.java",
+                                              "NameMatcher.java", "TypeMatcher.java", "WildcardString.java", "moving",
+                                              "patterns", "tools", "io", "Bytes.java", "FileHashing.java",
+                                              "LazyHashing.java", "LazyTiming.java", "StrictHashing.java",
+                                              "directory.link", "link.link", "missing.link", "regular.link",
+                                              "special.link");
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry.Streamer streamer = FileEntry.streamer(ORIGINAL)
                                                      .skip(entry -> entry.path().endsWith("balancing"))
@@ -386,13 +387,15 @@ class FileEntryTest {
 
     @Test
     final void stream_skip_origin() {
+        final List<Path> expected = List.of(testPath.toAbsolutePath().normalize());
         final FileEntry.Streamer streamer = FileEntry.streamer(RESOLVE)
                                                      .skip(FileEntry::isDirectory);
 
-        final List<FileEntry> result = streamer.stream(testPath)
-                                               .toList();
+        final List<Path> result = streamer.stream(testPath)
+                                          .map(FileEntry::path)
+                                          .toList();
 
-        assertEquals(List.of(), result);
+        assertEquals(expected, result);
     }
 
     @Test
