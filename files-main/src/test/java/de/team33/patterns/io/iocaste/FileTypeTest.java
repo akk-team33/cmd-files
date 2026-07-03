@@ -62,7 +62,7 @@ class FileTypeTest {
             fail("expected to fail - but was " + type);
         } catch (final NoSuchElementException e) {
             // OK, as expected
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 

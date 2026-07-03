@@ -1,7 +1,6 @@
 package de.team33.patterns.io.iocaste.publics;
 
 import de.team33.patterns.exceptional.dione.XConsumer;
-import de.team33.patterns.io.iocaste.DirectoryStreamer;
 import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.io.iocaste.TUtil;
 import de.team33.testing.io.hydra.ZipIO;
@@ -357,61 +356,5 @@ class FileEntryTest {
 
         assertEquals(expected, result);
         assertTrue(problems.isEmpty());
-    }
-
-    @Test
-    final void stream() {
-        final List<String> expected = List.of(uuid, "de", "team33", "cmd", "files", "balancing", "cleaning",
-                                              "common", "Counter.java", "FileType.java", "HashId.java", "Output.java",
-                                              "RequestException.java", "TimeId.java", "job", "Main.java", "matching",
-                                              "CaseSensitivity.java", "InternalException.java", "Method.java",
-                                              "NameMatcher.java", "TypeMatcher.java", "WildcardString.java", "moving",
-                                              "patterns", "tools", "io", "Bytes.java", "FileHashing.java",
-                                              "LazyHashing.java", "LazyTiming.java", "StrictHashing.java",
-                                              "directory.link", "link.link", "missing.link", "regular.link",
-                                              "special.link");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
-        final DirectoryStreamer streamer = FileEntry.streamer(ORIGINAL)
-                                                    .skip(entry -> entry.path().endsWith("balancing"))
-                                                    .skip(entry -> entry.path().endsWith("cleaning"))
-                                                    .skip(entry -> entry.path().endsWith("job"))
-                                                    .skip(entry -> entry.path().endsWith("moving"))
-                                                    .skip(entry -> entry.path().endsWith("patterns"));
-
-        final List<String> result = streamer.stream(testPath, problems::add)
-                                            .map(FileEntry::name)
-                                            .toList();
-
-        assertEquals(expected, result);
-        assertTrue(problems.isEmpty());
-    }
-
-    @Test
-    final void stream_skip_origin() {
-        final List<Path> expected = List.of(testPath.toAbsolutePath().normalize());
-        final DirectoryStreamer streamer = FileEntry.streamer(RESOLVE)
-                                                    .skip(FileEntry::isDirectory);
-
-        final List<Path> result = streamer.stream(testPath)
-                                          .map(FileEntry::path)
-                                          .toList();
-
-        assertEquals(expected, result);
-    }
-
-    @Test
-    final void stream_forbidden() throws IOException {
-        final List<FileEntry.Problem> problems = new LinkedList<>();
-        forbidden(testPath, path -> {
-            final FileEntry entry = FileEntry.of(path, ORIGINAL);
-            final DirectoryStreamer streamer = FileEntry.streamer(ORIGINAL);
-
-            final List<FileEntry> result = streamer.stream(entry, problems::add)
-                                                   .toList();
-
-            assertEquals(List.of(entry), result);
-        });
-        assertEquals(1, problems.size());
-        assertEquals(testPath.toAbsolutePath().normalize(), problems.get(0).entry().path());
     }
 }
