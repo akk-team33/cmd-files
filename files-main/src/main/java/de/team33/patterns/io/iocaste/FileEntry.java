@@ -79,30 +79,6 @@ public class FileEntry {
         return new FileEntry(path, Normality.DEFINITE, linkHandling);
     }
 
-    /**
-     * Returns a new {@link DirectoryLister} based on a given {@link LinkHandling}
-     * that applies a default path order (by file name).
-     */
-    public static DirectoryLister lister(final LinkHandling linkHandling) {
-        return new DirectoryLister(linkHandling, Util.PATH_ORDER, Util.NO_ORDER);
-    }
-
-    /**
-     * Returns a new {@link DirectoryStreamer} based on a given {@link LinkHandling}
-     * that does not skip any entry.
-     */
-    public static DirectoryStreamer streamer(final LinkHandling linkHandling) {
-        return streamer(lister(linkHandling));
-    }
-
-    /**
-     * Returns a new {@link DirectoryStreamer} based on a given {@link DirectoryLister}
-     * that does not skip any entry.
-     */
-    public static DirectoryStreamer streamer(final DirectoryLister lister) {
-        return new DirectoryStreamer(lister, null);
-    }
-
     private BasicFileAttributes newAttributes(final LinkHandling handling) {
         final BasicFileAttributes original = basicAttributes(path, ORIGINAL);
         if (original.isSymbolicLink()) {

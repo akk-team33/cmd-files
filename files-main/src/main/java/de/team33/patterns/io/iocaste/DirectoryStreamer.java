@@ -29,6 +29,11 @@ public final class DirectoryStreamer {
         }
     };
 
+    @SuppressWarnings("unchecked")
+    public static final DirectoryStreamer DEFAULT = new DirectoryStreamer(DirectoryLister.DEFAULT, NEVER);
+    @SuppressWarnings("unchecked")
+    public static final DirectoryStreamer RESOLVING = new DirectoryStreamer(DirectoryLister.RESOLVING, NEVER);
+
     private final DirectoryLister lister;
     private final Predicate<FileEntry> skipCondition;
 
@@ -38,6 +43,11 @@ public final class DirectoryStreamer {
         this.skipCondition = (null == skipCondition) ? NEVER : skipCondition;
     }
 
+    @SuppressWarnings("unchecked")
+    public static DirectoryStreamer basedOn(final DirectoryLister lister) {
+        return new DirectoryStreamer(lister, NEVER);
+    }
+
     private FileEntry entryOf(final Path path) {
         return FileEntry.of(path, lister.linkHandling());
     }
@@ -45,21 +55,17 @@ public final class DirectoryStreamer {
     /**
      * Returns an instance that corresponds to <em>this</em> {@link DirectoryStreamer} but resolves symbolic links.
      * Returns <em>this</em> {@link DirectoryStreamer} if it already resolves symbolic links.
-     *
-     * @see FileEntry#streamer(LinkHandling)
      */
     public final DirectoryStreamer resolved() {
-        return (RESOLVE == lister.linkHandling()) ? this : new DirectoryStreamer(lister.resolved(), skipCondition);
+        return (RESOLVE == lister.linkHandling()) ? this : new DirectoryStreamer(lister.linkHandling(RESOLVE), skipCondition);
     }
 
     /**
      * Returns an instance that corresponds to <em>this</em> {@link DirectoryStreamer} but handles original symbolic links.
      * Returns <em>this</em> {@link DirectoryStreamer} if it already handles original symbolic links.
-     *
-     * @see FileEntry#streamer(LinkHandling)
      */
     public final DirectoryStreamer original() {
-        return (ORIGINAL == lister.linkHandling()) ? this : new DirectoryStreamer(lister.original(), skipCondition);
+        return (ORIGINAL == lister.linkHandling()) ? this : new DirectoryStreamer(lister.linkHandling(ORIGINAL), skipCondition);
     }
 
     /**

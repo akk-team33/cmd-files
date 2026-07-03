@@ -4,8 +4,8 @@ import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.testing.Buffer;
 import de.team33.cmd.files.testing.ModifyingTestBase;
 import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.iocaste.DirectoryStreamer;
 import de.team33.patterns.io.iocaste.FileEntry;
-import de.team33.patterns.io.iocaste.LinkHandling;
 import de.team33.testing.io.hydra.FileInfo;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +47,7 @@ class RegistrarTest extends ModifyingTestBase {
         Registrar.job(MUTE, List.of("files", "register", rightPath().toString(), registryPath.toString(), "8"))
                  .run();
 
-        FileEntry.streamer(LinkHandling.ORIGINAL)
+        DirectoryStreamer.DEFAULT
                  .stream(registryPath)
                  .map(FileEntry::path)
                  .forEach(RegistrarTest::setDefiniteTime);

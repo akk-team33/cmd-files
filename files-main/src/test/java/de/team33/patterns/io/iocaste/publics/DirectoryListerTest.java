@@ -73,7 +73,7 @@ class DirectoryListerTest {
         for (final Path path : paths()) {
             final List<FileEntry.Problem> problems = new LinkedList<>();
             final FileEntry entry = FileEntry.of(path, RESOLVE);
-            final DirectoryLister lister = FileEntry.lister(RESOLVE);
+            final DirectoryLister lister = DirectoryLister.RESOLVING;
 
             final List<FileEntry> result = lister.list(path, problems::add);
 
@@ -90,7 +90,7 @@ class DirectoryListerTest {
         // no order ...
         final Set<String> expected = Set.copyOf(unexpected);
 
-        final DirectoryLister lister = FileEntry.lister(RESOLVE).noOrder();
+        final DirectoryLister lister = DirectoryLister.RESOLVING.noOrder();
 
         final List<String> result = lister.list(testPath)
                                           .stream()
@@ -107,7 +107,7 @@ class DirectoryListerTest {
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
-        final DirectoryLister lister = FileEntry.lister(ORIGINAL)
+        final DirectoryLister lister = DirectoryLister.DEFAULT
                                                 .entryOrder(comparing(FileEntry::name).reversed());
 
         final List<String> result = lister.list(entry, problems::add)
@@ -125,7 +125,7 @@ class DirectoryListerTest {
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
-        final DirectoryLister lister = FileEntry.lister(ORIGINAL)
+        final DirectoryLister lister = DirectoryLister.DEFAULT
                                                 .pathOrder(TUtil.PATH_ORDER.reversed());
 
         final List<String> result = lister.list(entry, problems::add)
@@ -143,7 +143,7 @@ class DirectoryListerTest {
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, RESOLVE);
-        final DirectoryLister lister = FileEntry.lister(RESOLVE)
+        final DirectoryLister lister = DirectoryLister.RESOLVING
                                                 .noOrder()
                                                 .entryOrder(comparing(FileEntry::name).reversed());
 

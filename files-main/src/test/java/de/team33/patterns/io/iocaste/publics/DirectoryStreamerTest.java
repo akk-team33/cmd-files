@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
-import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,7 +73,7 @@ class DirectoryStreamerTest {
                                               "directory.link", "link.link", "missing.link", "regular.link",
                                               "special.link");
         final List<FileEntry.Problem> problems = new LinkedList<>();
-        final DirectoryStreamer streamer = FileEntry.streamer(ORIGINAL)
+        final DirectoryStreamer streamer = DirectoryStreamer.DEFAULT
                                                     .skip(entry -> entry.path().endsWith("balancing"))
                                                     .skip(entry -> entry.path().endsWith("cleaning"))
                                                     .skip(entry -> entry.path().endsWith("job"))
@@ -92,7 +91,7 @@ class DirectoryStreamerTest {
     @Test
     final void stream_skip_origin() {
         final List<Path> expected = List.of(testPath.toAbsolutePath().normalize());
-        final DirectoryStreamer streamer = FileEntry.streamer(RESOLVE)
+        final DirectoryStreamer streamer = DirectoryStreamer.RESOLVING
                                                     .skip(FileEntry::isDirectory);
 
         final List<Path> result = streamer.stream(testPath)
@@ -107,7 +106,7 @@ class DirectoryStreamerTest {
         final List<FileEntry.Problem> problems = new LinkedList<>();
         forbidden(testPath, path -> {
             final FileEntry entry = FileEntry.of(path, ORIGINAL);
-            final DirectoryStreamer streamer = FileEntry.streamer(ORIGINAL);
+            final DirectoryStreamer streamer = DirectoryStreamer.DEFAULT;
 
             final List<FileEntry> result = streamer.stream(entry, problems::add)
                                                    .toList();

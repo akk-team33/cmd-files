@@ -74,6 +74,7 @@ final class Util {
     private static final Comparator<String> RESPECT_CASE = String::compareTo;
     private static final Comparator<String> STRING_ORDER = IGNORE_CASE.thenComparing(RESPECT_CASE);
     private static final Comparator<Path> NAME_ORDER = Comparator.comparing(Path::toString, STRING_ORDER);
+
     static final Comparator<Path> PATH_ORDER = Comparator.comparing(Path::getFileName, NAME_ORDER);
 
     private Util() {

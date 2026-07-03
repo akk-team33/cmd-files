@@ -2,7 +2,6 @@ package de.team33.cmd.files.balancing;
 
 import de.team33.patterns.io.iocaste.DirectoryStreamer;
 import de.team33.patterns.io.iocaste.FileEntry;
-import de.team33.patterns.io.iocaste.LinkHandling;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.stream.Stream;
 
 public class Relatives {
 
-    private static final DirectoryStreamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
+    private static final DirectoryStreamer STREAMER = DirectoryStreamer.DEFAULT;
 
     private final Function<String, Relative> toRelative;
     private final List<FileEntry> entries;

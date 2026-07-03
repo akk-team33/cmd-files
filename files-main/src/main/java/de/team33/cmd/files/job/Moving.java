@@ -13,7 +13,6 @@ import de.team33.cmd.files.moving.Resolver;
 import de.team33.patterns.io.iocaste.DirectoryLister;
 import de.team33.patterns.io.iocaste.DirectoryStreamer;
 import de.team33.patterns.io.iocaste.FileEntry;
-import de.team33.patterns.io.iocaste.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,8 +34,8 @@ class Moving implements Runnable {
     private static final Set<Option> OPTIONS = EnumSet.of(Option.D, Option.N, Option.X);
     private static final Function<List<String>, Args> ARGS = Args.stage(4, OPTIONS);
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
-    private static final DirectoryLister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
-    private static final DirectoryStreamer STREAMER = FileEntry.streamer(LISTER);
+    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT;
+    private static final DirectoryStreamer STREAMER = DirectoryStreamer.basedOn(LISTER);
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;

@@ -3,7 +3,6 @@ package de.team33.cmd.files.cleaning;
 import de.team33.cmd.files.common.Output;
 import de.team33.patterns.io.iocaste.DirectoryLister;
 import de.team33.patterns.io.iocaste.FileEntry;
-import de.team33.patterns.io.iocaste.LinkHandling;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +11,7 @@ import java.util.List;
 
 public class Cleaner {
 
-    private static final DirectoryLister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT;
 
     private final Output out;
     private final Stats stats;

@@ -21,14 +21,21 @@ import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
  */
 public final class DirectoryLister {
 
-    private static final Choices<DirectoryLister> CHOICES = Choices.parallel(DirectoryLister::isPathOrder, DirectoryLister::isEntryOrder);
+    /**
+     * A public instance of {@link DirectoryLister} that handles symbolic links using {@link LinkHandling#ORIGINAL}
+     * and applies no special path or entry order when listing a directory.
+     */
+    public static final DirectoryLister DEFAULT = new DirectoryLister(ORIGINAL, Util.PATH_ORDER, Util.NO_ORDER);
+    public static final DirectoryLister RESOLVING = DEFAULT.linkHandling(RESOLVE);
+    private static final Choices<DirectoryLister> CHOICES = Choices.parallel(DirectoryLister::isPathOrder,
+                                                                             DirectoryLister::isEntryOrder);
 
     private final LinkHandling linkHandling;
     private final Comparator<? super Path> pathOrder;
     private final Comparator<? super FileEntry> entryOrder;
     private final Lazy<Function<Stream<Path>, Stream<FileEntry>>> mapping;
 
-    DirectoryLister(final LinkHandling linkHandling,
+    private DirectoryLister(final LinkHandling linkHandling,
                     final Comparator<? super Path> pathOrder,
                     final Comparator<? super FileEntry> entryOrder) {
         this.linkHandling = linkHandling;
@@ -71,23 +78,13 @@ public final class DirectoryLister {
     }
 
     /**
-     * Returns an instance that corresponds to <em>this</em> {@link DirectoryLister} but resolves symbolic links.
-     * Returns <em>this</em> {@link DirectoryLister} if it already resolves symbolic links.
-     *
-     * @see FileEntry#lister(LinkHandling)
+     * Returns an instance that corresponds to <em>this</em> {@link DirectoryLister} but handles symbolic links
+     * as specified by the given <em>handling</em>.
+     * Returns <em>this</em> {@link DirectoryLister} if it already handles symbolic links as specified
+     * by the given <em>handling</em>.
      */
-    public final DirectoryLister resolved() {
-        return (RESOLVE == linkHandling) ? this : new DirectoryLister(RESOLVE, pathOrder, entryOrder);
-    }
-
-    /**
-     * Returns an instance that corresponds to <em>this</em> {@link DirectoryLister} but handles original symbolic links.
-     * Returns <em>this</em> {@link DirectoryLister} if it already handles original symbolic links.
-     *
-     * @see FileEntry#lister(LinkHandling)
-     */
-    public final DirectoryLister original() {
-        return (ORIGINAL == linkHandling) ? this : new DirectoryLister(ORIGINAL, pathOrder, entryOrder);
+    public final DirectoryLister linkHandling(final LinkHandling handling) {
+        return (handling == linkHandling) ? this : new DirectoryLister(handling, pathOrder, entryOrder);
     }
 
     /**
