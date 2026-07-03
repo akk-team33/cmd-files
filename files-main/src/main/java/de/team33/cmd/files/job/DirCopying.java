@@ -2,6 +2,7 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
+import de.team33.patterns.io.iocaste.DirectoryLister;
 import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.io.iocaste.LinkHandling;
 
@@ -14,7 +15,7 @@ class DirCopying implements Runnable {
 
     static final String EXCERPT = "Copy the subdirectory structure from one directory to another.";
 
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.RESOLVE);
+    private static final DirectoryLister LISTER = FileEntry.lister(LinkHandling.RESOLVE);
 
     private final Output out;
     private final Path source;

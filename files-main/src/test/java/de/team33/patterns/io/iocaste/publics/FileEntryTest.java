@@ -1,6 +1,7 @@
 package de.team33.patterns.io.iocaste.publics;
 
 import de.team33.patterns.exceptional.dione.XConsumer;
+import de.team33.patterns.io.iocaste.DirectoryLister;
 import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.io.iocaste.TUtil;
 import de.team33.testing.io.hydra.ZipIO;
@@ -275,7 +276,7 @@ class FileEntryTest {
         for (final Path path : paths()) {
             final List<FileEntry.Problem> problems = new LinkedList<>();
             final FileEntry entry = FileEntry.of(path, RESOLVE);
-            final FileEntry.Lister lister = FileEntry.lister(RESOLVE);
+            final DirectoryLister lister = FileEntry.lister(RESOLVE);
 
             final List<FileEntry> result = lister.list(path, problems::add);
 
@@ -292,7 +293,7 @@ class FileEntryTest {
         // no order ...
         final Set<String> expected = Set.copyOf(unexpected);
 
-        final FileEntry.Lister lister = FileEntry.lister(RESOLVE).noOrder();
+        final DirectoryLister lister = FileEntry.lister(RESOLVE).noOrder();
 
         final List<String> result = lister.list(testPath)
                                           .stream()
@@ -309,8 +310,8 @@ class FileEntryTest {
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
-        final FileEntry.Lister lister = FileEntry.lister(ORIGINAL)
-                                                 .entryOrder(comparing(FileEntry::name).reversed());
+        final DirectoryLister lister = FileEntry.lister(ORIGINAL)
+                                                .entryOrder(comparing(FileEntry::name).reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()
@@ -327,8 +328,8 @@ class FileEntryTest {
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
-        final FileEntry.Lister lister = FileEntry.lister(ORIGINAL)
-                                                 .pathOrder(TUtil.PATH_ORDER.reversed());
+        final DirectoryLister lister = FileEntry.lister(ORIGINAL)
+                                                .pathOrder(TUtil.PATH_ORDER.reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()
@@ -345,9 +346,9 @@ class FileEntryTest {
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, RESOLVE);
-        final FileEntry.Lister lister = FileEntry.lister(RESOLVE)
-                                                 .noOrder()
-                                                 .entryOrder(comparing(FileEntry::name).reversed());
+        final DirectoryLister lister = FileEntry.lister(RESOLVE)
+                                                .noOrder()
+                                                .entryOrder(comparing(FileEntry::name).reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()

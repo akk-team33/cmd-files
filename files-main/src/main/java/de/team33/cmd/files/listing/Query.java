@@ -1,6 +1,7 @@
 package de.team33.cmd.files.listing;
 
 import de.team33.cmd.files.matching.NameMatcher;
+import de.team33.patterns.io.iocaste.DirectoryLister;
 import de.team33.patterns.io.iocaste.DirectoryStreamer;
 import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.io.iocaste.LinkHandling;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
 public class Query {
 
     private static final String DEEP_WILDCARD = "**";
-    private static final FileEntry.Lister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
+    private static final DirectoryLister LISTER = FileEntry.lister(LinkHandling.ORIGINAL);
     private static final DirectoryStreamer STREAMER = FileEntry.streamer(LISTER);
 
     private final FileEntry baseEntry;

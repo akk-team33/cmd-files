@@ -29,11 +29,11 @@ public final class DirectoryStreamer {
         }
     };
 
-    private final FileEntry.Lister lister;
+    private final DirectoryLister lister;
     private final Predicate<FileEntry> skipCondition;
 
     @SuppressWarnings("unchecked")
-    DirectoryStreamer(final FileEntry.Lister lister, final Predicate<FileEntry> skipCondition) {
+    DirectoryStreamer(final DirectoryLister lister, final Predicate<FileEntry> skipCondition) {
         this.lister = lister;
         this.skipCondition = (null == skipCondition) ? NEVER : skipCondition;
     }
@@ -78,7 +78,7 @@ public final class DirectoryStreamer {
      * the problem will be logged to a {@link System.Logger}.
      * <p>
      * NOTE: the starting {@link FileEntry} will be created using the {@link LinkHandling} of the associated
-     * {@link FileEntry.Lister}. If this does not meet your requirements, use {@link #stream(FileEntry)} instead.
+     * {@link DirectoryLister}. If this does not meet your requirements, use {@link #stream(FileEntry)} instead.
      *
      * @see #stream(FileEntry)
      * @see #stream(Path, Consumer)
@@ -110,7 +110,7 @@ public final class DirectoryStreamer {
      * a corresponding {@link FileEntry.Problem} will be reported to the given {@link Consumer}.
      * <p>
      * NOTE: the starting {@link FileEntry} will be created using the {@link LinkHandling} of the associated
-     * {@link FileEntry.Lister}. If this does not meet your requirements, use {@link #stream(FileEntry, Consumer)} instead.
+     * {@link DirectoryLister}. If this does not meet your requirements, use {@link #stream(FileEntry, Consumer)} instead.
      *
      * @see #stream(FileEntry, Consumer)
      * @see #stream(Path)
