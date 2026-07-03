@@ -1,6 +1,7 @@
 package de.team33.patterns.io.iocaste.publics;
 
 import de.team33.patterns.exceptional.dione.XConsumer;
+import de.team33.patterns.io.iocaste.DirectoryStreamer;
 import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.io.iocaste.TUtil;
 import de.team33.testing.io.hydra.ZipIO;
@@ -370,12 +371,12 @@ class FileEntryTest {
                                               "directory.link", "link.link", "missing.link", "regular.link",
                                               "special.link");
         final List<FileEntry.Problem> problems = new LinkedList<>();
-        final FileEntry.Streamer streamer = FileEntry.streamer(ORIGINAL)
-                                                     .skip(entry -> entry.path().endsWith("balancing"))
-                                                     .skip(entry -> entry.path().endsWith("cleaning"))
-                                                     .skip(entry -> entry.path().endsWith("job"))
-                                                     .skip(entry -> entry.path().endsWith("moving"))
-                                                     .skip(entry -> entry.path().endsWith("patterns"));
+        final DirectoryStreamer streamer = FileEntry.streamer(ORIGINAL)
+                                                    .skip(entry -> entry.path().endsWith("balancing"))
+                                                    .skip(entry -> entry.path().endsWith("cleaning"))
+                                                    .skip(entry -> entry.path().endsWith("job"))
+                                                    .skip(entry -> entry.path().endsWith("moving"))
+                                                    .skip(entry -> entry.path().endsWith("patterns"));
 
         final List<String> result = streamer.stream(testPath, problems::add)
                                             .map(FileEntry::name)
@@ -388,8 +389,8 @@ class FileEntryTest {
     @Test
     final void stream_skip_origin() {
         final List<Path> expected = List.of(testPath.toAbsolutePath().normalize());
-        final FileEntry.Streamer streamer = FileEntry.streamer(RESOLVE)
-                                                     .skip(FileEntry::isDirectory);
+        final DirectoryStreamer streamer = FileEntry.streamer(RESOLVE)
+                                                    .skip(FileEntry::isDirectory);
 
         final List<Path> result = streamer.stream(testPath)
                                           .map(FileEntry::path)
@@ -403,7 +404,7 @@ class FileEntryTest {
         final List<FileEntry.Problem> problems = new LinkedList<>();
         forbidden(testPath, path -> {
             final FileEntry entry = FileEntry.of(path, ORIGINAL);
-            final FileEntry.Streamer streamer = FileEntry.streamer(ORIGINAL);
+            final DirectoryStreamer streamer = FileEntry.streamer(ORIGINAL);
 
             final List<FileEntry> result = streamer.stream(entry, problems::add)
                                                    .toList();

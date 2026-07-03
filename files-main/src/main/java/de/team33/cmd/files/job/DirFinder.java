@@ -4,6 +4,7 @@ import de.team33.cmd.files.common.Counter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
+import de.team33.patterns.io.iocaste.DirectoryStreamer;
 import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.patterns.io.iocaste.LinkHandling;
 
@@ -20,7 +21,7 @@ import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
 class DirFinder implements Runnable {
 
     static final String EXCERPT = "Find directories containing files that match a pattern.";
-    private static final FileEntry.Streamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
+    private static final DirectoryStreamer STREAMER = FileEntry.streamer(LinkHandling.ORIGINAL);
 
     private final Output out;
     private final NameMatcher nameMatcher;
