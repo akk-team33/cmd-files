@@ -1,7 +1,6 @@
 package de.team33.patterns.io.iocaste;
 
 import de.team33.patterns.decision.thyone.Choices;
-import de.team33.patterns.enums.pan.Values;
 import de.team33.patterns.lazy.narvi.Lazy;
 
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -19,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static de.team33.patterns.io.iocaste.LinkAttributes.effective;
 import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
 import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
 import static java.lang.System.Logger.Level.DEBUG;
@@ -41,15 +40,15 @@ public class FileEntry {
 
     private final Path path;
     private final Lazy<BasicFileAttributes> lazyAttributes;
-    private final Lazy<Type> lazyType;
+    private final Lazy<FileType> lazyType;
 
     private FileEntry(final Path path, final Normality normality, final LinkHandling linkHandling) {
         this.path = normality.apply(path);
         this.lazyAttributes = Lazy.init(() -> newAttributes(linkHandling));
-        this.lazyType = Lazy.init(() -> Type.of(this));
+        this.lazyType = Lazy.init(() -> FileType.of(attributes()));
     }
 
-    private static BasicFileAttributes newAttributes(final Path path, final LinkHandling handling) {
+    private static BasicFileAttributes basicAttributes(final Path path, final LinkHandling handling) {
         try {
             return Files.readAttributes(path, BasicFileAttributes.class, handling.options());
         } catch (final IOException ignored) {
@@ -112,12 +111,8 @@ public class FileEntry {
         return new Streamer(lister, null);
     }
 
-    private static BasicFileAttributes effective(final BasicFileAttributes attributes) {
-        return (attributes instanceof LinkAttributes linkAttributes) ? linkAttributes.backing() : attributes;
-    }
-
     private BasicFileAttributes newAttributes(final LinkHandling handling) {
-        final BasicFileAttributes original = newAttributes(path, ORIGINAL);
+        final BasicFileAttributes original = basicAttributes(path, ORIGINAL);
         if (original.isSymbolicLink()) {
             return newLinkAttributes(handling, original);
         } else {
@@ -129,7 +124,7 @@ public class FileEntry {
         if (ORIGINAL == handling) {
             return new LinkAttributes(ORIGINAL, original);
         } else {
-            return new LinkAttributes(handling, newAttributes(path, handling));
+            return new LinkAttributes(handling, basicAttributes(path, handling));
         }
     }
 
@@ -167,9 +162,9 @@ public class FileEntry {
     }
 
     /**
-     * Returns the {@link Type} of <em>this</em> {@link FileEntry}.
+     * Returns the {@link FileType} of <em>this</em> {@link FileEntry}.
      */
-    public final Type type() {
+    public final FileType type() {
         return lazyType.get();
     }
 
@@ -294,75 +289,9 @@ public class FileEntry {
         return attributes().size();
     }
 
-//    private final Lazy<List<FileEntry>> lazyList = Lazy.init(this::newList);
-//
-//    private List<FileEntry> newList() {
-//        if (isDirectory()) {
-//            try (final Stream<Path> paths = Files.list(path())) {
-//                return paths.map(path -> ofDefinite(path, )).toList();
-//            } catch (final IOException caught) {
-//                onProblem.accept(new Problem(entry, caught));
-//            }
-//        }
-//        return List.of();
-//    }
-//
-//    public final List<FileEntry> list() {
-//        return lazyList.get();
-//    }
-
     @Override
     public final String toString() {
         return path.toString();
-    }
-
-    /**
-     * Symbolizes possible types of a file represented by a {@link FileEntry}.
-     */
-    public enum Type {
-
-        /**
-         * Symbolizes a regular file
-         * (maybe a resolved symbolic link if it is not {@linkplain FileEntry#isOriginal() original}).
-         */
-        REGULAR_FILE(FileEntry::isRegularFile),
-
-        /**
-         * Symbolizes a directory
-         * (maybe a resolved symbolic link if it is not {@linkplain FileEntry#isOriginal() original}).
-         */
-        DIRECTORY(FileEntry::isDirectory),
-
-        /**
-         * Symbolizes a special file (typically, a <em>device</em>)
-         * (maybe a resolved symbolic link if it is not {@linkplain FileEntry#isOriginal() original}).
-         */
-        SPECIAL_FILE(FileEntry::isSpecialFile),
-
-        /**
-         * Symbolizes a symbolic link (if it is not {@linkplain FileEntry#isResolved() resolved}).
-         */
-        SYMBOLIC_LINK(Util.and(FileEntry::isOriginal, FileEntry::isSymbolicLink)),
-
-        /**
-         * Symbolizes a missing file
-         * (maybe a resolved symbolic link if it is not {@linkplain FileEntry#isOriginal() original}).
-         */
-        MISSING(FileEntry::isMissing);
-
-        private static final Values<Type> VALUES = Values.of(Type.class);
-        private static final String UNKNOWN_TYPE = "Unknown type: <%s>";
-
-        private final Predicate<FileEntry> predicate;
-
-        Type(final Predicate<FileEntry> predicate) {
-            this.predicate = predicate;
-        }
-
-        private static Type of(final FileEntry entry) {
-            return VALUES.findFirst(type -> type.predicate.test(entry))
-                         .orElseThrow(() -> new NoSuchElementException(UNKNOWN_TYPE.formatted(entry)));
-        }
     }
 
     public record Problem(FileEntry node, IOException cause) {

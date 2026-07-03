@@ -7,6 +7,7 @@ import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.matching.TypeFilter;
 import de.team33.cmd.files.sorting.Order;
 import de.team33.patterns.io.iocaste.FileEntry;
+import de.team33.patterns.io.iocaste.FileType;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -96,7 +97,7 @@ class Lister implements Runnable {
         private final Counter totalCounter = new Counter();
         private final Counter totalDirCounter = new Counter();
         private final Counter foundCounter = new Counter();
-        private final Map<FileEntry.Type, Counter> foundTypeCounters = new TreeMap<>();
+        private final Map<FileType, Counter> foundTypeCounters = new TreeMap<>();
 
         private Stats(final Depth depth) {
             this.depth = depth;
@@ -122,8 +123,8 @@ class Lister implements Runnable {
                        "%2$,12d entries examined.%n%n" +
                        "%3$,12d entries found%n",
                        totalDirCounter.value(), totalCounter.value(), foundCounter.value());
-            for (final Map.Entry<FileEntry.Type, Counter> entry : foundTypeCounters.entrySet()) {
-                FileEntry.Type fileType = entry.getKey();
+            for (final Map.Entry<FileType, Counter> entry : foundTypeCounters.entrySet()) {
+                FileType fileType = entry.getKey();
                 Counter counter = entry.getValue();
                 out.printf("    %,12d of type %s%n", counter.value(), fileType);
             }

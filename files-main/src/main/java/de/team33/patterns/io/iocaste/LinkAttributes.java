@@ -5,6 +5,10 @@ import java.nio.file.attribute.FileTime;
 
 record LinkAttributes(LinkHandling handling, BasicFileAttributes backing) implements BasicFileAttributes {
 
+    static BasicFileAttributes effective(final BasicFileAttributes attributes) {
+        return (attributes instanceof LinkAttributes linkAttributes) ? linkAttributes.backing() : attributes;
+    }
+
     @Override
     public final FileTime lastModifiedTime() {
         return backing.lastModifiedTime();

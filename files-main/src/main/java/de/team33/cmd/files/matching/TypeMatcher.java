@@ -3,6 +3,7 @@ package de.team33.cmd.files.matching;
 import de.team33.patterns.enums.pan.Values;
 import de.team33.patterns.io.deimos.TextIO;
 import de.team33.patterns.io.iocaste.FileEntry;
+import de.team33.patterns.io.iocaste.FileType;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -15,9 +16,9 @@ import static java.util.function.Predicate.not;
 public class TypeMatcher {
 
     private final Set<String> extensions;
-    private final Set<FileEntry.Type> fileTypes;
+    private final Set<FileType> fileTypes;
 
-    private TypeMatcher(final Set<String> extensions, final Set<FileEntry.Type> fileTypes) {
+    private TypeMatcher(final Set<String> extensions, final Set<FileType> fileTypes) {
         this.extensions = extensions;
         this.fileTypes = fileTypes;
     }
@@ -47,7 +48,7 @@ public class TypeMatcher {
     private static final Pattern EXT_PATTERN = Pattern.compile(Pattern.quote(","));
 
     private static TypeMatcher parseEx(final String fileTypes, final String extensions) throws InternalException {
-        final Set<FileEntry.Type> types = TypeToken.parse(fileTypes);
+        final Set<FileType> types = TypeToken.parse(fileTypes);
         final Set<String> extensionSet = EXT_PATTERN.splitAsStream(extensions)
                                                     .filter(not(String::isBlank))
                                                     .map(String::toLowerCase)
@@ -55,30 +56,30 @@ public class TypeMatcher {
         return new TypeMatcher(extensionSet, types);
     }
 
-    private static Set<FileEntry.Type> parseTypes(final String fileTypes) {
+    private static Set<FileType> parseTypes(final String fileTypes) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
     private enum TypeToken {
-        A(FileEntry.Type.values()),
-        D(FileEntry.Type.DIRECTORY),
-        F(FileEntry.Type.REGULAR_FILE),
-        L(FileEntry.Type.SYMBOLIC_LINK),
-        S(FileEntry.Type.SPECIAL_FILE);
+        A(FileType.values()),
+        D(FileType.DIRECTORY),
+        F(FileType.REGULAR_FILE),
+        L(FileType.SYMBOLIC_LINK),
+        S(FileType.SPECIAL_FILE);
 
         private static final Values<TypeToken> VALUES = Values.of(TypeToken.class);
 
-        private final Set<FileEntry.Type> types;
+        private final Set<FileType> types;
 
-        TypeToken(final FileEntry.Type... type) {
+        TypeToken(final FileType... type) {
             types = EnumSet.copyOf(List.of(type));
         }
 
-        static Set<FileEntry.Type> parse(final String tokens) throws InternalException {
+        static Set<FileType> parse(final String tokens) throws InternalException {
             if (tokens.isEmpty()) {
                 throw new InternalException("No file type(s) specified");
             }
-            final Set<FileEntry.Type> result = EnumSet.noneOf(FileEntry.Type.class);
+            final Set<FileType> result = EnumSet.noneOf(FileType.class);
             for (int index = 0; index < tokens.length(); ++index) {
                 final String single = tokens.substring(index, index + 1);
                 final TypeToken token = VALUES.findAny(value -> value.name().equalsIgnoreCase(single))

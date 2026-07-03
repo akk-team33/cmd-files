@@ -64,6 +64,11 @@ final class Util {
         public Object fileKey() {
             throw new UnsupportedOperationException("File is missing - file key not available!");
         }
+
+        @Override
+        public String toString() {
+            return "MISSING_FILE_ATTRIBUTES";
+        }
     };
     private static final Comparator<String> IGNORE_CASE = String::compareToIgnoreCase;
     private static final Comparator<String> RESPECT_CASE = String::compareTo;
