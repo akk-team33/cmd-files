@@ -1,8 +1,8 @@
 package de.team33.cmd.files.listing;
 
-import de.team33.patterns.io.iocaste.DirectoryLister;
-import de.team33.patterns.io.iocaste.DirectoryStreamer;
-import de.team33.patterns.io.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.DirectoryLister;
+import de.team33.patterns.directories.iocaste.DirectoryStreamer;
+import de.team33.patterns.directories.iocaste.FileEntry;
 
 import java.util.function.Function;
 import java.util.stream.Stream;

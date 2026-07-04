@@ -6,8 +6,8 @@ import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.matching.TypeFilter;
 import de.team33.cmd.files.sorting.Order;
-import de.team33.patterns.io.iocaste.FileEntry;
-import de.team33.patterns.io.iocaste.FileType;
+import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.FileType;
 
 import java.nio.file.Path;
 import java.util.*;

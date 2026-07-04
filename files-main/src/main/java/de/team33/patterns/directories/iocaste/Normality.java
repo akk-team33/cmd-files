@@ -1,4 +1,4 @@
-package de.team33.patterns.io.iocaste;
+package de.team33.patterns.directories.iocaste;
 
 import java.nio.file.Path;
 import java.util.function.Function;

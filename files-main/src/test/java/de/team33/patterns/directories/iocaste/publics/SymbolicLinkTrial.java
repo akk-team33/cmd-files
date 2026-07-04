@@ -1,6 +1,6 @@
-package de.team33.patterns.io.iocaste.publics;
+package de.team33.patterns.directories.iocaste.publics;
 
-import de.team33.patterns.io.iocaste.TUtil;
+import de.team33.patterns.directories.iocaste.TUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

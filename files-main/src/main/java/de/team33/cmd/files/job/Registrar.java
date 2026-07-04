@@ -9,11 +9,11 @@ import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
+import de.team33.patterns.directories.iocaste.DirectoryLister;
+import de.team33.patterns.directories.iocaste.DirectoryStreamer;
+import de.team33.patterns.directories.iocaste.FileEntry;
 import de.team33.patterns.hashing.pandia.Algorithm;
 import de.team33.patterns.hashing.pandia.Hash;
-import de.team33.patterns.io.iocaste.DirectoryLister;
-import de.team33.patterns.io.iocaste.DirectoryStreamer;
-import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.tools.io.Hashing;
 import de.team33.tools.io.Registry;
 

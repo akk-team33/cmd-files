@@ -1,9 +1,9 @@
 package de.team33.cmd.files.matching;
 
+import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.FileType;
 import de.team33.patterns.enums.pan.Values;
 import de.team33.patterns.io.deimos.TextIO;
-import de.team33.patterns.io.iocaste.FileEntry;
-import de.team33.patterns.io.iocaste.FileType;
 
 import java.util.EnumSet;
 import java.util.List;

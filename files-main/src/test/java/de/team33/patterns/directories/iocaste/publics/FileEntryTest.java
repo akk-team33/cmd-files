@@ -1,8 +1,8 @@
-package de.team33.patterns.io.iocaste.publics;
+package de.team33.patterns.directories.iocaste.publics;
 
+import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.TUtil;
 import de.team33.patterns.exceptional.dione.XConsumer;
-import de.team33.patterns.io.iocaste.FileEntry;
-import de.team33.patterns.io.iocaste.TUtil;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +19,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
-import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
+import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
+import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileEntryTest {

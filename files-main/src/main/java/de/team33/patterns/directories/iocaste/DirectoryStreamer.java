@@ -1,4 +1,4 @@
-package de.team33.patterns.io.iocaste;
+package de.team33.patterns.directories.iocaste;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
-import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
+import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
+import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
 
 /**
  * A tool that serves to stream the recursive contents of any directory represented by a

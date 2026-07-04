@@ -1,4 +1,4 @@
-package de.team33.patterns.io.iocaste;
+package de.team33.patterns.directories.iocaste;
 
 import de.team33.patterns.lazy.narvi.Lazy;
 
@@ -9,9 +9,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Optional;
 
-import static de.team33.patterns.io.iocaste.LinkAttributes.effective;
-import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
-import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
+import static de.team33.patterns.directories.iocaste.LinkAttributes.effective;
+import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
+import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.WARNING;
 

@@ -1,8 +1,8 @@
-package de.team33.patterns.io.iocaste.publics;
+package de.team33.patterns.directories.iocaste.publics;
 
+import de.team33.patterns.directories.iocaste.DirectoryStreamer;
+import de.team33.patterns.directories.iocaste.FileEntry;
 import de.team33.patterns.exceptional.dione.XConsumer;
-import de.team33.patterns.io.iocaste.DirectoryStreamer;
-import de.team33.patterns.io.iocaste.FileEntry;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
+import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

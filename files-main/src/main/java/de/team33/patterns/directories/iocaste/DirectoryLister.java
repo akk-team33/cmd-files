@@ -1,4 +1,4 @@
-package de.team33.patterns.io.iocaste;
+package de.team33.patterns.directories.iocaste;
 
 import de.team33.patterns.decision.thyone.Choices;
 import de.team33.patterns.lazy.narvi.Lazy;
@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static de.team33.patterns.io.iocaste.LinkHandling.ORIGINAL;
-import static de.team33.patterns.io.iocaste.LinkHandling.RESOLVE;
+import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
+import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
 
 /**
  * A tool that serves to list the immediate contents of any file represented by a
@@ -26,7 +26,13 @@ public final class DirectoryLister {
      * and applies no special path or entry order when listing a directory.
      */
     public static final DirectoryLister DEFAULT = new DirectoryLister(ORIGINAL, Util.PATH_ORDER, Util.NO_ORDER);
+
+    /**
+     * A public instance of {@link DirectoryLister} that handles symbolic links using {@link LinkHandling#RESOLVE}
+     * and applies no special path or entry order when listing a directory.
+     */
     public static final DirectoryLister RESOLVING = DEFAULT.linkHandling(RESOLVE);
+
     private static final Choices<DirectoryLister> CHOICES = Choices.parallel(DirectoryLister::isPathOrder,
                                                                              DirectoryLister::isEntryOrder);
 
