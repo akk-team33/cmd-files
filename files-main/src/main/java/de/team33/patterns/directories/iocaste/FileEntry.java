@@ -12,8 +12,6 @@ import java.util.Optional;
 import static de.team33.patterns.directories.iocaste.LinkAttributes.effective;
 import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
 import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
-import static java.lang.System.Logger.Level.DEBUG;
-import static java.lang.System.Logger.Level.WARNING;
 
 /**
  * Represents an entry from an imaginary file index.
@@ -260,23 +258,6 @@ public class FileEntry {
     @Override
     public final String toString() {
         return path.toString();
-    }
-
-    public record Problem(FileEntry entry, IOException cause) {
-
-        private static final System.Logger LOGGER = System.getLogger(Problem.class.getCanonicalName());
-        private static final String MESSAGE = "Cannot access file entry ...%n" +
-                                              "    path:      <%s>%n" +
-                                              "    exception: <%s>%n" +
-                                              "    message:   '%s'%n";
-
-        final void log() {
-            final Lazy<String> lazyMessage = Lazy.init(() -> MESSAGE.formatted(entry.path(),
-                                                                               cause.getClass().getCanonicalName(),
-                                                                               cause.getMessage()));
-            LOGGER.log(WARNING, lazyMessage);
-            LOGGER.log(DEBUG, lazyMessage, cause());
-        }
     }
 
 }

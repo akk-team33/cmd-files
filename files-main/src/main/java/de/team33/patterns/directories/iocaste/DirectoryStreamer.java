@@ -89,7 +89,7 @@ public final class DirectoryStreamer {
      * @see #stream(FileEntry, Consumer)
      */
     public final Stream<FileEntry> stream(final FileEntry entry) {
-        return stream(entry, FileEntry.Problem::log);
+        return stream(entry, Problem::log);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class DirectoryStreamer {
      * followed by its recursive contents.
      * <p>
      * If an involved file refuses access to its contents and thus throws an {@link IOException},
-     * a corresponding {@link FileEntry.Problem} will be reported to the given {@link Consumer}.
+     * a corresponding {@link Problem} will be reported to the given {@link Consumer}.
      * <p>
      * NOTE: the starting {@link FileEntry} will be created using the {@link LinkHandling} of the associated
      * {@link DirectoryLister}. If this does not meet your requirements, use {@link #stream(FileEntry, Consumer)} instead.
@@ -106,7 +106,7 @@ public final class DirectoryStreamer {
      * @see #stream(Path)
      * @see #stream(FileEntry)
      */
-    public final Stream<FileEntry> stream(final Path path, final Consumer<? super FileEntry.Problem> onProblem) {
+    public final Stream<FileEntry> stream(final Path path, final Consumer<? super Problem> onProblem) {
         return stream(entryOf(path), onProblem);
     }
 
@@ -114,21 +114,21 @@ public final class DirectoryStreamer {
      * Returns a {@link Stream} starting with the given <em>entry</em> followed by its recursive contents.
      * <p>
      * If an involved <em>entry</em> refuses access to its contents and thus throws an exception,
-     * a corresponding {@link FileEntry.Problem} will be reported to the given {@link Consumer}.
+     * a corresponding {@link Problem} will be reported to the given {@link Consumer}.
      *
      * @see #stream(Path, Consumer)
      * @see #stream(FileEntry)
      * @see #stream(Path)
      */
-    public final Stream<FileEntry> stream(final FileEntry entry, final Consumer<? super FileEntry.Problem> onProblem) {
+    public final Stream<FileEntry> stream(final FileEntry entry, final Consumer<? super Problem> onProblem) {
         return new Actor(onProblem).stream(entry);
     }
 
     private class Actor {
 
-        private final Consumer<? super FileEntry.Problem> onProblem;
+        private final Consumer<? super Problem> onProblem;
 
-        private Actor(final Consumer<? super FileEntry.Problem> onProblem) {
+        private Actor(final Consumer<? super Problem> onProblem) {
             this.onProblem = onProblem;
         }
 

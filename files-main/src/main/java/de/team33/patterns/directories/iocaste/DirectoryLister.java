@@ -196,7 +196,7 @@ public final class DirectoryLister {
      * @see #list(FileEntry, Consumer)
      */
     public final List<FileEntry> list(final FileEntry entry) {
-        return list(entry, FileEntry.Problem::log);
+        return list(entry, Problem::log);
     }
 
     /**
@@ -206,7 +206,7 @@ public final class DirectoryLister {
      * and thus cannot have any directory contents.
      * <p>
      * Also returns an empty {@link List} if the given <em>path</em> refuses access to its contents
-     * and thus throws an exception. In that case, a corresponding {@link FileEntry.Problem} will be reported
+     * and thus throws an exception. In that case, a corresponding {@link Problem} will be reported
      * to the given {@link Consumer}.
      * <p>
      * NOTE: an original {@link FileEntry} will be created from the given <em>path</em> using the associated
@@ -217,7 +217,7 @@ public final class DirectoryLister {
      * @see #list(Path)
      * @see #list(FileEntry)
      */
-    public final List<FileEntry> list(final Path path, final Consumer<? super FileEntry.Problem> onProblem) {
+    public final List<FileEntry> list(final Path path, final Consumer<? super Problem> onProblem) {
         return list(entryOf(path), onProblem);
     }
 
@@ -228,19 +228,19 @@ public final class DirectoryLister {
      * and thus cannot have any directory contents.
      * <p>
      * Also returns an empty {@link List} if the given <em>entry</em> refuses access to its contents
-     * and throws an exception. In that case, a corresponding {@link FileEntry.Problem} will be reported
+     * and throws an exception. In that case, a corresponding {@link Problem} will be reported
      * to the given {@link Consumer}.
      *
      * @see #list(Path, Consumer)
      * @see #list(FileEntry)
      * @see #list(Path)
      */
-    public final List<FileEntry> list(final FileEntry entry, final Consumer<? super FileEntry.Problem> onProblem) {
+    public final List<FileEntry> list(final FileEntry entry, final Consumer<? super Problem> onProblem) {
         if (entry.isDirectory()) {
             try (final Stream<Path> paths = Files.list(entry.path())) {
                 return lazyStreaming.get().apply(paths).toList();
             } catch (final IOException caught) {
-                onProblem.accept(new FileEntry.Problem(entry, caught));
+                onProblem.accept(new Problem(entry, caught));
             }
         }
         return List.of();

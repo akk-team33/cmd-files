@@ -2,6 +2,7 @@ package de.team33.patterns.directories.iocaste.publics;
 
 import de.team33.patterns.directories.iocaste.DirectoryLister;
 import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.Problem;
 import de.team33.patterns.directories.iocaste.TUtil;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ class DirectoryListerTest {
     @Test
     final void list() {
         for (final Path path : paths()) {
-            final List<FileEntry.Problem> problems = new LinkedList<>();
+            final List<Problem> problems = new LinkedList<>();
             final FileEntry entry = FileEntry.of(path, RESOLVE);
             final DirectoryLister lister = DirectoryLister.RESOLVING;
 
@@ -129,7 +130,7 @@ class DirectoryListerTest {
     final void list_maxOrder() {
         final List<String> expected = List.of(
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
+        final List<Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
         final DirectoryLister lister = DirectoryLister.DEFAULT
                 .entryOrder(comparing(FileEntry::name).reversed());
@@ -147,7 +148,7 @@ class DirectoryListerTest {
     final void list_pathOrder() {
         final List<String> expected = List.of(
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
+        final List<Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
         final DirectoryLister lister = DirectoryLister.DEFAULT
                 .pathOrder(TUtil.PATH_ORDER.reversed());
@@ -165,7 +166,7 @@ class DirectoryListerTest {
     final void list_entryOrder() {
         final List<String> expected = List.of(
                 "special.link", "regular.link", "missing.link", "link.link", "directory.link", "de");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
+        final List<Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, RESOLVE);
         final DirectoryLister lister = DirectoryLister.RESOLVING
                 .noOrder()

@@ -1,9 +1,6 @@
 package de.team33.patterns.directories.iocaste.publics;
 
-import de.team33.patterns.directories.iocaste.DirectoryLister;
-import de.team33.patterns.directories.iocaste.DirectoryStreamer;
-import de.team33.patterns.directories.iocaste.FileEntry;
-import de.team33.patterns.directories.iocaste.PathOrder;
+import de.team33.patterns.directories.iocaste.*;
 import de.team33.patterns.exceptional.dione.XConsumer;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.Test;
@@ -75,7 +72,7 @@ class DirectoryStreamerTest {
                                               "LazyHashing.java", "LazyTiming.java", "StrictHashing.java",
                                               "directory.link", "link.link", "missing.link", "regular.link",
                                               "special.link");
-        final List<FileEntry.Problem> problems = new LinkedList<>();
+        final List<Problem> problems = new LinkedList<>();
         final DirectoryStreamer streamer = DirectoryStreamer.basedOn(LISTER)
                                                     .skip(entry -> entry.path().endsWith("balancing"))
                                                     .skip(entry -> entry.path().endsWith("cleaning"))
@@ -106,7 +103,7 @@ class DirectoryStreamerTest {
 
     @Test
     final void stream_forbidden() throws IOException {
-        final List<FileEntry.Problem> problems = new LinkedList<>();
+        final List<Problem> problems = new LinkedList<>();
         forbidden(testPath, path -> {
             final FileEntry entry = FileEntry.of(path, ORIGINAL);
             final DirectoryStreamer streamer = DirectoryStreamer.DEFAULT;
