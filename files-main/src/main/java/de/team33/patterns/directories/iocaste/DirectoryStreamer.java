@@ -5,11 +5,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static de.team33.patterns.directories.iocaste.Filter.reject;
-import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
-import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
 
 /**
  * A tool that serves to stream the recursive contents of any directory
@@ -36,20 +35,8 @@ public final class DirectoryStreamer {
         return FileEntry.of(path, lister.linkHandling());
     }
 
-    /**
-     * Returns an instance that corresponds to <em>this</em> {@link DirectoryStreamer} but resolves symbolic links.
-     * Returns <em>this</em> {@link DirectoryStreamer} if it already resolves symbolic links.
-     */
-    public final DirectoryStreamer resolved() {
-        return (RESOLVE == lister.linkHandling()) ? this : new DirectoryStreamer(lister.linkHandling(RESOLVE), skipCondition);
-    }
-
-    /**
-     * Returns an instance that corresponds to <em>this</em> {@link DirectoryStreamer} but handles original symbolic links.
-     * Returns <em>this</em> {@link DirectoryStreamer} if it already handles original symbolic links.
-     */
-    public final DirectoryStreamer original() {
-        return (ORIGINAL == lister.linkHandling()) ? this : new DirectoryStreamer(lister.linkHandling(ORIGINAL), skipCondition);
+    public DirectoryStreamer rebased(final UnaryOperator<DirectoryLister> operator) {
+        return new DirectoryStreamer(operator.apply(lister), skipCondition);
     }
 
     /**
