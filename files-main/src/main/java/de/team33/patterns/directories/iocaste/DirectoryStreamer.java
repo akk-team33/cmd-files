@@ -7,45 +7,29 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static de.team33.patterns.directories.iocaste.Filter.reject;
 import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
 import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
 
 /**
- * A tool that serves to stream the recursive contents of any directory represented by a
- * {@link Path} or {@link FileEntry}.
+ * A tool that serves to stream the recursive contents of any directory
+ * represented by a {@link Path} or {@link FileEntry}.
  */
 public final class DirectoryStreamer {
 
-    @SuppressWarnings("rawtypes")
-    private static final Predicate NEVER = new Predicate() {
-        @Override
-        public boolean test(final Object any) {
-            return false;
-        }
-
-        @Override
-        public Predicate or(final Predicate other) {
-            return other;
-        }
-    };
-
-    @SuppressWarnings("unchecked")
-    public static final DirectoryStreamer DEFAULT = new DirectoryStreamer(DirectoryLister.DEFAULT, NEVER);
-    @SuppressWarnings("unchecked")
-    public static final DirectoryStreamer RESOLVING = new DirectoryStreamer(DirectoryLister.RESOLVING, NEVER);
+    public static final DirectoryStreamer DEFAULT = new DirectoryStreamer(DirectoryLister.DEFAULT, reject());
+    public static final DirectoryStreamer RESOLVING = new DirectoryStreamer(DirectoryLister.RESOLVING, reject());
 
     private final DirectoryLister lister;
     private final Predicate<FileEntry> skipCondition;
 
-    @SuppressWarnings("unchecked")
-    DirectoryStreamer(final DirectoryLister lister, final Predicate<FileEntry> skipCondition) {
+    private DirectoryStreamer(final DirectoryLister lister, final Predicate<FileEntry> skipCondition) {
         this.lister = lister;
-        this.skipCondition = (null == skipCondition) ? NEVER : skipCondition;
+        this.skipCondition = skipCondition;
     }
 
-    @SuppressWarnings("unchecked")
     public static DirectoryStreamer basedOn(final DirectoryLister lister) {
-        return new DirectoryStreamer(lister, NEVER);
+        return new DirectoryStreamer(lister, reject());
     }
 
     private FileEntry entryOf(final Path path) {

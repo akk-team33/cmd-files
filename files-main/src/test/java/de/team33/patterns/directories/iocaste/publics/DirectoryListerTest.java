@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
 import static de.team33.patterns.directories.iocaste.LinkHandling.RESOLVE;
@@ -90,15 +91,38 @@ class DirectoryListerTest {
         // no order ...
         final Set<String> expected = Set.copyOf(unexpected);
 
-        final DirectoryLister lister = DirectoryLister.RESOLVING.noOrder();
-
-        final List<String> result = lister.list(testPath)
-                                          .stream()
-                                          .map(FileEntry::name)
-                                          .toList();
+        final List<String> result = DirectoryLister.RESOLVING.list(testPath)
+                                                             .stream()
+                                                             .map(FileEntry::name)
+                                                             .toList();
 
         assertNotEquals(unexpected, result);
         assertEquals(expected, Set.copyOf(result));
+    }
+
+    private Set<String> names(final DirectoryLister lister) {
+        return lister.list(testPath)
+                     .stream()
+                     .map(FileEntry::name)
+                     .collect(Collectors.toSet());
+    }
+
+    @Test
+    final void pathFilter() {
+        assertEquals(Set.of(), names(DirectoryLister.DEFAULT.pathFilter(any -> false)));
+    }
+
+    @Test
+    final void entryFilter() {
+        assertEquals(Set.of(), names(DirectoryLister.DEFAULT.entryFilter(any -> false)));
+    }
+
+    @Test
+    final void noFilter() {
+        final Set<String> expected = names(DirectoryLister.DEFAULT);
+        final DirectoryLister stage = DirectoryLister.DEFAULT.pathFilter(any -> false);
+        final Set<String> result = names(stage.noFilter());
+        assertEquals(expected, result);
     }
 
     @Test
@@ -108,7 +132,7 @@ class DirectoryListerTest {
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
         final DirectoryLister lister = DirectoryLister.DEFAULT
-                                                .entryOrder(comparing(FileEntry::name).reversed());
+                .entryOrder(comparing(FileEntry::name).reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()
@@ -126,7 +150,7 @@ class DirectoryListerTest {
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, ORIGINAL);
         final DirectoryLister lister = DirectoryLister.DEFAULT
-                                                .pathOrder(TUtil.PATH_ORDER.reversed());
+                .pathOrder(TUtil.PATH_ORDER.reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()
@@ -144,8 +168,8 @@ class DirectoryListerTest {
         final List<FileEntry.Problem> problems = new LinkedList<>();
         final FileEntry entry = FileEntry.of(testPath, RESOLVE);
         final DirectoryLister lister = DirectoryLister.RESOLVING
-                                                .noOrder()
-                                                .entryOrder(comparing(FileEntry::name).reversed());
+                .noOrder()
+                .entryOrder(comparing(FileEntry::name).reversed());
 
         final List<String> result = lister.list(entry, problems::add)
                                           .stream()

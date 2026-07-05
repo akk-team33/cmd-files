@@ -14,6 +14,7 @@ final class Util {
     });
     static final LinkOption[] RESOLVE_LINKS = {};
     static final LinkOption[] ORIGINAL_LINKS = {LinkOption.NOFOLLOW_LINKS};
+
     static final BasicFileAttributes MISSING_FILE_ATTRIBUTES = new BasicFileAttributes() {
 
         private FileTime missingTime() {

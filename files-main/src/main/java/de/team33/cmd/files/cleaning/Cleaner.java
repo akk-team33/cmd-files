@@ -3,6 +3,7 @@ package de.team33.cmd.files.cleaning;
 import de.team33.cmd.files.common.Output;
 import de.team33.patterns.directories.iocaste.DirectoryLister;
 import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.PathOrder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Cleaner {
 
-    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT;
+    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT.pathOrder(PathOrder.BY_NAME);
 
     private final Output out;
     private final Stats stats;

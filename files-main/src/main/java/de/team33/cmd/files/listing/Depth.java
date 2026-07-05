@@ -3,6 +3,7 @@ package de.team33.cmd.files.listing;
 import de.team33.patterns.directories.iocaste.DirectoryLister;
 import de.team33.patterns.directories.iocaste.DirectoryStreamer;
 import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.PathOrder;
 
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -23,7 +24,7 @@ public enum Depth {
     }
 
     private static class Constants {
-        private static final DirectoryLister LISTER = DirectoryLister.DEFAULT;
+        private static final DirectoryLister LISTER = DirectoryLister.DEFAULT.pathOrder(PathOrder.BY_NAME);
         private static final DirectoryStreamer STREAMER = DirectoryStreamer.basedOn(LISTER);
     }
 }

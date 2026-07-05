@@ -1,7 +1,9 @@
 package de.team33.patterns.directories.iocaste.publics;
 
+import de.team33.patterns.directories.iocaste.DirectoryLister;
 import de.team33.patterns.directories.iocaste.DirectoryStreamer;
 import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.directories.iocaste.PathOrder;
 import de.team33.patterns.exceptional.dione.XConsumer;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ class DirectoryStreamerTest {
     private static final Path TEST_PATH = Path.of("target", "testing", CLASS_NAME);
     @SuppressWarnings("HardcodedFileSeparator")
     private static final Path DEV_NULL = Paths.get("/dev/null"); // special file
+    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT.pathOrder(PathOrder.BY_NAME);
 
     private final String uuid = UUID.randomUUID().toString();
     private final Path testPath = TEST_PATH.resolve(uuid);
@@ -73,7 +76,7 @@ class DirectoryStreamerTest {
                                               "directory.link", "link.link", "missing.link", "regular.link",
                                               "special.link");
         final List<FileEntry.Problem> problems = new LinkedList<>();
-        final DirectoryStreamer streamer = DirectoryStreamer.DEFAULT
+        final DirectoryStreamer streamer = DirectoryStreamer.basedOn(LISTER)
                                                     .skip(entry -> entry.path().endsWith("balancing"))
                                                     .skip(entry -> entry.path().endsWith("cleaning"))
                                                     .skip(entry -> entry.path().endsWith("job"))
