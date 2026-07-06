@@ -1,8 +1,5 @@
 package de.team33.cmd.files.listing;
 
-import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.directories.iocaste.DirectoryLister;
-import de.team33.patterns.directories.iocaste.DirectoryStreamer;
 import de.team33.patterns.directories.iocaste.FileEntry;
 
 import java.nio.file.Path;
@@ -12,17 +9,15 @@ import java.util.stream.Stream;
 public class Query {
 
     private static final String DEEP_WILDCARD = "**";
-    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT;
-    private static final DirectoryStreamer STREAMER = DirectoryStreamer.basedOn(LISTER);
 
     private final FileEntry baseEntry;
     private final Depth depth;
-    private final String subQueryString;
+    private final NameFilter nameFilter;
 
     private Query(final Path basePath, final Depth depth, final String subQueryString) {
         this.baseEntry = FileEntry.resolved(basePath);
         this.depth = depth;
-        this.subQueryString = subQueryString;
+        this.nameFilter = NameFilter.parse(subQueryString);
     }
 
     public static Query parse(final String queryString) {
@@ -68,8 +63,8 @@ public class Query {
         return depth;
     }
 
-    public final String subQueryString() {
-        return subQueryString;
+    public final NameFilter nameFilter() {
+        return nameFilter;
     }
 
     public Stream<FileEntry> stream() {
@@ -78,7 +73,6 @@ public class Query {
     }
 
     private Predicate<FileEntry> filter() {
-        return NameMatcher.parse(subQueryString)
-                          .toFileEntryFilter();
+        return nameFilter::test;
     }
 }

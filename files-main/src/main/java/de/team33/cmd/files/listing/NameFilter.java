@@ -1,7 +1,9 @@
 package de.team33.cmd.files.listing;
 
 import de.team33.cmd.files.matching.WildcardString;
+import de.team33.patterns.directories.iocaste.FileEntry;
 
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 /**
@@ -40,5 +42,28 @@ public class NameFilter {
 
     public final boolean test(final String name) {
         return pattern.matcher(name).matches();
+    }
+
+    public final boolean test(final Path path) {
+        return test(FileEntry.original(path));
+    }
+
+    public final boolean test(final FileEntry entry) {
+        return test(entry.name());
+    }
+
+    @Override
+    public final boolean equals(final Object obj) {
+        return (this == obj) || ((obj instanceof NameFilter other) && toString().equals(other.toString()));
+    }
+
+    @Override
+    public final int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public final String toString() {
+        return pattern.toString();
     }
 }
