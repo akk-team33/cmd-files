@@ -99,12 +99,7 @@ class Registrar implements Runnable {
     }
 
     private Stream<FileEntry> stream() {
-        return switch (depth) {
-            case FLAT -> LISTER.list(mainEntry)
-                               .stream();
-            case DEEP -> STREAMER.stream(mainEntry)
-                                 .skip(1);
-        };
+        return depth.stream(mainEntry);
     }
 
     @Override

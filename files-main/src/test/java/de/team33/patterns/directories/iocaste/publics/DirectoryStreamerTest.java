@@ -4,6 +4,8 @@ import de.team33.patterns.directories.iocaste.*;
 import de.team33.patterns.exceptional.dione.XConsumer;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -74,11 +76,11 @@ class DirectoryStreamerTest {
                                               "special.link");
         final List<Problem> problems = new LinkedList<>();
         final DirectoryStreamer streamer = DirectoryStreamer.basedOn(LISTER)
-                                                    .skip(entry -> entry.path().endsWith("balancing"))
-                                                    .skip(entry -> entry.path().endsWith("cleaning"))
-                                                    .skip(entry -> entry.path().endsWith("job"))
-                                                    .skip(entry -> entry.path().endsWith("moving"))
-                                                    .skip(entry -> entry.path().endsWith("patterns"));
+                                                            .skip(entry -> entry.path().endsWith("balancing"))
+                                                            .skip(entry -> entry.path().endsWith("cleaning"))
+                                                            .skip(entry -> entry.path().endsWith("job"))
+                                                            .skip(entry -> entry.path().endsWith("moving"))
+                                                            .skip(entry -> entry.path().endsWith("patterns"));
 
         final List<String> result = streamer.stream(testPath, problems::add)
                                             .map(FileEntry::name)
@@ -92,7 +94,7 @@ class DirectoryStreamerTest {
     final void stream_skip_origin() {
         final List<Path> expected = List.of(testPath.toAbsolutePath().normalize());
         final DirectoryStreamer streamer = DirectoryStreamer.RESOLVING
-                                                    .skip(FileEntry::isDirectory);
+                .skip(FileEntry::isDirectory);
 
         final List<Path> result = streamer.stream(testPath)
                                           .map(FileEntry::path)
@@ -115,5 +117,15 @@ class DirectoryStreamerTest {
         });
         assertEquals(1, problems.size());
         assertEquals(testPath.toAbsolutePath().normalize(), problems.get(0).entry().path());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3, 6039})
+    final void start_limit(final int level) {
+        final List<FileEntry> result = DirectoryStreamer.DEFAULT.start(level)
+                                                                .limit(level)
+                                                                .stream(testPath)
+                                                                .toList();
+        assertEquals(List.of(), result);
     }
 }

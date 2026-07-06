@@ -16,19 +16,24 @@ import static de.team33.patterns.directories.iocaste.Filter.reject;
  */
 public final class DirectoryStreamer {
 
-    public static final DirectoryStreamer DEFAULT = new DirectoryStreamer(DirectoryLister.DEFAULT, reject());
-    public static final DirectoryStreamer RESOLVING = new DirectoryStreamer(DirectoryLister.RESOLVING, reject());
+    public static final DirectoryStreamer DEFAULT = basedOn(DirectoryLister.DEFAULT);
+    public static final DirectoryStreamer RESOLVING = basedOn(DirectoryLister.RESOLVING);
 
     private final DirectoryLister lister;
     private final Predicate<FileEntry> skipCondition;
+    private final int startLevel;
+    private final int limitLevel;
 
-    private DirectoryStreamer(final DirectoryLister lister, final Predicate<FileEntry> skipCondition) {
+    private DirectoryStreamer(final DirectoryLister lister, final Predicate<FileEntry> skipCondition,
+                              final int startLevel, final int limitLevel) {
         this.lister = lister;
         this.skipCondition = skipCondition;
+        this.startLevel = startLevel;
+        this.limitLevel = limitLevel;
     }
 
     public static DirectoryStreamer basedOn(final DirectoryLister lister) {
-        return new DirectoryStreamer(lister, reject());
+        return new DirectoryStreamer(lister, reject(), 0, Integer.MAX_VALUE);
     }
 
     private FileEntry entryOf(final Path path) {
@@ -36,7 +41,7 @@ public final class DirectoryStreamer {
     }
 
     public DirectoryStreamer rebased(final UnaryOperator<DirectoryLister> operator) {
-        return new DirectoryStreamer(operator.apply(lister), skipCondition);
+        return new DirectoryStreamer(operator.apply(lister), skipCondition, startLevel, limitLevel);
     }
 
     /**
@@ -44,7 +49,44 @@ public final class DirectoryStreamer {
      * as well as their entire content.
      */
     public final DirectoryStreamer skip(final Predicate<? super FileEntry> condition) {
-        return new DirectoryStreamer(lister, skipCondition.or(condition));
+        return new DirectoryStreamer(lister, skipCondition.or(condition), startLevel, limitLevel);
+    }
+
+    /**
+     * Returns a new {@link DirectoryStreamer} that starts streaming at the given recursion <em>level</em>.
+     * For instance ...
+     * <ul>
+     *     <li>at level 0, a given directory entry is included in a resulting stream.</li>
+     *     <li>at level 1, a resulting stream begins with the sub-elements of a given directory.</li>
+     *     <li>at level 2, a resulting stream begins with the sub-elements of the sub-elements
+     *     of a given directory.</li>
+     *     <li>...</li>
+     * </ul>
+     * <p>
+     * Default is level 0.
+     *
+     * @see #stream(Path)
+     * @see #stream(FileEntry)
+     * @see #stream(Path, Consumer)
+     * @see #stream(FileEntry, Consumer)
+     */
+    public final DirectoryStreamer start(final int level) {
+        return new DirectoryStreamer(lister, skipCondition, level, limitLevel);
+    }
+
+    /**
+     * Returns a new {@link DirectoryStreamer} that limits streaming to the given recursion <em>level</em>.
+     * <p>
+     * More precisely, the given level is the first one not included in a result stream.
+     * <p>
+     * If the limit is less than or equal to the start level, streaming will always result in an empty stream.
+     * <p>
+     * Default limit is {@link Integer#MAX_VALUE} that in fact means <em>no limit</em>.
+     *
+     * @see #start(int)
+     */
+    public final DirectoryStreamer limit(final int level) {
+        return new DirectoryStreamer(lister, skipCondition, startLevel, level);
     }
 
     /**
@@ -108,7 +150,7 @@ public final class DirectoryStreamer {
      * @see #stream(Path)
      */
     public final Stream<FileEntry> stream(final FileEntry entry, final Consumer<? super Problem> onProblem) {
-        return new Actor(onProblem).stream(entry);
+        return new Actor(onProblem).stream(0, entry);
     }
 
     private class Actor {
@@ -119,13 +161,18 @@ public final class DirectoryStreamer {
             this.onProblem = onProblem;
         }
 
-        private Stream<FileEntry> stream(final FileEntry entry) {
-            return skipCondition.test(entry) ? Stream.of(entry)
-                                             : stream(Stream.of(entry), lister.list(entry, onProblem));
+        private Stream<FileEntry> stream(final int level, final FileEntry entry) {
+            if (level < limitLevel) {
+                final Stream<FileEntry> head = (level < startLevel) ? Stream.empty() : Stream.of(entry);
+                return skipCondition.test(entry) ? head : stream(level, head, lister.list(entry, onProblem));
+            } else {
+                return Stream.empty();
+            }
         }
 
-        private Stream<FileEntry> stream(final Stream<FileEntry> head, final List<FileEntry> tail) {
-            return tail.isEmpty() ? head : Stream.concat(head, tail.stream().flatMap(this::stream));
+        private Stream<FileEntry> stream(final int level, final Stream<FileEntry> head, final List<FileEntry> tail) {
+            return tail.isEmpty() ? head : Stream.concat(head, tail.stream()
+                                                                   .flatMap(entry -> stream(level + 1, entry)));
         }
     }
 }
