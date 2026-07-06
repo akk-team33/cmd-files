@@ -120,12 +120,25 @@ class DirectoryStreamerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 2, 3, 6039})
+    @ValueSource(ints = {-10, 0, 1, 2, 3, 6039, Integer.MAX_VALUE})
     final void start_limit(final int level) {
         final List<FileEntry> result = DirectoryStreamer.DEFAULT.start(level)
                                                                 .limit(level)
                                                                 .stream(testPath)
                                                                 .toList();
         assertEquals(List.of(), result);
+    }
+
+    @Test
+    final void start_1_limit_2() {
+        final List<String> expected = List.of("de", "directory.link", "link.link",
+                                              "missing.link", "regular.link", "special.link");
+        final List<String> result = DirectoryStreamer.RESOLVING.start(1)
+                                                               .limit(2)
+                                                               .stream(testPath)
+                                                               .sorted(EntryOrder.BY_NAME)
+                                                               .map(FileEntry::name)
+                                                               .toList();
+        assertEquals(expected, result);
     }
 }
