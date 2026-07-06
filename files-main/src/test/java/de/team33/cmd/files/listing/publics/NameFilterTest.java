@@ -2,20 +2,20 @@ package de.team33.cmd.files.listing.publics;
 
 import de.team33.cmd.files.listing.NameFilter;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static java.util.function.Predicate.not;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NameFilterTest {
 
-    private static final List<List<String>> PARSE_CASES =
+    private static final List<List<String>> CASES =
             List.of(List.of("", "(?!\\.)", ""),
                     List.of(":", "", ""),
                     List.of(".", "\\Q.\\E", "\\."),
@@ -58,13 +58,13 @@ class NameFilterTest {
                                               "    sample :  '%s'%n" +
                                               "    result :  <%s>%n";
 
-    static Stream<Arguments> parseCases() {
-        return PARSE_CASES.stream()
-                          .map(list -> Arguments.of(list.get(0), list.get(1)));
+    static Stream<ParseCase> parseCases() {
+        return CASES.stream()
+                    .map(list -> new ParseCase(list.get(0), list.get(1)));
     }
 
     static Stream<TestCase> testCases() {
-        return PARSE_CASES.stream().flatMap(NameFilterTest::testCases);
+        return CASES.stream().flatMap(NameFilterTest::testCases);
     }
 
     private static Stream<TestCase> testCases(final List<String> parseCase) {
@@ -88,29 +88,41 @@ class NameFilterTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("parseCases")
-    final void equals(final String pattern, final String other) {
-        final NameFilter expected = NameFilter.parse(pattern);
-        //noinspection EqualsWithItself
-        assertEquals(expected, expected);
-        assertEquals(expected, NameFilter.parse(pattern));
-        assertNotEquals(expected, NameFilter.parse(other));
-        //noinspection AssertBetweenInconvertibleTypes
-        assertNotEquals(expected, other);
+    static Stream<EqualsCase> equalsCases() {
+        return parseCases().map(parseCase -> new EqualsCase(parseCase.pattern,
+                                                            NameFilter.parse(parseCase.pattern),
+                                                            parseCase.expected));
+    }
+
+    static Stream<String> hashCodeCases() {
+        return parseCases().map(ParseCase::pattern);
+    }
+
+    static Stream<TestCase> testPathCases() {
+        final Set<String> invalid = Set.of("", ".");
+        return testCases().filter(not(testCase -> invalid.contains(testCase.pattern)));
     }
 
     @ParameterizedTest
-    @MethodSource("parseCases")
-    final void hashCode(final String pattern, @SuppressWarnings("unused") final String other) {
+    @MethodSource("equalsCases")
+    final void equals(final EqualsCase given) {
+        // just for test coverage ...
+        // noinspection EqualsWithItself
+        assertEquals(given.expected, given.expected);
+
+        assertEquals(given.expected, NameFilter.parse(given.pattern));
+        assertNotSame(given.expected, NameFilter.parse(given.pattern));
+        assertNotEquals(given.expected, NameFilter.parse(given.other));
+
+        // just for test coverage ...
+        // noinspection AssertBetweenInconvertibleTypes
+        assertNotEquals(given.expected, given.other);
+    }
+
+    @ParameterizedTest
+    @MethodSource("hashCodeCases")
+    final void hashCode(final String pattern) {
         assertEquals(NameFilter.parse(pattern).hashCode(), NameFilter.parse(pattern).hashCode());
-    }
-
-    @ParameterizedTest
-    @MethodSource("parseCases")
-    final void parse(final String pattern, final String expected) {
-        final NameFilter filter = NameFilter.parse(pattern);
-        assertEquals(expected, filter.toString());
     }
 
     @ParameterizedTest
@@ -122,14 +134,24 @@ class NameFilterTest {
     }
 
     @ParameterizedTest
-    @MethodSource("testCases")
-    final void testPath(final TestCase given) {
-        // cases that won't work ...
-        if ("".equals(given.sample) || ".".equals(given.sample)) return;
+    @MethodSource("parseCases")
+    final void parse(final ParseCase given) {
+        final NameFilter filter = NameFilter.parse(given.pattern);
+        assertEquals(given.expected, filter.toString());
+    }
 
+    @ParameterizedTest
+    @MethodSource("testPathCases")
+    final void testPath(final TestCase given) {
         final Path path = Path.of("target", given.sample);
         final boolean result = given.filter().test(path);
         assertEquals(given.expected, result);
+    }
+
+    record EqualsCase(String pattern, NameFilter expected, String other) {
+    }
+
+    record ParseCase(String pattern, String expected) {
     }
 
     record TestCase(String pattern, String sample, boolean expected) {
