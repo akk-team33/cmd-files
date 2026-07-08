@@ -4,7 +4,9 @@ Your request:
 
 Expected request scheme:
 
-    %2$s move PATH RULE [d:DEPTH] [n:PATTERN1] [x:PATTERN2]
+    %2$s move PATH RULE [OPTIONS]
+    %2$s move [PATH/]DEEP RULE [OPTIONS]
+    %2$s move [PATH/][DEEP/]PATTERN RULE [OPTIONS]
 
     ... to relocate regular files that meet certain criteria located in a given
         processing directory.
@@ -13,7 +15,21 @@ Expected request scheme:
 
 Parameters:
 
-    PATH     - A path to the processing directory.
+    PATH      - A path to be examined.
+              - Default: the path of the current working directory (cwd)
+    DEEP      - One of {**, .**, :**}
+                **      : also list files contained in visible* subdirectories
+                .**     : [not yet implemented:]
+                          also list files contained in invisible* subdirectories
+                :**     : also list files contained in any subdirectory
+              - Default : don't list files contained in any subdirectory
+    PATTERN   - A pattern for matching the simple filenames of the files to be listed.
+                May contain usual wildcards {?, *} with their usual meanings.
+                May be prefixed by {:} -> also list invisible* files that matches
+                the rest of the PATTERN. By default only list visible* files,
+                unless the pattern starts with dot (.) and thus explicitly matches
+                invisible* files.
+              - Default : * (match any visible* file)
     RULE     - A processing rule that has a similar structure to a relative path,
                but which can contain TOKENs that are interpreted during
                processing. A resulting relative path will be resolved from the
@@ -43,24 +59,21 @@ Parameters:
                      already contains such a timestamp, that value is used instead
                      of recalculating it.
                @@ -> The `at` symbol
-    DEPTH    - One of {flat, deep} (case-insensitive)
-               flat : list files directly within the given directory only.
-               deep : list files within the given directory and its
-                      subdirectories. Note that symbolic links to directories
-                      will not be resolved at this point!
-             - Default: deep
-    PATTERN1 - A pattern for matching the simple filenames of the files to be listed.
-               Consists of [METHOD[/OPTION]:]VALUE
-               METHOD - One of {rx, wc} (case-insensitive)
-                        rx : the VALUE is treated as a regular expression.
-                        wc : the VALUE is treated as the full file name,
-                             but allows the use of the usual wildcards (?*).
-                      - Default: wc (allow usual wildcards)
-               OPTION - One of {cs, ci} (case-insensitive)
-                        cs : the PATTERN will be applied case-sensitive.
-                        ci : the PATTERN will be applied case-insensitive.
-                      - Default: ci (case-insensitive)
-               VALUE  - A (constant) value to be applied to the METHOD along
-                        with the (variable) filenames in question.
-    PATTERN2 - A pattern for matching the simple filenames of the files to be excluded.
-               Consists of [METHOD[/OPTION]:]VALUE (see PATTERN1)
+    OPTIONS   - Consists of [n:N_PATTERN] [x:X_PATTERN] [t:TYPES] [o:ORDER]
+    N_PATTERN - An extended pattern for (additionally) matching the simple
+                filenames of the files to be listed.
+                Consists of [METHOD:[OPTION:]]VALUE
+                METHOD - One of {rx, wc} (case-insensitive)
+                         rx : the VALUE is treated as a regular expression.
+                         wc : the VALUE is treated as the full file name,
+                              but allows the use of usual wildcards {?, *}.
+                       - Default: wc (pattern with wildcards)
+                OPTION - One of {cs, ci} (case-insensitive)
+                         cs : the pattern will be applied case-sensitive.
+                         ci : the pattern will be applied case-insensitive.
+                       - Default: ci (case-insensitive)
+                VALUE  - A pattern value to be applied to the METHOD along
+                         with the simple filenames in question.
+    X_PATTERN - An extended pattern for matching the simple filenames
+                of files to be excluded from listing.
+                Consists of [METHOD:[OPTION:]]VALUE  ... (see N_PATTERN)
