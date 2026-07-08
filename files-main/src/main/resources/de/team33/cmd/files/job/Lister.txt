@@ -4,75 +4,102 @@ Your request:
 
 Expected request scheme:
 
-    %2$s list PATH [d:DEPTH] [n:PATTERN1] [x:PATTERN2] [t:TYPES] [o:ORDER]
+    %2$s list PATH [OPTIONS]
+    %2$s list [PATH/]DEEP [OPTIONS]
+    %2$s list [PATH/][DEEP/]PATTERN [OPTIONS]
 
     ... to list files that meet certain criteria within a specific directory.
 
+        In the following, files whose simple name begins with a dot (.)
+        are referred to as invisible* files; all others are referred to
+        as visible* files.
+
 Parameters:
 
-    PATH     - A path to be examined. Subdirectories are included if existing.
-    DEPTH    - One of {flat, deep} (case-insensitive)
-               flat : list files directly within the given directory only.
-               deep : list files within the given directory and its
-                      subdirectories. Note that symbolic links to directories
-                      will not be resolved at this point!
-             - Default: deep
-    PATTERN1 - A pattern for matching the simple filenames of the files to be listed.
-               Consists of [METHOD[/OPTION]:]VALUE
-               METHOD - One of {rx, wc} (case-insensitive)
-                        rx : the VALUE is treated as a regular expression.
-                        wc : the VALUE is treated as the full file name,
-                             but allows the use of the usual wildcards (?*).
-                      - Default: wc (allow usual wildcards)
-               OPTION - One of {cs, ci} (case-insensitive)
-                        cs : the PATTERN will be applied case-sensitive.
-                        ci : the PATTERN will be applied case-insensitive.
-                      - Default: ci (case-insensitive)
-               VALUE  - A (constant) value to be applied to the METHOD along
-                        with the (variable) filenames in question.
-    PATTERN2 - A pattern for matching the simple filenames of the files to be excluded.
-               Consists of [METHOD[/OPTION]:]VALUE (see PATTERN1)
-    TYPES    - A subset of {f, d, s, l, m, a} (case-insensitive)
-               with the respective meanings:
-               f : regular files
-               d : directories
-               s : special files
-               l : symbolic links
-               m : missing files (typically broken links)
-               a : any file
-             - Default: a (any file)
-    ORDER    - An expression that specifies the sort order.
-               Consists of CRITERION[:DIRECTION]
-               CRITERION - One of {p, n, d, s} (case-insensitive)
-                           p : order by path
-                           n : order by simple file name
-                           d : order by date / time of last modification
-                           s : order by file size
-               DIRECTION - One of {a, d}
-                           a : ascending order
-                           d : descending order
-                         - Default: a (ascending order)
-             - Default: p:a (order by path, ascending)
+    PATH      - A path to be examined.
+              - Default: the path of the current working directory (cwd)
+    DEEP      - One of {**, .**, :**}
+                **      : also list files contained in visible* subdirectories
+                .**     : [not yet implemented:]
+                          also list files contained in invisible* subdirectories
+                :**     : also list files contained in any subdirectory
+              - Default : don't list files contained in any subdirectory
+    PATTERN   - A pattern for matching the simple filenames of the files to be listed.
+                May contain usual wildcards {?, *} with their usual meanings.
+                May be prefixed by {:} -> also list invisible* files that matches
+                the rest of the PATTERN. By default only list visible* files,
+                unless the pattern starts with dot (.) and thus explicitly matches
+                invisible* files.
+              - Default : * (match any visible* file)
+    OPTIONS   - Consists of [n:N_PATTERN] [x:X_PATTERN] [t:TYPES] [o:ORDER]
+    N_PATTERN - An extended pattern for (additionally) matching the simple
+                filenames of the files to be listed.
+                Consists of [METHOD:[OPTION:]]VALUE
+                METHOD - One of {rx, wc} (case-insensitive)
+                         rx : the VALUE is treated as a regular expression.
+                         wc : the VALUE is treated as the full file name,
+                              but allows the use of usual wildcards {?, *}.
+                       - Default: wc (pattern with wildcards)
+                OPTION - One of {cs, ci} (case-insensitive)
+                         cs : the pattern will be applied case-sensitive.
+                         ci : the pattern will be applied case-insensitive.
+                       - Default: ci (case-insensitive)
+                VALUE  - A pattern value to be applied to the METHOD along
+                         with the simple filenames in question.
+    X_PATTERN - An extended pattern for matching the simple filenames
+                of files to be excluded from listing.
+                Consists of [METHOD:[OPTION:]]VALUE  ... (see N_PATTERN)
+    TYPES     - A subset of {f, d, s, l, m, a} (case-insensitive)
+                with the respective meanings:
+                f : regular files
+                d : directories
+                s : special files
+                l : symbolic links
+                m : missing files (typically broken links)
+                a : any file
+              - Default: a (any file)
+    ORDER     - An expression that specifies the sort order.
+                Consists of CRITERION[:DIRECTION]
+                CRITERION - One of {p, n, d, s} (case-insensitive)
+                            p : order by full path
+                            n : order by simple file name
+                            d : order by date / time of last modification
+                            s : order by file size
+                DIRECTION - One of {a, d}
+                            a : ascending order
+                            d : descending order
+                          - Default: a (ascending order)
+              - Default : 'natural' (no specific) order
 
 Examples:
 
-[1] %2$s list path/to/images deep 'n:*.jpg'
+[1] %2$s list 'path/to/images/**/*.jpg'
 
-    ... to list files whose names end with ".jpg" in the directory
-        "path/to/images" and its subdirectories. Output in default order.
+    ... to list visible* files whose names end with ".jpg" in the directory
+        "path/to/images" and its visible* subdirectories. Output in default order.
 
-[2] %2$s list path/to/images flat 'x:myFile.*'
+[2] %2$s list 'path/to/images/:*' 'x:myFile.*'
 
-    ... to list files whose names do not start with "myFile." in the directory
-        "path/to/images". Output in default order.
+    ... to list all files whose names do NOT start with "myFile."
+        in the directory "path/to/images". Output in default order.
 
-[3] %2$s list path/to/images deep 't:fl'
+[3] %2$s list 'path/to/images/:**' 't:fl'
 
-    ... to list regular files and symbolic links in the directory
-        "path/to/images" and its subdirectories. Output in default order.
+    ... to list visible* regular files and symbolic links in the directory
+        "path/to/images" and all of its subdirectories. Output in default order.
 
-[4] %2$s list . flat 'n:rx:.*\.(jpg|jpe|jpeg)' 'o:d:d'
+[4] %2$s list * 'n:rx:.*\.(jpg|jpe|jpeg)' 'o:d:d'
 
-    ... to list files with any of the extensions {"jpg", "jpe", "jpeg"}
+    ... to list visible* files with any of the extensions {"jpg", "jpe", "jpeg"}
         in the current working directory. Output order by date / time
         of last modification, descending.
+
+        (see [5])
+
+[5] %2$s list . 'n:rx:.*\.(jpg|jpe|jpeg)' 'o:d:d'
+
+    ... to list visible* files with any of the extensions {"jpg", "jpe", "jpeg"}
+        in the current working directory. Output order by date / time
+        of last modification, descending.
+
+        (see [4])

@@ -12,6 +12,10 @@ public class RequestException extends Exception {
         return new RequestException(TextIO.read(referringClass, resourceName));
     }
 
+    public static RequestException help(final Class<?> referringClass, final Object... args) {
+        return format(referringClass, referringClass.getSimpleName() + ".txt", args);
+    }
+
     public static RequestException format(final Class<?> referringClass,
                                           final String resourceName,
                                           final Object... args) {

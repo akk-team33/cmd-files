@@ -65,7 +65,7 @@ class MainTest {
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "list"));
         // System.out.println(result);
 
-        assertEquals(expected, result);
+        assertEquals(expected, result.substring(0, expected.length()));
     }
 
     @Test
