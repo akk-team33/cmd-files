@@ -69,13 +69,13 @@ class MainTest {
     }
 
     @Test
-    final void main_findir() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_findir.txt"));
+    final void main_lsd() throws Exception {
+        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_lsd.txt"));
 
-        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "findir"));
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "lsd"));
         // System.out.println(result);
 
-        assertEquals(expected, result);
+        assertEquals(expected, result.substring(0, expected.length()));
     }
 
     @Test

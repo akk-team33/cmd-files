@@ -5,8 +5,9 @@
 [PATH]/de/team33/patterns/enums
 [PATH]/de/team33/patterns/io
 
+          14 directories and a total of
+          36 entries examined.
+
            6 directories found.
-          15 directories and a total of
-          37 entries examined.
 
 

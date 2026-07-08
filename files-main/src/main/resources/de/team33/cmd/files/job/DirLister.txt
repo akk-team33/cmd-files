@@ -1,0 +1,93 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    %2$s lsd [PATH/]DEEP [OPTIONS]
+    %2$s lsd [PATH/]DEEP/PATTERN [OPTIONS]
+
+    ... to list directories containing files that meet certain criteria
+        within a specific directory.
+
+        In the following, files whose simple name begins with a dot (.)
+        are referred to as invisible* files; all others are referred to
+        as visible* files.
+
+Parameters:
+
+    PATH      - A path to be examined.
+              - Default: the path of the current working directory (cwd)
+    DEEP      - One of {**, .**, :**}
+                **      : also regard files contained in visible* subdirectories
+                .**     : [not yet implemented:]
+                          also regard files contained in invisible* subdirectories
+                :**     : also regard files contained in any subdirectory
+    PATTERN   - A pattern for matching the simple filenames of the files to be regarded.
+                May contain usual wildcards {?, *} with their usual meanings.
+                May be prefixed by {:} -> also regard invisible* files that matches
+                the rest of the PATTERN. By default, only regard visible* files,
+                unless the pattern starts with dot (.) and thus explicitly matches
+                invisible* files.
+              - Default : * (match any visible* file)
+    OPTIONS   - Consists of [n:N_PATTERN] [x:X_PATTERN] [t:TYPES]
+    N_PATTERN - An extended pattern for (additionally) matching the simple
+                filenames of the files to be regarded.
+                Consists of [METHOD:[OPTION:]]VALUE
+                METHOD - One of {rx, wc} (case-insensitive)
+                         rx : the VALUE is treated as a regular expression.
+                         wc : the VALUE is treated as the full file name,
+                              but allows the use of usual wildcards {?, *}.
+                       - Default: wc (pattern with wildcards)
+                OPTION - One of {cs, ci} (case-insensitive)
+                         cs : the pattern will be applied case-sensitive.
+                         ci : the pattern will be applied case-insensitive.
+                       - Default: ci (case-insensitive)
+                VALUE  - A pattern value to be applied to the METHOD along
+                         with the simple filenames in question.
+    X_PATTERN - An extended pattern for matching the simple filenames
+                of files to be excluded from regarding.
+                Consists of [METHOD:[OPTION:]]VALUE  ... (see N_PATTERN)
+    TYPES     - A subset of {f, d, s, l, m, a} (case-insensitive)
+                with the respective meanings:
+                f : regular files
+                d : directories
+                s : special files
+                l : symbolic links
+                a : any file
+              - Default: f (regard regular files)
+
+Examples:
+
+[1] %2$s lsd 'path/to/images/**/*.jpg'
+
+    ... to list directories containing visible* regular files whose names
+        end with ".jpg" in the directory "path/to/images" and its visible*
+        subdirectories.
+
+[2] %2$s lsd 'path/to/images/**/:*' 'x:myFile.*'
+
+    ... to list directories containing regular files whose names do NOT start
+        with "myFile." in the directory "path/to/images" and its visible*
+        subdirectories.
+
+[3] %2$s lsd 'path/to/images/:**/:*.jpg' 't:a'
+
+    ... to list directories containing any file whose name ends with ".jpg"
+        in the directory "path/to/images" and all of its subdirectories.
+
+[4] %2$s lsd ':**' 'n:rx:.*\.(jpg|jpe|jpeg)'
+
+    ... to list directories containing visible* regular files with any of the
+        extensions {"jpg", "jpe", "jpeg"} in the current working directory
+        and all of its subdirectories.
+
+        (see also [5])
+
+[5] %2$s lsd './:**' 'n:rx:.*\.(jpg|jpe|jpeg)'
+
+    ... to list directories containing visible* regular files with any of the
+        extensions {"jpg", "jpe", "jpeg"} in the current working directory
+        and all of its subdirectories.
+
+        (see also [4])

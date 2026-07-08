@@ -77,8 +77,8 @@ public final class PathQuery {
 
     public final Stream<FileEntry> stream() {
         return recursion.stream(baseEntry)
-                        .peek(report::addTotal)
-                        .filter(nameFilter::test);
+                        .peek(entry -> report.addTotal(entry))
+                        .filter(entry1 -> nameFilter.test(entry1));
     }
 
     private List<Object> toList() {

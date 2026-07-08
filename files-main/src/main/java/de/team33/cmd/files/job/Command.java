@@ -21,7 +21,7 @@ public enum Command {
     DCOPY(DirCopying::job, DirCopying.EXCERPT),
     DELETE(Deletion::job, Deletion.EXCERPT),
     LIST(Lister::job, Lister.EXCERPT),
-    FINDIR(DirFinder::job, DirFinder.EXCERPT),
+    LSD(DirLister::job, DirLister.EXCERPT),
     MOVE(Moving::job, Moving.EXCERPT),
     REGISTER(Registrar::job, Registrar.EXCERPT);
 

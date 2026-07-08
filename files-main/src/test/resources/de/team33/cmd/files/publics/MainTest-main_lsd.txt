@@ -1,0 +1,10 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest lsd
+
+Expected request scheme:
+
+    MainTest lsd
