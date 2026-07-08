@@ -100,7 +100,8 @@ class NameFilterTest {
 
     static Stream<TestCase> testPathCases() {
         final Set<String> invalid = Set.of("", ".");
-        return testCases().filter(not(testCase -> invalid.contains(testCase.pattern)));
+        return testCases().filter(not(testCase -> invalid.contains(testCase.pattern)))
+                          .filter(not(testCase -> invalid.contains(testCase.sample)));
     }
 
     @ParameterizedTest
