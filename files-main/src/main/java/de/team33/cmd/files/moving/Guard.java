@@ -4,6 +4,7 @@ import de.team33.patterns.directories.iocaste.FileEntry;
 
 import java.util.Set;
 
+@Deprecated
 public class Guard {
 
     public static final String KEEP = "(keep)";

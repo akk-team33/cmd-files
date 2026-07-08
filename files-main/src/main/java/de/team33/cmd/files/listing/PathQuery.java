@@ -71,6 +71,10 @@ public final class PathQuery {
         return new PathQuery(baseEntry, recursion, nameFilter, report);
     }
 
+    public final FileEntry baseEntry() {
+        return baseEntry;
+    }
+
     public final Recursion recursion() {
         return recursion;
     }

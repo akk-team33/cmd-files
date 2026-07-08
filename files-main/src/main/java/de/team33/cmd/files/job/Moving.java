@@ -6,12 +6,9 @@ import de.team33.cmd.files.common.Filter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.listing.Option;
-import de.team33.cmd.files.listing.Recursion;
+import de.team33.cmd.files.listing.PathQuery;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.moving.Resolver;
-import de.team33.patterns.directories.iocaste.DirectoryLister;
-import de.team33.patterns.directories.iocaste.DirectoryStreamer;
 import de.team33.patterns.directories.iocaste.FileEntry;
 
 import java.io.IOException;
@@ -31,26 +28,22 @@ class Moving implements Runnable {
 
     static final String EXCERPT = "Relocate regular files located in a given directory.";
 
-    private static final Set<Option> OPTIONS = EnumSet.of(Option.D, Option.N, Option.X);
+    private static final Set<Option> OPTIONS = EnumSet.of(Option.N, Option.X);
     private static final Function<List<String>, Args> ARGS = Args.stage(4, OPTIONS);
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
-    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT;
-    private static final DirectoryStreamer STREAMER = DirectoryStreamer.basedOn(LISTER);
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;
-    private final FileEntry mainEntry;
+    private final PathQuery query;
     private final Resolver resolver;
-    private final Recursion recursion;
     private final Predicate<FileEntry> filter;
     private final Stats stats;
     private final Cleaner cleaner;
 
-    public Moving(final Output out, final Path path, final Resolver resolver, final Recursion recursion, final Predicate<FileEntry> filter) {
+    public Moving(final Output out, final PathQuery query, final Resolver resolver, final Predicate<FileEntry> filter) {
         this.out = out;
-        this.mainEntry = FileEntry.original(path);
+        this.query = query;
         this.resolver = resolver;
-        this.recursion = recursion;
         this.filter = filter;
         this.stats = new Stats();
         this.cleaner = new Cleaner(out, stats);
@@ -60,18 +53,13 @@ class Moving implements Runnable {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.format(Moving.class, "Moving.txt", cmdLine(args), cmdName(args));
+            throw RequestException.help(Moving.class, cmdLine(args), cmdName(args));
         }
     }
 
     private static Moving job(final Output out, final Args args) {
-        final Path path = Path.of(args.get(2));
+        final PathQuery query = PathQuery.parse(args.get(2));
         final Resolver resolver = Resolver.parse(args.get(3));
-        final Recursion recursion = args.get(Option.D)
-                                        .map(String::toUpperCase)
-                                        .map(Depth::valueOf)
-                                        .map(Depth::recursion)
-                                        .orElse(Recursion.ALL);
         final Predicate<FileEntry> nameFilter = args.get(Option.N)
                                                     .map(NameMatcher::parse)
                                                     .map(NameMatcher::toFileEntryFilter)
@@ -85,21 +73,18 @@ class Moving implements Runnable {
                                                   .filter(Objects::nonNull)
                                                   .reduce(Predicate::and)
                                                   .orElse(POSITIVE);
-        return new Moving(out, path, resolver, recursion, filter);
-    }
-
-    private Stream<FileEntry> stream() {
-        return recursion.stream(mainEntry);
+        return new Moving(out, query, resolver, filter);
     }
 
     @Override
     public void run() {
         stats.reset();
-        stream().filter(FileEntry::isRegularFile)
-                .filter(Guard::unprotected)
-                .filter(filter)
-                .forEach(this::move);
-        cleaner.clean(mainEntry);
+        query.stream()
+             .filter(FileEntry::isRegularFile)
+             //.filter(Guard::unprotected)
+             .filter(filter)
+             .forEach(this::move);
+        cleaner.clean(query.baseEntry());
         out.printf("%n" +
                    "%12d files moved%n" +
                    "%12d files skipped%n" +
@@ -111,7 +96,7 @@ class Moving implements Runnable {
 
     private void move(final FileEntry entry) {
         final Path path = entry.path();
-        final Path mainPath = this.mainEntry.path();
+        final Path mainPath = query.baseEntry().path();
         out.printf("%s ...%n", mainPath.relativize(path));
         final Path newPath = mainPath.resolve(resolver.resolve(mainPath, entry)).normalize();
         out.printf("--> %s ... ", mainPath.relativize(newPath));
