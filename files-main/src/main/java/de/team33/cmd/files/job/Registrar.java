@@ -5,8 +5,8 @@ import de.team33.cmd.files.common.Args;
 import de.team33.cmd.files.common.Filter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Option;
+import de.team33.cmd.files.listing.Recursion;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.patterns.directories.iocaste.DirectoryLister;
@@ -47,20 +47,20 @@ class Registrar implements Runnable {
     private final FileEntry mainEntry;
     private final Path regPath;
     private final int keepOriginalName;
-    private final Depth depth;
+    private final Recursion recursion;
     private final Predicate<FileEntry> filter;
     private final Stats stats;
     private final Cleaner cleaner;
     private final Path trashPath;
 
     private Registrar(final Output out, final Path path, final Path regPath, final int keepOriginalName,
-                      final Depth depth, final Predicate<FileEntry> filter) {
+                      final Recursion recursion, final Predicate<FileEntry> filter) {
         this.out = out;
         this.mainEntry = FileEntry.original(path);
         this.trashPath = Path.of(mainEntry.path().toString() + ".trash");
         this.regPath = regPath;
         this.keepOriginalName = keepOriginalName;
-        this.depth = depth;
+        this.recursion = recursion;
         this.filter = filter;
         this.stats = new Stats();
         this.cleaner = new Cleaner(out, stats);
@@ -78,10 +78,11 @@ class Registrar implements Runnable {
         final Path path = Path.of(args.get(2));
         final Path registry = Path.of(args.get(3));
         final int keep = Integer.parseInt(args.get(4));
-        final Depth depth = args.get(Option.D)
-                                .map(String::toUpperCase)
-                                .map(Depth::valueOf)
-                                .orElse(Depth.DEEP);
+        final Recursion recursion = args.get(Option.D)
+                                        .map(String::toUpperCase)
+                                        .map(Depth::valueOf)
+                                        .map(Depth::recursion)
+                                        .orElse(Recursion.ALL);
         final Predicate<FileEntry> nameFilter = args.get(Option.N)
                                                     .map(NameMatcher::parse)
                                                     .map(NameMatcher::toFileEntryFilter)
@@ -95,11 +96,11 @@ class Registrar implements Runnable {
                                                   .filter(Objects::nonNull)
                                                   .reduce(Predicate::and)
                                                   .orElse(POSITIVE);
-        return new Registrar(out, path, registry, keep, depth, filter);
+        return new Registrar(out, path, registry, keep, recursion, filter);
     }
 
     private Stream<FileEntry> stream() {
-        return depth.stream(mainEntry);
+        return recursion.stream(mainEntry);
     }
 
     @Override

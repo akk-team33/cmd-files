@@ -5,8 +5,8 @@ import de.team33.cmd.files.common.Args;
 import de.team33.cmd.files.common.Filter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Option;
+import de.team33.cmd.files.listing.Recursion;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Guard;
 import de.team33.cmd.files.moving.Resolver;
@@ -41,16 +41,16 @@ class Moving implements Runnable {
     private final Output out;
     private final FileEntry mainEntry;
     private final Resolver resolver;
-    private final Depth depth;
+    private final Recursion recursion;
     private final Predicate<FileEntry> filter;
     private final Stats stats;
     private final Cleaner cleaner;
 
-    public Moving(final Output out, final Path path, final Resolver resolver, final Depth depth, final Predicate<FileEntry> filter) {
+    public Moving(final Output out, final Path path, final Resolver resolver, final Recursion recursion, final Predicate<FileEntry> filter) {
         this.out = out;
         this.mainEntry = FileEntry.original(path);
         this.resolver = resolver;
-        this.depth = depth;
+        this.recursion = recursion;
         this.filter = filter;
         this.stats = new Stats();
         this.cleaner = new Cleaner(out, stats);
@@ -67,10 +67,11 @@ class Moving implements Runnable {
     private static Moving job(final Output out, final Args args) {
         final Path path = Path.of(args.get(2));
         final Resolver resolver = Resolver.parse(args.get(3));
-        final Depth depth = args.get(Option.D)
-                                .map(String::toUpperCase)
-                                .map(Depth::valueOf)
-                                .orElse(Depth.DEEP);
+        final Recursion recursion = args.get(Option.D)
+                                        .map(String::toUpperCase)
+                                        .map(Depth::valueOf)
+                                        .map(Depth::recursion)
+                                        .orElse(Recursion.ALL);
         final Predicate<FileEntry> nameFilter = args.get(Option.N)
                                                     .map(NameMatcher::parse)
                                                     .map(NameMatcher::toFileEntryFilter)
@@ -84,11 +85,11 @@ class Moving implements Runnable {
                                                   .filter(Objects::nonNull)
                                                   .reduce(Predicate::and)
                                                   .orElse(POSITIVE);
-        return new Moving(out, path, resolver, depth, filter);
+        return new Moving(out, path, resolver, recursion, filter);
     }
 
     private Stream<FileEntry> stream() {
-        return depth.stream(mainEntry);
+        return recursion.stream(mainEntry);
     }
 
     @Override

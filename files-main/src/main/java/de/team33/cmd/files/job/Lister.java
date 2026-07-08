@@ -1,8 +1,8 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.*;
-import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.Option;
+import de.team33.cmd.files.listing.Recursion;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.matching.TypeFilter;
 import de.team33.cmd.files.sorting.Order;
@@ -28,14 +28,14 @@ class Lister implements Runnable {
 
     private final Output out;
     private final FileEntry entry;
-    private final Depth depth;
+    private final Recursion recursion;
     private final Predicate<FileEntry> filter;
     private final Comparator<FileEntry> order;
 
-    private Lister(final Output out, final Path path, final Depth depth, final Predicate<FileEntry> filter, final Comparator<FileEntry> order) {
+    private Lister(final Output out, final Path path, final Recursion recursion, final Predicate<FileEntry> filter, final Comparator<FileEntry> order) {
         this.out = out;
         this.entry = FileEntry.original(path);
-        this.depth = depth;
+        this.recursion = recursion;
         this.filter = filter;
         this.order = order; // nullable!
     }
@@ -50,10 +50,11 @@ class Lister implements Runnable {
 
     private static Runnable job(final Output out, final Args args) {
         final Path path = Path.of(args.get(2));
-        final Depth depth = args.get(Option.D)
-                                .map(String::toUpperCase)
-                                .map(Depth::valueOf)
-                                .orElse(Depth.DEEP);
+        final Recursion recursion = args.get(Option.D)
+                                        .map(String::toUpperCase)
+                                        .map(Depth::valueOf)
+                                        .map(Depth::recursion)
+                                        .orElse(Recursion.ALL);
         final Predicate<FileEntry> nameFilter = args.get(Option.N)
                                                     .map(NameMatcher::parse)
                                                     .map(NameMatcher::toFileEntryFilter)
@@ -73,15 +74,15 @@ class Lister implements Runnable {
         final Comparator<FileEntry> order = args.get(Option.O)
                                                 .map(Order::parse)
                                                 .orElse(null);
-        return new Lister(out, path, depth, entryFilter, order);
+        return new Lister(out, path, recursion, entryFilter, order);
     }
 
     @Override
     public final void run() {
-        final Stats stats = new Stats(depth);
-        final Stream<FileEntry> stage = depth.stream(entry)
-                                             .peek(stats::addTotal)
-                                             .filter(filter);
+        final Stats stats = new Stats(recursion);
+        final Stream<FileEntry> stage = recursion.stream(entry)
+                                                 .peek(stats::addTotal)
+                                                 .filter(filter);
         //noinspection DataFlowIssue
         Optional.ofNullable(order)
                 .map(stage::sorted)
@@ -93,19 +94,19 @@ class Lister implements Runnable {
 
     private static class Stats {
 
-        private final Depth depth;
+        private final Recursion recursion;
         private final Counter totalCounter = new Counter();
         private final Counter totalDirCounter = new Counter();
         private final Counter foundCounter = new Counter();
         private final Map<FileType, Counter> foundTypeCounters = new TreeMap<>();
 
-        private Stats(final Depth depth) {
-            this.depth = depth;
+        private Stats(final Recursion recursion) {
+            this.recursion = recursion;
         }
 
         private void addTotal(final FileEntry entry) {
             totalCounter.increment();
-            if (Depth.DEEP == depth && entry.isDirectory()) {
+            if (Recursion.ALL == recursion && entry.isDirectory()) {
                 totalDirCounter.increment();
             }
         }
@@ -116,8 +117,8 @@ class Lister implements Runnable {
         }
 
         private void print(final Output out) {
-            final String aTotalOf = (Depth.FLAT == depth) ? "           A total of%n"
-                                                          : "%1$,12d directories and a total of%n";
+            final String aTotalOf = (Recursion.NONE == recursion) ? "           A total of%n"
+                                                                  : "%1$,12d directories and a total of%n";
             out.printf("%n" +
                        aTotalOf +
                        "%2$,12d entries examined.%n%n" +

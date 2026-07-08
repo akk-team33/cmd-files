@@ -1,7 +1,7 @@
 package de.team33.cmd.files.listing.publics;
 
-import de.team33.cmd.files.listing.Depth;
 import de.team33.cmd.files.listing.PathQuery;
+import de.team33.cmd.files.listing.Recursion;
 import de.team33.patterns.directories.iocaste.FileEntry;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,35 +16,35 @@ import static org.junit.jupiter.api.Assertions.*;
 class PathQueryTest {
 
     static Stream<ParseCase> parseCases() {
-        return Stream.of(parseCase("", ".", Depth.FLAT, "*"),
-                         parseCase("*", ".", Depth.FLAT, "*"),
-                         parseCase("**", ".", Depth.DEEP_VISIBLE, "*"),
-                         parseCase(":**", ".", Depth.DEEP, "*"),
-                         parseCase("**/", ".", Depth.DEEP_VISIBLE, "*"),
-                         parseCase(":**/", ".", Depth.DEEP, "*"),
-                         parseCase("**/*", ".", Depth.DEEP_VISIBLE, "*"),
-                         parseCase(":**/*.java", ".", Depth.DEEP, "*.java"),
-                         parseCase("**/:*.txt", ".", Depth.DEEP_VISIBLE, ":*.txt"),
-                         parseCase(":**/:a*", ".", Depth.DEEP, ":a*"),
-                         parseCase("**/.*", ".", Depth.DEEP_VISIBLE, ".*"),
-                         parseCase(":**/.*", ".", Depth.DEEP, ".*"),
-                         parseCase("..", "..", Depth.FLAT, "*"),
-                         parseCase("../*", "..", Depth.FLAT, "*"),
-                         parseCase("../**", "..", Depth.DEEP_VISIBLE, "*"),
-                         parseCase("../:**", "..", Depth.DEEP, "*"),
-                         parseCase("../**/", "..", Depth.DEEP_VISIBLE, "*"),
-                         parseCase("../:**/", "..", Depth.DEEP, "*"),
-                         parseCase("../**/*", "..", Depth.DEEP_VISIBLE, "*"),
-                         parseCase("../:**/*", "..", Depth.DEEP, "*"),
-                         parseCase("../**/:*", "..", Depth.DEEP_VISIBLE, ":*"),
-                         parseCase("../:**/:*", "..", Depth.DEEP, ":*"),
-                         parseCase("../**/.*", "..", Depth.DEEP_VISIBLE, ".*"),
-                         parseCase("../:**/.*", "..", Depth.DEEP, ".*"));
+        return Stream.of(parseCase("", ".", Recursion.NONE, "*"),
+                         parseCase("*", ".", Recursion.NONE, "*"),
+                         parseCase("**", ".", Recursion.VISIBLE, "*"),
+                         parseCase(":**", ".", Recursion.ALL, "*"),
+                         parseCase("**/", ".", Recursion.VISIBLE, "*"),
+                         parseCase(":**/", ".", Recursion.ALL, "*"),
+                         parseCase("**/*", ".", Recursion.VISIBLE, "*"),
+                         parseCase(":**/*.java", ".", Recursion.ALL, "*.java"),
+                         parseCase("**/:*.txt", ".", Recursion.VISIBLE, ":*.txt"),
+                         parseCase(":**/:a*", ".", Recursion.ALL, ":a*"),
+                         parseCase("**/.*", ".", Recursion.VISIBLE, ".*"),
+                         parseCase(":**/.*", ".", Recursion.ALL, ".*"),
+                         parseCase("..", "..", Recursion.NONE, "*"),
+                         parseCase("../*", "..", Recursion.NONE, "*"),
+                         parseCase("../**", "..", Recursion.VISIBLE, "*"),
+                         parseCase("../:**", "..", Recursion.ALL, "*"),
+                         parseCase("../**/", "..", Recursion.VISIBLE, "*"),
+                         parseCase("../:**/", "..", Recursion.ALL, "*"),
+                         parseCase("../**/*", "..", Recursion.VISIBLE, "*"),
+                         parseCase("../:**/*", "..", Recursion.ALL, "*"),
+                         parseCase("../**/:*", "..", Recursion.VISIBLE, ":*"),
+                         parseCase("../:**/:*", "..", Recursion.ALL, ":*"),
+                         parseCase("../**/.*", "..", Recursion.VISIBLE, ".*"),
+                         parseCase("../:**/.*", "..", Recursion.ALL, ".*"));
     }
 
     private static ParseCase parseCase(final String pattern,
-                                       final String basePath, final Depth depth, final String namePattern) {
-        return new ParseCase(pattern, PathQuery.compose(Path.of(basePath), depth, namePattern));
+                                       final String basePath, final Recursion recursion, final String namePattern) {
+        return new ParseCase(pattern, PathQuery.compose(Path.of(basePath), recursion, namePattern));
     }
 
     static Stream<StreamCase> streamCases() {

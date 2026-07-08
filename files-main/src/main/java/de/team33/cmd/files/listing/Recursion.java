@@ -9,15 +9,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public enum Depth {
+public enum Recursion {
 
-    FLAT(entry -> Constants.LISTER.list(entry).stream()),
-    DEEP_VISIBLE(Constants.VISIBLE::stream),
-    DEEP(Constants.STREAMER::stream);
+    NONE(entry -> Constants.LISTER.list(entry).stream()),
+    VISIBLE(Constants.VISIBLE::stream),
+    ALL(Constants.STREAMER::stream);
 
     private final Function<FileEntry, Stream<FileEntry>> toStream;
 
-    Depth(final Function<FileEntry, Stream<FileEntry>> toStream) {
+    Recursion(final Function<FileEntry, Stream<FileEntry>> toStream) {
         this.toStream = toStream;
     }
 
