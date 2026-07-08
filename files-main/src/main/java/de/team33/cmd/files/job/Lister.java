@@ -2,14 +2,15 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.*;
 import de.team33.cmd.files.listing.Option;
+import de.team33.cmd.files.listing.PathQuery;
 import de.team33.cmd.files.listing.Recursion;
+import de.team33.cmd.files.listing.Report;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.matching.TypeFilter;
 import de.team33.cmd.files.sorting.Order;
 import de.team33.patterns.directories.iocaste.FileEntry;
 import de.team33.patterns.directories.iocaste.FileType;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,20 +23,19 @@ class Lister implements Runnable {
 
     static final String EXCERPT = "List files that meet certain criteria.";
 
-    private static final Set<Option> OPTIONS = EnumSet.allOf(Option.class);
+    private static final Set<Option> OPTIONS = EnumSet.of(Option.N, Option.X, Option.T, Option.O);
     private static final Function<List<String>, Args> ARGS = Args.stage(3, OPTIONS);
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
 
     private final Output out;
-    private final FileEntry entry;
-    private final Recursion recursion;
+    private final PathQuery query;
     private final Predicate<FileEntry> filter;
     private final Comparator<FileEntry> order;
 
-    private Lister(final Output out, final Path path, final Recursion recursion, final Predicate<FileEntry> filter, final Comparator<FileEntry> order) {
+    private Lister(final Output out, final PathQuery query,
+                   final Predicate<FileEntry> filter, final Comparator<FileEntry> order) {
         this.out = out;
-        this.entry = FileEntry.original(path);
-        this.recursion = recursion;
+        this.query = query;
         this.filter = filter;
         this.order = order; // nullable!
     }
@@ -49,12 +49,7 @@ class Lister implements Runnable {
     }
 
     private static Runnable job(final Output out, final Args args) {
-        final Path path = Path.of(args.get(2));
-        final Recursion recursion = args.get(Option.D)
-                                        .map(String::toUpperCase)
-                                        .map(Depth::valueOf)
-                                        .map(Depth::recursion)
-                                        .orElse(Recursion.ALL);
+        final PathQuery query = PathQuery.parse(args.get(2));
         final Predicate<FileEntry> nameFilter = args.get(Option.N)
                                                     .map(NameMatcher::parse)
                                                     .map(NameMatcher::toFileEntryFilter)
@@ -74,15 +69,15 @@ class Lister implements Runnable {
         final Comparator<FileEntry> order = args.get(Option.O)
                                                 .map(Order::parse)
                                                 .orElse(null);
-        return new Lister(out, path, recursion, entryFilter, order);
+        return new Lister(out, query, entryFilter, order);
     }
 
     @Override
     public final void run() {
-        final Stats stats = new Stats(recursion);
-        final Stream<FileEntry> stage = recursion.stream(entry)
-                                                 .peek(stats::addTotal)
-                                                 .filter(filter);
+        final Stats stats = new Stats(query.recursion());
+        final Stream<FileEntry> stage = query.reporting(stats)
+                                             .stream()
+                                             .filter(filter);
         //noinspection DataFlowIssue
         Optional.ofNullable(order)
                 .map(stage::sorted)
@@ -92,7 +87,7 @@ class Lister implements Runnable {
         stats.print(out);
     }
 
-    private static class Stats {
+    private static class Stats implements Report {
 
         private final Recursion recursion;
         private final Counter totalCounter = new Counter();
@@ -104,9 +99,10 @@ class Lister implements Runnable {
             this.recursion = recursion;
         }
 
-        private void addTotal(final FileEntry entry) {
+        @Override
+        public final void addTotal(final FileEntry entry) {
             totalCounter.increment();
-            if (Recursion.ALL == recursion && entry.isDirectory()) {
+            if (entry.isDirectory()) {
                 totalDirCounter.increment();
             }
         }

@@ -11,15 +11,21 @@ public final class PathQuery {
     private static final String DEEP_VISIBLE_WILDCARD = "**";
     private static final String DEEP_ALL_WILDCARD = ":**";
     private static final String STD_NAME_PATTERN = "*";
+    private static final Report NO_REPORT = entry -> {
+        // nothing to do by default
+    };
 
     private final FileEntry baseEntry;
     private final Recursion recursion;
     private final NameFilter nameFilter;
+    private final Report report;
 
-    private PathQuery(FileEntry baseEntry, Recursion recursion, NameFilter nameFilter) {
+    private PathQuery(final FileEntry baseEntry, final Recursion recursion,
+                      final NameFilter nameFilter, final Report report) {
         this.baseEntry = baseEntry;
         this.recursion = recursion;
         this.nameFilter = nameFilter;
+        this.report = report;
     }
 
     public static PathQuery compose(final Path basePath, final Recursion recursion, final String namePattern) {
@@ -27,7 +33,7 @@ public final class PathQuery {
     }
 
     static PathQuery compose(final FileEntry baseEntry, final Recursion recursion, final String namePattern) {
-        return new PathQuery(baseEntry, recursion, NameFilter.parse(namePattern));
+        return new PathQuery(baseEntry, recursion, NameFilter.parse(namePattern), NO_REPORT);
     }
 
     public static PathQuery parse(final String queryString) {
@@ -61,8 +67,17 @@ public final class PathQuery {
         };
     }
 
+    public final PathQuery reporting(final Report report) {
+        return new PathQuery(baseEntry, recursion, nameFilter, report);
+    }
+
+    public final Recursion recursion() {
+        return recursion;
+    }
+
     public final Stream<FileEntry> stream() {
         return recursion.stream(baseEntry)
+                        .peek(report::addTotal)
                         .filter(nameFilter::test);
     }
 
