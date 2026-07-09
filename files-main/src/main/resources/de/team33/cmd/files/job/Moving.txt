@@ -59,7 +59,7 @@ Parameters:
                      already contains such a timestamp, that value is used instead
                      of recalculating it.
                @@ -> The `at` symbol
-    OPTIONS   - Consists of [n:N_PATTERN] [x:X_PATTERN] [t:TYPES] [o:ORDER]
+    OPTIONS   - Consists of [n:N_PATTERN] [x:X_PATTERN]
     N_PATTERN - An extended pattern for (additionally) matching the simple
                 filenames of the files to be listed.
                 Consists of [METHOD:[OPTION:]]VALUE
