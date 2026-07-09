@@ -41,10 +41,12 @@ class RegistrarTest extends ModifyingTestBase {
         final Path registryPath = testPath().resolve("registry");
         final String expected = TextIO.read(RegistrarTest.class, "RegistrarTest-register_fs.txt")
                                       .formatted(testPath().getFileName());
+        final String leftQueryString = leftPath().resolve("**").toString();
+        final String rightQueryString = rightPath().resolve("**").toString();
 
-        Registrar.job(MUTE, List.of("files", "register", leftPath().toString(), registryPath.toString(), "4"))
+        Registrar.job(MUTE, List.of("files", "register", leftQueryString, registryPath.toString(), "4"))
                  .run();
-        Registrar.job(MUTE, List.of("files", "register", rightPath().toString(), registryPath.toString(), "8"))
+        Registrar.job(MUTE, List.of("files", "register", rightQueryString, registryPath.toString(), "8"))
                  .run();
 
         DirectoryStreamer.DEFAULT
@@ -61,10 +63,12 @@ class RegistrarTest extends ModifyingTestBase {
         final Path registryPath = testPath().resolve("registry");
         final String expected = TextIO.read(RegistrarTest.class, "RegistrarTest-register_out.txt")
                                       .formatted();
+        final String leftQueryString = leftPath().resolve("**").toString();
+        final String rightQueryString = rightPath().resolve("**").toString();
 
-        Registrar.job(buffer, List.of("files", "register", leftPath().toString(), registryPath.toString(), "0"))
+        Registrar.job(buffer, List.of("files", "register", leftQueryString, registryPath.toString(), "0"))
                  .run();
-        Registrar.job(buffer, List.of("files", "register", rightPath().toString(), registryPath.toString(), "0"))
+        Registrar.job(buffer, List.of("files", "register", rightQueryString, registryPath.toString(), "0"))
                  .run();
 
         final String result = buffer.toString()

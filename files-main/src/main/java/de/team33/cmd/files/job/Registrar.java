@@ -6,9 +6,8 @@ import de.team33.cmd.files.common.Filter;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.listing.Option;
-import de.team33.cmd.files.listing.Recursion;
+import de.team33.cmd.files.listing.PathQuery;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.cmd.files.moving.Guard;
 import de.team33.patterns.directories.iocaste.DirectoryLister;
 import de.team33.patterns.directories.iocaste.DirectoryStreamer;
 import de.team33.patterns.directories.iocaste.FileEntry;
@@ -34,7 +33,7 @@ class Registrar implements Runnable {
 
     static final String EXCERPT = "Register unique regular files to a registry and relocate duplicates.";
 
-    private static final Set<Option> OPTIONS = EnumSet.of(Option.D, Option.N, Option.X);
+    private static final Set<Option> OPTIONS = EnumSet.of(Option.N, Option.X);
     private static final Function<List<String>, Args> ARGS = Args.stage(5, OPTIONS);
     private static final Predicate<FileEntry> POSITIVE = Filter.positive();
     private static final DirectoryLister LISTER = DirectoryLister.DEFAULT.pathOrder(PathOrder.BY_NAME);
@@ -44,23 +43,23 @@ class Registrar implements Runnable {
                                                            Pattern.CASE_INSENSITIVE);
 
     private final Output out;
-    private final FileEntry mainEntry;
+    private final PathQuery query;
     private final Path regPath;
+    private final Path basePath;
     private final int keepOriginalName;
-    private final Recursion recursion;
     private final Predicate<FileEntry> filter;
     private final Stats stats;
     private final Cleaner cleaner;
     private final Path trashPath;
 
-    private Registrar(final Output out, final Path path, final Path regPath, final int keepOriginalName,
-                      final Recursion recursion, final Predicate<FileEntry> filter) {
+    private Registrar(final Output out, final PathQuery query, final Path regPath,
+                      final int keepOriginalName, final Predicate<FileEntry> filter) {
         this.out = out;
-        this.mainEntry = FileEntry.original(path);
-        this.trashPath = Path.of(mainEntry.path().toString() + ".trash");
+        this.query = query;
+        this.basePath = query.baseEntry().path();
+        this.trashPath = Path.of(basePath.toString() + ".trash");
         this.regPath = regPath;
         this.keepOriginalName = keepOriginalName;
-        this.recursion = recursion;
         this.filter = filter;
         this.stats = new Stats();
         this.cleaner = new Cleaner(out, stats);
@@ -75,45 +74,37 @@ class Registrar implements Runnable {
     }
 
     private static Registrar job(final Output out, final Args args) {
-        final Path path = Path.of(args.get(2));
+        final PathQuery query = PathQuery.parse(args.get(2));
         final Path registry = Path.of(args.get(3));
         final int keep = Integer.parseInt(args.get(4));
-        final Recursion recursion = args.get(Option.D)
-                                        .map(String::toUpperCase)
-                                        .map(Depth::valueOf)
-                                        .map(Depth::recursion)
-                                        .orElse(Recursion.ALL);
-        final Predicate<FileEntry> nameFilter = args.get(Option.N)
-                                                    .map(NameMatcher::parse)
-                                                    .map(NameMatcher::toFileEntryFilter)
-                                                    .orElse(null);
-        final Predicate<FileEntry> nameXFilter = args.get(Option.X)
-                                                     .map(NameMatcher::parse)
-                                                     .map(NameMatcher::toFileEntryFilter)
-                                                     .map(Predicate::negate)
-                                                     .orElse(null);
-        final Predicate<FileEntry> filter = Stream.of(nameFilter, nameXFilter)
+        final Predicate<FileEntry> nFilter = args.get(Option.N)
+                                                 .map(NameMatcher::parse)
+                                                 .map(NameMatcher::toFileEntryFilter)
+                                                 .orElse(null);
+        final Predicate<FileEntry> xFilter = args.get(Option.X)
+                                                 .map(NameMatcher::parse)
+                                                 .map(NameMatcher::toFileEntryFilter)
+                                                 .map(Predicate::negate)
+                                                 .orElse(null);
+        final Predicate<FileEntry> filter = Stream.of(nFilter, xFilter)
                                                   .filter(Objects::nonNull)
                                                   .reduce(Predicate::and)
                                                   .orElse(POSITIVE);
-        return new Registrar(out, path, registry, keep, recursion, filter);
-    }
-
-    private Stream<FileEntry> stream() {
-        return recursion.stream(mainEntry);
+        return new Registrar(out, query, registry, keep, filter);
     }
 
     @Override
     public void run() {
         stats.reset();
         try (final Registry registry = new Registry(regPath)) {
-            stream().filter(FileEntry::isRegularFile)
-                    .filter(Guard::unprotected)
-                    .filter(filter)
-                    .forEach(entry -> register(entry, registry));
+            query.stream()
+                 .filter(FileEntry::isRegularFile)
+                 //.filter(Guard::unprotected)
+                 .filter(filter)
+                 .forEach(entry -> register(entry, registry));
         }
         out.printf("%ncleaning ...%n");
-        cleaner.clean(mainEntry);
+        cleaner.clean(query.baseEntry());
         out.printf("%n" +
                    "%12d unique files confirmed%n" +
                    "%12d unique files registered%n" +
@@ -149,7 +140,7 @@ class Registrar implements Runnable {
     }
 
     private void moveToTrash(final FileEntry entry) {
-        final Path relative = mainEntry.path().relativize(entry.path());
+        final Path relative = basePath.relativize(entry.path());
         try {
             final Path target = trashPath.resolve(relative);
             Files.createDirectories(target.getParent());
