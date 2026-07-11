@@ -11,12 +11,19 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static java.util.function.Predicate.not;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PathQueryTest {
 
     static Stream<ParseCase> parseCases() {
-        return Stream.of(parseCase("", ".", Recursion.NONE, "*"),
+        return Stream.of(parseCase("/", "/", Recursion.NONE, "*"),
+                         parseCase("/**", "/", Recursion.VISIBLE, "*"),
+                         parseCase("/path/to/:**/*.img", "/path/to", Recursion.ALL, "*.img"),
+                         parseCase("C:\\", "C:/", Recursion.NONE, "*"),
+                         parseCase("C:\\**", "C:/", Recursion.VISIBLE, "*"),
+                         parseCase("C:\\path\\to\\:**\\:*.img", "C:/path/to", Recursion.ALL, ":*.img"),
+                         parseCase("", ".", Recursion.NONE, "*"),
                          parseCase("*", ".", Recursion.NONE, "*"),
                          parseCase("**", ".", Recursion.VISIBLE, "*"),
                          parseCase(":**", ".", Recursion.ALL, "*"),
@@ -39,7 +46,8 @@ class PathQueryTest {
                          parseCase("../**/:*", "..", Recursion.VISIBLE, ":*"),
                          parseCase("../:**/:*", "..", Recursion.ALL, ":*"),
                          parseCase("../**/.*", "..", Recursion.VISIBLE, ".*"),
-                         parseCase("../:**/.*", "..", Recursion.ALL, ".*"));
+                         parseCase("../:**/.*", "..", Recursion.ALL, ".*"),
+                         parseCase("path/to/../xo/:**/.*", "path/xo", Recursion.ALL, ".*"));
     }
 
     private static ParseCase parseCase(final String pattern,
@@ -48,7 +56,8 @@ class PathQueryTest {
     }
 
     static Stream<StreamCase> streamCases() {
-        return parseCases().map(PathQueryTest::streamCase);
+        return parseCases().filter(not(given -> "/**".equals(given.pattern)))
+                           .map(PathQueryTest::streamCase);
     }
 
     private static StreamCase streamCase(final ParseCase parseCase) {
