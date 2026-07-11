@@ -43,7 +43,8 @@ class DirLister implements Runnable {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.help(DirLister.class, cmdLine(args), cmdName(args));
+            throw RequestException.format(DirLister.class).apply(cmdLine(args), cmdName(args))
+                                  .causedBy(e);
         }
     }
 

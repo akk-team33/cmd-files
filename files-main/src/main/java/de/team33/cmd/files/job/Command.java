@@ -45,8 +45,8 @@ public enum Command {
     }
 
     private static RequestException newBadArgsException(final List<String> args) {
-        return RequestException.format(Command.class, "BadArgs.txt",
-                                       cmdLine(args), cmdName(args), excerpts());
+        return RequestException.format(Command.class, "BadArgs.txt")
+                               .apply(cmdLine(args), cmdName(args), excerpts());
     }
 
     private static Optional<Command> ofAmbiguous(final List<String> args) {

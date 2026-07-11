@@ -39,7 +39,9 @@ class Cleaning implements Runnable {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.format(Cleaning.class, "Cleaning.txt", cmdLine(args), cmdName(args));
+            throw RequestException.format(Cleaning.class)
+                                  .apply(cmdLine(args), cmdName(args))
+                                  .causedBy(e);
         }
     }
 

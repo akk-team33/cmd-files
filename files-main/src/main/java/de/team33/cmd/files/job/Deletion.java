@@ -46,7 +46,8 @@ class Deletion implements Runnable {
             final List<Path> paths = args.stream().skip(3).map(Path::of).toList();
             return new Deletion(out, expression, paths);
         }
-        throw RequestException.format(Deletion.class, "Deletion.txt", cmdLine(args), cmdName(args));
+        throw RequestException.format(Deletion.class)
+                              .apply(cmdLine(args), cmdName(args));
     }
 
     private static List<FileEntry> list(final FileEntry entry) {

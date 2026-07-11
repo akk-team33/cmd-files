@@ -53,7 +53,8 @@ class Moving implements Runnable {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.help(Moving.class, cmdLine(args), cmdName(args));
+            throw RequestException.format(Moving.class).apply(cmdLine(args), cmdName(args))
+                                  .causedBy(e);
         }
     }
 

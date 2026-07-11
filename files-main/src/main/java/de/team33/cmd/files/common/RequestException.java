@@ -12,13 +12,21 @@ public class RequestException extends Exception {
         return new RequestException(TextIO.read(referringClass, resourceName));
     }
 
-    public static RequestException help(final Class<?> referringClass, final Object... args) {
-        return format(referringClass, referringClass.getSimpleName() + ".txt", args);
+    public static Function format(final Class<?> referringClass) {
+        return format(referringClass, referringClass.getSimpleName() + ".txt");
     }
 
-    public static RequestException format(final Class<?> referringClass,
-                                          final String resourceName,
-                                          final Object... args) {
-        return new RequestException(String.format(TextIO.read(referringClass, resourceName), args));
+    public static Function format(final Class<?> referringClass, final String resourceName) {
+        return args -> new RequestException(TextIO.read(referringClass, resourceName).formatted(args));
+    }
+
+    public final RequestException causedBy(final Throwable cause) {
+        initCause(cause);
+        return this;
+    }
+
+    @FunctionalInterface
+    public interface Function {
+        RequestException apply(Object... args);
     }
 }

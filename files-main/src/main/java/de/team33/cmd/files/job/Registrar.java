@@ -69,7 +69,9 @@ class Registrar implements Runnable {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.format(Registrar.class, "Registrar.txt", cmdLine(args), cmdName(args));
+            throw RequestException.format(Registrar.class)
+                                  .apply(cmdLine(args), cmdName(args))
+                                  .causedBy(e);
         }
     }
 

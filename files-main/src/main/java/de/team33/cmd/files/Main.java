@@ -6,6 +6,7 @@ import de.team33.cmd.files.job.Command;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class Main {
 
@@ -18,7 +19,11 @@ public class Main {
         try {
             return Command.job(out, args);
         } catch (final RequestException e) {
-            return () -> out.printHelp(e.getMessage());
+            return () -> {
+                Optional.ofNullable(e.getCause())
+                        .ifPresent(Throwable::printStackTrace);
+                out.printHelp(e.getMessage());
+            };
         }
     }
 }

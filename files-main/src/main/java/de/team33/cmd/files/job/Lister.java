@@ -44,7 +44,8 @@ class Lister implements Runnable {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.help(Lister.class, cmdLine(args), cmdName(args));
+            throw RequestException.format(Lister.class).apply(cmdLine(args), cmdName(args))
+                                  .causedBy(e);
         }
     }
 

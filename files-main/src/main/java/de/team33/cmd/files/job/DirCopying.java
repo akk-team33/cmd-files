@@ -35,7 +35,8 @@ class DirCopying implements Runnable {
             final Path target = Path.of(args.get(3));
             return new DirCopying(out, source, target);
         }
-        throw RequestException.format(DirCopying.class, "DirCopying.txt", Util.cmdLine(args), Util.cmdName(args));
+        throw RequestException.format(DirCopying.class)
+                              .apply(Util.cmdLine(args), Util.cmdName(args));
     }
 
     @Override
