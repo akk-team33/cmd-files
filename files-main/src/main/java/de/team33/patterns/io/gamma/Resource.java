@@ -26,23 +26,23 @@ public class Resource {
         this.newOutputStream = requireNonNull(newOutputStream);
     }
 
-    public static Resource combo(final XSupplier<? extends InputStream, ? extends IOException> newInputStream,
+    public static Resource using(final XSupplier<? extends InputStream, ? extends IOException> newInputStream,
                                  final XSupplier<? extends OutputStream, ? extends IOException> newOutputStream) {
         return new Resource(newInputStream, newOutputStream);
     }
 
     @SuppressWarnings("unchecked")
     public static Resource readOnly(final XSupplier<? extends InputStream, ? extends IOException> newInputStream) {
-        return combo(newInputStream, NOT_SUPPORTED);
+        return using(newInputStream, NOT_SUPPORTED);
     }
 
     @SuppressWarnings("unchecked")
     public static Resource writeOnly(final XSupplier<? extends OutputStream, ? extends IOException> newOutputStream) {
-        return combo(NOT_SUPPORTED, newOutputStream);
+        return using(NOT_SUPPORTED, newOutputStream);
     }
 
     public static Resource by(final Path path) {
-        return combo(() -> Files.newInputStream(path), () -> Files.newOutputStream(path));
+        return using(() -> Files.newInputStream(path), () -> Files.newOutputStream(path));
     }
 
     public static Resource by(final Class<?> refClass, final String name) {
