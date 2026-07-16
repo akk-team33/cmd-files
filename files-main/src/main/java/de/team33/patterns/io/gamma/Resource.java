@@ -5,16 +5,48 @@ import de.team33.patterns.exceptional.dione.XFunction;
 import de.team33.patterns.exceptional.dione.XSupplier;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static java.util.Objects.requireNonNull;
 
 public class Resource {
+
+    @SuppressWarnings("rawtypes")
+    private static final XSupplier NOT_SUPPORTED = () -> {
+        throw new UnsupportedOperationException("operation not supported");
+    };
 
     private final XSupplier<? extends InputStream, ? extends IOException> newInputStream;
     private final XSupplier<? extends OutputStream, ? extends IOException> newOutputStream;
 
-    public Resource(final XSupplier<? extends InputStream, ? extends IOException> newInputStream,
-                    final XSupplier<? extends OutputStream, ? extends IOException> newOutputStream) {
-        this.newInputStream = newInputStream;
-        this.newOutputStream = newOutputStream;
+    private Resource(final XSupplier<? extends InputStream, ? extends IOException> newInputStream,
+                     final XSupplier<? extends OutputStream, ? extends IOException> newOutputStream) {
+        this.newInputStream = requireNonNull(newInputStream);
+        this.newOutputStream = requireNonNull(newOutputStream);
+    }
+
+    public static Resource combo(final XSupplier<? extends InputStream, ? extends IOException> newInputStream,
+                                 final XSupplier<? extends OutputStream, ? extends IOException> newOutputStream) {
+        return new Resource(newInputStream, newOutputStream);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Resource readOnly(final XSupplier<? extends InputStream, ? extends IOException> newInputStream) {
+        return combo(newInputStream, NOT_SUPPORTED);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Resource writeOnly(final XSupplier<? extends OutputStream, ? extends IOException> newOutputStream) {
+        return combo(NOT_SUPPORTED, newOutputStream);
+    }
+
+    public static Resource by(final Path path) {
+        return combo(() -> Files.newInputStream(path), () -> Files.newOutputStream(path));
+    }
+
+    public static Resource by(final Class<?> refClass, final String name) {
+        return readOnly(() -> refClass.getResourceAsStream(name));
     }
 
     private <T> XBiConsumer<OutputStream, T, IOException>
