@@ -17,8 +17,8 @@ class WritingTest extends Supply {
     private static final Path PATH = Path.of("target", "testing", WritingTest.class.getSimpleName());
     private static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz";
 
-    private final Writing<String> writing;
-    private final Reading<String> reading;
+    private final Writing writing;
+    private final Reading reading;
     private final Path path;
 
     WritingTest() throws IOException {
@@ -48,7 +48,7 @@ class WritingTest extends Supply {
     }
 
     @Test
-    final void output_write() throws IOException {
+    final void output_bytes_write() throws IOException {
         final String original = anyString();
 
         writing.output(WritingTest::outputString)
@@ -58,7 +58,7 @@ class WritingTest extends Supply {
     }
 
     @Test
-    final void writing_write() throws IOException {
+    final void output_chars_write() throws IOException {
         final String original = anyString();
 
         writing.output(WritingTest::writeString, StandardCharsets.UTF_8)

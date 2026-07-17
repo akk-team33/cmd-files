@@ -8,11 +8,11 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 @FunctionalInterface
-public interface Writing<T> {
+public interface Writing {
 
     OutputStream newOutputStream() throws IOException;
 
-    default Output<T> output(final XBiConsumer<? super OutputStream, ? super T, ? extends IOException> method) {
+    default <T> Output<T> output(final XBiConsumer<? super OutputStream, ? super T, ? extends IOException> method) {
         return origin -> {
             try (final OutputStream out = newOutputStream()) {
                 method.accept(out, origin);
@@ -20,7 +20,7 @@ public interface Writing<T> {
         };
     }
 
-    default Output<T> output(final XBiConsumer<? super BufferedWriter, ? super T, ? extends IOException> method,
+    default <T> Output<T> output(final XBiConsumer<? super BufferedWriter, ? super T, ? extends IOException> method,
                              final Charset charset) {
         return output(Util.outputMethod(method, charset));
     }

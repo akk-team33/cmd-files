@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReadingTest extends Supply {
 
-    private static final Reading<String> CLASSPATH_READING =
+    private static final Reading CLASSPATH_READING =
             () -> ReadingTest.class.getResourceAsStream("ResourceTest.txt");
 
     private static String readString(final BufferedReader in) throws IOException {
@@ -35,9 +35,9 @@ class ReadingTest extends Supply {
     }
 
     @Test
-    final void input_read() throws IOException {
+    final void input_bytes_read() throws IOException {
         final byte[] original = anyString().getBytes(StandardCharsets.UTF_8);
-        final Reading<byte[]> reading = () -> new ByteArrayInputStream(original);
+        final Reading reading = () -> new ByteArrayInputStream(original);
         final Input<byte[]> input = reading.input(InputStream::readAllBytes);
 
         final byte[] result = input.read();
@@ -45,10 +45,10 @@ class ReadingTest extends Supply {
     }
 
     @Test
-    final void reading_read() throws IOException {
+    final void input_chars_read() throws IOException {
         final String original = anyString();
         final byte[] bytes = original.getBytes(StandardCharsets.UTF_8);
-        final Reading<String> resource = () -> new ByteArrayInputStream(bytes);
+        final Reading resource = () -> new ByteArrayInputStream(bytes);
         final Input<String> input = resource.input(ReadingTest::readString, StandardCharsets.UTF_8);
 
         final String result = input.read();
