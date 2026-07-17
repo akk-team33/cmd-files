@@ -13,24 +13,18 @@ public class FileInput<T> implements Input<T> {
 
     private final Input<T> input;
 
-    private FileInput(final Reading reading, final Charset charset,
-                      final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method) {
-        this.input = reading.input(method, charset);
-    }
-
-    private FileInput(final Reading reading,
-                      final XFunction<? super InputStream, ? extends T, ? extends IOException> method) {
-        this.input = reading.input(method);
-    }
-
     public FileInput(final Path path, final Charset charset,
                      final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method) {
-        this(() -> Files.newInputStream(path), charset, method);
+        this.input = reading(path).input(method, charset);
     }
 
     public FileInput(final Path path,
                      final XFunction<? super InputStream, ? extends T, ? extends IOException> method) {
-        this(() -> Files.newInputStream(path), method);
+        this.input = reading(path).input(method);
+    }
+
+    private static Reading reading(final Path path) {
+        return () -> Files.newInputStream(path);
     }
 
     @Override

@@ -29,4 +29,15 @@ final class Util {
             }
         };
     }
+
+    static String readString(final BufferedReader reader) throws IOException {
+        try (final StringWriter writer = new StringWriter()) {
+            reader.transferTo(writer);
+            return writer.toString();
+        }
+    }
+
+    static void writeString(final Writer writer, final String text) throws IOException {
+        writer.write(text);
+    }
 }

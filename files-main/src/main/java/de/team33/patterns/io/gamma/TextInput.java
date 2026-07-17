@@ -1,8 +1,5 @@
 package de.team33.patterns.io.gamma;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -10,18 +7,11 @@ import java.nio.file.Path;
 public class TextInput extends FileInput<String> {
 
     private TextInput(final Path path, final Charset charset) {
-        super(path, charset, TextInput::map);
-    }
-
-    private static String map(final BufferedReader reader) throws IOException {
-        try (final StringWriter writer = new StringWriter()) {
-            reader.transferTo(writer);
-            return writer.toString();
-        }
+        super(path, charset, Util::readString);
     }
 
     private static Input<String> by(final Reading reading, final Charset charset) {
-        return reading.input(TextInput::map, charset);
+        return reading.input(Util::readString, charset);
     }
 
     public static TextInput by(final Path path, final Charset charset) {
