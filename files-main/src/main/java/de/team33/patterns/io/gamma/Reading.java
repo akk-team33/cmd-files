@@ -21,7 +21,7 @@ public interface Reading {
     }
 
     default <T> Input<T> input(final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method,
-                           final Charset charset) {
+                               final Charset charset) {
         return input(Util.inputMethod(method, charset));
     }
 }
