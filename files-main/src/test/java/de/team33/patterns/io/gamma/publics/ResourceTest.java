@@ -1,5 +1,7 @@
 package de.team33.patterns.io.gamma.publics;
 
+import de.team33.patterns.io.gamma.Input;
+import de.team33.patterns.io.gamma.Output;
 import de.team33.patterns.io.gamma.Resource;
 import de.team33.testing.Supply;
 import org.junit.jupiter.api.Test;
@@ -42,7 +44,7 @@ class ResourceTest extends Supply {
         final String expected = "p1=v1\n" +
                                 "p2=v2\n" +
                                 "p3=v3\n";
-        final Resource.Input<String> input = CLASSPATH_RESOURCE.reading(ResourceTest::readString);
+        final Input<String> input = CLASSPATH_RESOURCE.reading(ResourceTest::readString);
 
         final String result = input.read();
         assertEquals(expected, result);
@@ -50,7 +52,7 @@ class ResourceTest extends Supply {
 
     @Test
     final void by_classpath_write() {
-        final Resource.Output<String> output = CLASSPATH_RESOURCE.writing(ResourceTest::writeString);
+        final Output<String> output = CLASSPATH_RESOURCE.writing(ResourceTest::writeString);
         assertThrows(UnsupportedOperationException.class, () -> output.write(anyString()));
     }
 
@@ -59,7 +61,7 @@ class ResourceTest extends Supply {
         final byte[] original = anyString().getBytes(StandardCharsets.UTF_8);
         final Resource resource = Resource.readOnly(() -> new ByteArrayInputStream(original));
 
-        final Resource.Input<byte[]> input = resource.input(InputStream::readAllBytes);
+        final Input<byte[]> input = resource.input(InputStream::readAllBytes);
         final byte[] result = input.read();
         assertArrayEquals(original, result);
     }
@@ -68,7 +70,7 @@ class ResourceTest extends Supply {
     final void output_write() throws IOException {
         final byte[] original = anyString().getBytes(StandardCharsets.UTF_8);
 
-        final Resource.Output<byte[]> output = resource.output(OutputStream::write);
+        final Output<byte[]> output = resource.output(OutputStream::write);
         output.write(original);
 
         assertArrayEquals(original, resource.input(InputStream::readAllBytes).read());
@@ -79,10 +81,10 @@ class ResourceTest extends Supply {
         final byte[] original = anyString().getBytes(StandardCharsets.UTF_8);
         final Resource woResource = Resource.writeOnly(() -> Files.newOutputStream(path));
 
-        final Resource.Input<String> reading = woResource.reading(ResourceTest::readString);
+        final Input<String> reading = woResource.reading(ResourceTest::readString);
         assertThrows(UnsupportedOperationException.class, reading::read);
 
-        final Resource.Output<byte[]> output = woResource.output(OutputStream::write);
+        final Output<byte[]> output = woResource.output(OutputStream::write);
         output.write(original);
         assertArrayEquals(original, resource.input(InputStream::readAllBytes).read());
     }
@@ -103,7 +105,7 @@ class ResourceTest extends Supply {
         final byte[] bytes = original.getBytes(StandardCharsets.UTF_8);
         final Resource resource = Resource.readOnly(() -> new ByteArrayInputStream(bytes));
 
-        final Resource.Input<String> input = resource.reading(ResourceTest::readString);
+        final Input<String> input = resource.reading(ResourceTest::readString);
         final String result = input.read();
         assertEquals(original, result);
     }

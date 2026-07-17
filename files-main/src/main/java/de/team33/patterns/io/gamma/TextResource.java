@@ -8,8 +8,8 @@ import java.nio.file.Path;
 
 public class TextResource {
 
-    private final Resource.Input<String> input;
-    private final Resource.Output<String> output;
+    private final Input<String> input;
+    private final Output<String> output;
 
     private TextResource(final Resource resource) {
         this.input = resource.reading(this::reading);

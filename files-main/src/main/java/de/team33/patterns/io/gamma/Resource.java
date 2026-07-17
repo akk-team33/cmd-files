@@ -97,13 +97,4 @@ public class Resource {
         return output(writeMethod(method));
     }
 
-    public interface Input<T> {
-
-        T read() throws IOException;
-    }
-
-    public interface Output<T> {
-
-        void write(T origin) throws IOException;
-    }
 }
