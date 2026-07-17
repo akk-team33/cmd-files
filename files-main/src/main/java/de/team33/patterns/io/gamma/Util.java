@@ -5,6 +5,8 @@ import de.team33.patterns.exceptional.dione.XFunction;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
+import java.util.Properties;
 
 final class Util {
 
@@ -39,5 +41,25 @@ final class Util {
 
     static void writeString(final Writer writer, final String text) throws IOException {
         writer.write(text);
+    }
+
+    static Properties readProps(final BufferedReader reader) throws IOException {
+        final Properties properties = new Properties();
+        properties.load(reader);
+        return properties;
+    }
+
+    static void writeProps(final BufferedWriter writer, Properties properties) throws IOException {
+        properties.store(writer, LocalDateTime.now().toString());
+    }
+
+    static <T> Input<T> input(final Reading reading,
+                              final XFunction<? super InputStream, ? extends T, ? extends IOException> method) {
+        return reading.input(method);
+    }
+
+    static <T> Input<T> input(final Reading reading, final Charset charset,
+                              final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method) {
+        return reading.input(method, charset);
     }
 }

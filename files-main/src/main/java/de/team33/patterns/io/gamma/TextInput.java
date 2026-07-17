@@ -10,10 +10,6 @@ public class TextInput extends FileInput<String> {
         super(path, charset, Util::readString);
     }
 
-    private static Input<String> by(final Reading reading, final Charset charset) {
-        return reading.input(Util::readString, charset);
-    }
-
     public static TextInput by(final Path path, final Charset charset) {
         return new TextInput(path, charset);
     }
@@ -23,7 +19,7 @@ public class TextInput extends FileInput<String> {
     }
 
     public static Input<String> by(final Class<?> refClass, final String name, final Charset charset) {
-        return by(() -> refClass.getResourceAsStream(name), charset);
+        return Util.input(() -> refClass.getResourceAsStream(name), charset, Util::readString);
     }
 
     public static Input<String> by(final Class<?> refClass, final String name) {
