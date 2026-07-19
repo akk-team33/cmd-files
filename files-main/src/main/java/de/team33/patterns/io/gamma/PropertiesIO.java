@@ -22,7 +22,8 @@ public class PropertiesIO extends FileIO<Properties> {
     }
 
     static void writeProps(final BufferedWriter writer, Properties properties) throws IOException {
-        properties.store(writer, LocalDateTime.now().toString());
+        properties.store(writer, "%s - by %s".formatted(LocalDateTime.now().toString(),
+                                                        PropertiesIO.class.getCanonicalName()));
     }
 
     public static PropertiesIO by(final Path path, final Charset charset) {
@@ -33,11 +34,11 @@ public class PropertiesIO extends FileIO<Properties> {
         return by(path, StandardCharsets.UTF_8);
     }
 
-    public static Input<Properties> by(final Class<?> refClass, final String name, final Charset charset) {
-        return Reading.by(refClass, name).input(charset, PropertiesIO::readProps);
+    public static Input<Properties> by(final Class<?> refClass, final String resourceName, final Charset charset) {
+        return Reading.by(refClass, resourceName).input(charset, PropertiesIO::readProps);
     }
 
-    public static Input<Properties> by(final Class<?> refClass, final String name) {
-        return by(refClass, name, StandardCharsets.UTF_8);
+    public static Input<Properties> by(final Class<?> refClass, final String resourceName) {
+        return by(refClass, resourceName, StandardCharsets.UTF_8);
     }
 }

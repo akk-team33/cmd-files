@@ -55,6 +55,11 @@
             <artifactId>arbitrary-mimas</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>collection-ceres</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
