@@ -13,10 +13,6 @@ import java.nio.file.Path;
 @FunctionalInterface
 public interface Reading {
 
-    static Reading by(final Reading reading) {
-        return reading;
-    }
-
     static Reading by(final Path path, final OpenOption... options) {
         return () -> Files.newInputStream(path, options);
     }
