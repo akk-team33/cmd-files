@@ -32,17 +32,6 @@ final class Util {
         };
     }
 
-    static String readString(final BufferedReader reader) throws IOException {
-        try (final StringWriter writer = new StringWriter()) {
-            reader.transferTo(writer);
-            return writer.toString();
-        }
-    }
-
-    static void writeString(final Writer writer, final String text) throws IOException {
-        writer.write(text);
-    }
-
     static Properties readProps(final BufferedReader reader) throws IOException {
         final Properties properties = new Properties();
         properties.load(reader);
@@ -60,6 +49,6 @@ final class Util {
 
     static <T> Input<T> input(final Reading reading, final Charset charset,
                               final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method) {
-        return reading.input(method, charset);
+        return reading.input(charset, method);
     }
 }

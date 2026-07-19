@@ -28,7 +28,7 @@ class ReadingTest extends Supply {
         final String expected = "p1=v1\n" +
                                 "p2=v2\n" +
                                 "p3=v3\n";
-        final Input<String> input = CLASSPATH_READING.input(ReadingTest::readString, StandardCharsets.UTF_8);
+        final Input<String> input = CLASSPATH_READING.input(StandardCharsets.UTF_8, ReadingTest::readString);
 
         final String result = input.read();
         assertEquals(expected, result);
@@ -49,7 +49,7 @@ class ReadingTest extends Supply {
         final String original = anyString();
         final byte[] bytes = original.getBytes(StandardCharsets.UTF_8);
         final Reading resource = () -> new ByteArrayInputStream(bytes);
-        final Input<String> input = resource.input(ReadingTest::readString, StandardCharsets.UTF_8);
+        final Input<String> input = resource.input(StandardCharsets.UTF_8, ReadingTest::readString);
 
         final String result = input.read();
         assertEquals(original, result);

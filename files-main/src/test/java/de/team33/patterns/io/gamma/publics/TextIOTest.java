@@ -1,5 +1,6 @@
 package de.team33.patterns.io.gamma.publics;
 
+import de.team33.patterns.io.gamma.Input;
 import de.team33.patterns.io.gamma.TextIO;
 import de.team33.testing.Supply;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ class TextIOTest extends Supply {
 
     private static final Path PATH = Path.of("target", "testing", TextIOTest.class.getSimpleName());
     private static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz";
+    private static final Input<String> CLASSPATH_INPUT = TextIO.by(TextIOTest.class, "ResourceTest.txt");
 
     private final TextIO textIO;
     private final Path path;
@@ -22,6 +24,15 @@ class TextIOTest extends Supply {
         Files.createDirectories(PATH);
         this.path = PATH.resolve("%s.txt".formatted(anyString(8, CHARACTERS)));
         this.textIO = TextIO.by(path);
+    }
+
+    @Test
+    final void by_classpath_read() throws IOException {
+        final String expected = "p1=v1\n" +
+                                "p2=v2\n" +
+                                "p3=v3\n";
+        final String result = CLASSPATH_INPUT.read();
+        assertEquals(expected, result);
     }
 
     @Test

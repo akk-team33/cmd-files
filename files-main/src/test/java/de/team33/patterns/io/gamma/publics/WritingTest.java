@@ -61,9 +61,9 @@ class WritingTest extends Supply {
     final void output_chars_write() throws IOException {
         final String original = anyString();
 
-        writing.output(WritingTest::writeString, StandardCharsets.UTF_8)
+        writing.output(StandardCharsets.UTF_8, WritingTest::writeString)
                .write(original);
 
-        assertEquals(original, reading.input(WritingTest::readString, StandardCharsets.UTF_8).read());
+        assertEquals(original, reading.input(StandardCharsets.UTF_8, WritingTest::readString).read());
     }
 }
