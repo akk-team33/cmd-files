@@ -9,8 +9,8 @@ import java.nio.charset.Charset;
 final class Util {
 
     static <T> XFunction<InputStream, T, IOException>
-    inputMethod(final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method,
-                final Charset charset) {
+    readMethod(final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method,
+               final Charset charset) {
         return in -> {
             try (final Reader reader = new InputStreamReader(in, charset);
                  final BufferedReader bufferedReader = new BufferedReader(reader)) {
@@ -20,8 +20,8 @@ final class Util {
     }
 
     static <T> XBiConsumer<OutputStream, T, IOException>
-    outputMethod(final XBiConsumer<? super BufferedWriter, ? super T, ? extends IOException> charMethod,
-                 final Charset charset) {
+    writeMethod(final XBiConsumer<? super BufferedWriter, ? super T, ? extends IOException> charMethod,
+                final Charset charset) {
         return (out, subject) -> {
             try (final Writer writer = new OutputStreamWriter(out, charset);
                  final BufferedWriter bufferedWriter = new BufferedWriter(writer)) {

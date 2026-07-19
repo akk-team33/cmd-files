@@ -89,6 +89,6 @@ public interface Reading {
      */
     default <T> Input<T> input(final Charset charset,
                                final XFunction<? super BufferedReader, ? extends T, ? extends IOException> method) {
-        return input(Util.inputMethod(method, charset));
+        return input(Util.readMethod(method, charset));
     }
 }

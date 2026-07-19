@@ -73,6 +73,6 @@ public interface Writing {
      */
     default <T> Output<T> output(final Charset charset,
                                  final XBiConsumer<? super BufferedWriter, ? super T, ? extends IOException> method) {
-        return output(Util.outputMethod(method, charset));
+        return output(Util.writeMethod(method, charset));
     }
 }
