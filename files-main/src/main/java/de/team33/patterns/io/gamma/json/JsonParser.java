@@ -29,7 +29,8 @@ class JsonParser {
             case '{' -> parseObject();
             case '[' -> parseArray();
             case '"' -> parseString();
-            case 't', 'T', 'f', 'F' -> parseBoolean();
+            case 'n' -> parseNull();
+            case 't', 'f' -> parseBoolean();
             default -> parseNumber();
         };
     }
@@ -47,11 +48,7 @@ class JsonParser {
         final JsonObject.Builder builder = JsonObject.builder();
         char next = source.hasMore() ? ',' : 0;
         while (',' == next) {
-            final String name = parseString().value();
-            source.skipExpected(':');
-            source.skipWhitespace();
-            final JsonValue value = parseValue();
-            builder.put(name, value);
+            parseMember(builder);
             next = source.hasMore() ? source.peek() : 0;
             if (',' == next) {
                 source.skip();
@@ -59,6 +56,16 @@ class JsonParser {
             }
         }
         return builder;
+    }
+
+    private void parseMember(JsonObject.Builder builder) {
+        final String name = parseString().value();
+
+        source.skipExpected(':');
+        source.skipWhitespace();
+
+        final JsonValue value = parseValue();
+        builder.put(name, value);
     }
 
     private JsonValue parseArray() {
@@ -71,15 +78,32 @@ class JsonParser {
         return new JsonString(stage);
     }
 
+    private JsonValue parseNull() {
+        final String candidate = source.readUntil(this::isLimitChar).trim();
+        @SuppressWarnings("SwitchStatementWithTooFewBranches")
+        final JsonValue result = switch (candidate) {
+            case "null" -> JsonValue.NULL;
+            default -> throw new IllegalArgumentException(
+                    "expected null - but was %s".formatted(candidate));
+        };
+        source.skipWhitespace();
+        return result;
+    }
+
     private JsonBoolean parseBoolean() {
-        final String candidate = source.readUntil(this::isLimitChar);
-        final boolean value = Boolean.parseBoolean(candidate);
+        final String candidate = source.readUntil(this::isLimitChar).trim();
+        final boolean value = switch (candidate) {
+            case "true" -> true;
+            case "false" -> false;
+            default -> throw new IllegalArgumentException(
+                    "expected one of {true, false} - but was %s".formatted(candidate));
+        };
         source.skipWhitespace();
         return new JsonBoolean(value);
     }
 
     private JsonNumber parseNumber() {
-        final String candidate = source.readUntil(this::isLimitChar);
+        final String candidate = source.readUntil(this::isLimitChar).trim();
         final BigDecimal number = new BigDecimal(candidate);
         source.skipWhitespace();
         return new JsonNumber(number);
