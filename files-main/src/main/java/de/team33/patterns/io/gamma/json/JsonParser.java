@@ -19,12 +19,12 @@ class JsonParser {
     private JsonValue parseRoot() {
         source.skipWhitespace();
         final JsonValue result = parseValue();
-        source.testEOT();
+        source.failIfMore();
         return result;
     }
 
     private JsonValue parseValue() {
-        source.testNotEOT();
+        source.failIfEOT();
         return switch (source.peek()) {
             case '{' -> parseObject();
             case '[' -> parseArray();
@@ -45,14 +45,14 @@ class JsonParser {
 
     private JsonObject.Builder parseObjectBody() {
         final JsonObject.Builder builder = JsonObject.builder();
-        char next = source.isEOT() ? 0 : ',';
+        char next = source.hasMore() ? ',' : 0;
         while (',' == next) {
             final String name = parseString().value();
             source.skipExpected(':');
             source.skipWhitespace();
             final JsonValue value = parseValue();
             builder.put(name, value);
-            next = source.isEOT() ? 0 : source.peek();
+            next = source.hasMore() ? source.peek() : 0;
             if (',' == next) {
                 source.skip();
                 source.skipWhitespace();

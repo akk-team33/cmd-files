@@ -14,19 +14,19 @@ class Source {
         this.index = index;
     }
 
-    final boolean isEOT() {
-        return index >= text.length();
+    final boolean hasMore() {
+        return index < text.length();
     }
 
-    final void testEOT() {
-        if (!isEOT()) {
+    final void failIfMore() {
+        if (hasMore()) {
             throw new IllegalArgumentException(
                     "expected end of source text at index %d".formatted(index));
         }
     }
 
-    final void testNotEOT() {
-        if (isEOT()) {
+    final void failIfEOT() {
+        if (!hasMore()) {
             throw new IllegalArgumentException(
                     "unexpected end of source text at index %d".formatted(index));
         }
@@ -51,14 +51,14 @@ class Source {
     }
 
     final void skipWhitespace() {
-        while (!isEOT() && Character.isWhitespace(peek())) {
+        while (hasMore() && Character.isWhitespace(peek())) {
             skip();
         }
     }
 
     final String readUntil(final CharPredicate predicate) {
         final Source fork = fork();
-        while (!fork.isEOT() && !predicate.test(fork.peek())) {
+        while (fork.hasMore() && !predicate.test(fork.peek())) {
             fork.skip();
         }
         final String result = text.substring(index, fork.index);
@@ -87,7 +87,7 @@ class Source {
     }
 
     private CharLiteral readCharLiteral() {
-        int value = isEOT() ? -1 : peek();
+        int value = hasMore() ? peek() : -1;
 
         if ('"' == value) {
             value = -1;
@@ -104,7 +104,7 @@ class Source {
 
     private int escChar() {
         index += 1;
-        testNotEOT();
+        failIfEOT();
 
         return switch (peek()) {
             case '\\' -> '\\';
