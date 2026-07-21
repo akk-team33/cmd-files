@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +48,7 @@ class SourceTest {
     }
 
     @Test
-    final void newNull() {
+    final void new_Source_Null() {
         assertThrows(NullPointerException.class, () -> new Source(null));
     }
 
@@ -166,6 +167,14 @@ class SourceTest {
 
         source.skipWhitespace();
         assertEquals(index, source.index());
+    }
+
+    @Test
+    final void readMatching() {
+        final Source source = new Source("abcdef");
+        final String result = source.readMatching(Pattern.compile("abc"));
+        assertEquals("abc", result);
+        assertEquals(3, source.index());
     }
 
     @Test

@@ -1,10 +1,15 @@
 package de.team33.patterns.io.gamma.json;
 
 import java.math.BigDecimal;
+import java.util.regex.Pattern;
 
 class JsonParser {
 
     private static final String LIMIT_CHARS = ",}]";
+    private static final Pattern NUMBER =
+            Pattern.compile("-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
+    private static final Pattern NULL = Pattern.compile("null");
+    private static final Pattern BOOLEAN = Pattern.compile("true|false");
 
     private final Source source;
 
@@ -82,31 +87,29 @@ class JsonParser {
     }
 
     private JsonValue parseNull() {
-        final String candidate = source.readUntil(this::isLimitChar).trim();
-        @SuppressWarnings("SwitchStatementWithTooFewBranches")
-        final JsonValue result = switch (candidate) {
-            case "null" -> JsonValue.NULL;
-            default -> throw new IllegalArgumentException(
-                    "expected null - but was %s".formatted(candidate));
-        };
+        final String candidate = source.readMatching(NULL);
+        if (candidate.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "expected null - but was %s".formatted(source.peekUntil(this::isLimitChar)));
+        }
         source.skipWhitespace();
-        return result;
+        return JsonValue.NULL;
     }
 
     private JsonBoolean parseBoolean() {
-        final String candidate = source.readUntil(this::isLimitChar).trim();
+        final String candidate = source.readMatching(BOOLEAN);
         final boolean value = switch (candidate) {
             case "true" -> true;
             case "false" -> false;
             default -> throw new IllegalArgumentException(
-                    "expected one of {true, false} - but was %s".formatted(candidate));
+                    "expected one of {true, false} - but was %s".formatted(source.peekUntil(this::isLimitChar)));
         };
         source.skipWhitespace();
         return new JsonBoolean(value);
     }
 
     private JsonNumber parseNumber() {
-        final String candidate = source.readUntil(this::isLimitChar).trim();
+        final String candidate = source.readUntil(this::isLimitChar); //.trim();
         final BigDecimal number = new BigDecimal(candidate);
         source.skipWhitespace();
         return new JsonNumber(number);

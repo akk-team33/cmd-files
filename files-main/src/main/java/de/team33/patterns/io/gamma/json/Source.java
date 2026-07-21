@@ -1,6 +1,7 @@
 package de.team33.patterns.io.gamma.json;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 class Source {
 
@@ -67,14 +68,29 @@ class Source {
         }
     }
 
+    final String readMatching(final Pattern pattern) {
+        final var result = pattern.matcher(text.substring(index))
+                                  .results()
+                                  .findAny()
+                                  .filter(match -> 0 == match.start())
+                                  .map(match -> text.substring(index, index + match.end()))
+                                  .orElse("");
+        index += result.length();
+        return result;
+    }
+
     final String readUntil(final CharPredicate predicate) {
+        final String result = peekUntil(predicate);
+        index += result.length();
+        return result;
+    }
+
+    final String peekUntil(final CharPredicate predicate) {
         final Source fork = fork();
         while (fork.hasMore() && !predicate.test(fork.peek())) {
             fork.skip();
         }
-        final String result = text.substring(index, fork.index);
-        index = fork.index;
-        return result;
+        return text.substring(index, fork.index);
     }
 
     final String readStringLiteral() {
