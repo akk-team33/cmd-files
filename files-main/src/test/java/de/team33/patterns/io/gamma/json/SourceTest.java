@@ -36,6 +36,7 @@ class SourceTest {
     static Stream<ReadStringLiteralCase> readStringLiteralCases() {
         return Stream.of(new ReadStringLiteralCase("", null),
                          new ReadStringLiteralCase(SUPPLY.anyString(), null),
+                         new ReadStringLiteralCase("\"\"", ""),
                          new ReadStringLiteralCase("\"this\\tcontains\\nseveral\\rescape\\fsequences\"",
                                                    "this\tcontains\nseveral\rescape\fsequences"),
                          readStringLiteralCase(SUPPLY.anyString()));
@@ -142,7 +143,7 @@ class SourceTest {
     }
 
     @Test
-    final void skipWhitespace() {
+    final void skipWhitespace_positive() {
         final String head = SUPPLY.anyString();
         final int index = head.length();
         final String text = head + SUPPLY.anyString(10, " \n\r\t");
@@ -153,12 +154,26 @@ class SourceTest {
     }
 
     @Test
-    final void readUntil() {
-        final String expected = SUPPLY.anyString();
-        final String text = expected + ' ' + SUPPLY.anyString();
+    final void skipWhitespace_negative() {
+        final String text = SUPPLY.anyString().replace(' ', '_');
+        final int index = SUPPLY.anyInt(text.length());
+        final Source source = skip(new Source(text), index);
 
-        final String result = new Source(text).readUntil(c -> c == ' ');
-        assertEquals(expected, result);
+        source.skipWhitespace();
+        assertEquals(index, source.index());
+    }
+
+    @Test
+    final void readUntil() {
+        final String head = SUPPLY.anyString(SUPPLY.anyInt(8), "abcdefg");
+        final String tail = SUPPLY.anyString(SUPPLY.anyInt(8), "abcdefg");
+        final String text = head + ' ' + tail;
+        final Source source = new Source(text);
+
+        assertEquals(head, source.readUntil(c -> c == ' '));
+        source.skipExpected(' ');
+        assertEquals(tail, source.readUntil(c -> c == ' '));
+        assertFalse(source.hasMore());
     }
 
     @ParameterizedTest
@@ -188,25 +203,6 @@ class SourceTest {
     }
 
     record ReadStringLiteralCase(String text, String expected) implements SourceCase {
-    }
-
-    record SkipExpectedCase(String text, int index) implements SourceCase {
-
-        SkipExpectedCase {
-            index = Integer.min(index, text.length());
-        }
-
-        char positiveSample() {
-            return text.charAt(index);
-        }
-
-        char negativeSample() {
-            char c = SUPPLY.anyChar();
-            while (c == positiveSample()) {
-                c = SUPPLY.anyChar();
-            }
-            return c;
-        }
     }
 
     record PeekCase(String text, int index) implements SourceCase {
