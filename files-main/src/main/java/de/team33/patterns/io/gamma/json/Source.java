@@ -14,6 +14,14 @@ class Source {
         this.index = index;
     }
 
+    final String text() {
+        return text;
+    }
+
+    final int index() {
+        return index;
+    }
+
     final boolean hasMore() {
         return index < text.length();
     }
@@ -41,6 +49,7 @@ class Source {
     }
 
     final void skipExpected(final char expected) {
+        failIfEOT();
         final char c = peek();
         if (expected == c) {
             skip();
