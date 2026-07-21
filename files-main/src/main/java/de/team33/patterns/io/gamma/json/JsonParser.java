@@ -6,12 +6,10 @@ class JsonParser {
 
     private static final String LIMIT_CHARS = ",}]";
 
-    private final String source;
-    private int index;
+    private final Source source;
 
     private JsonParser(final String source) {
-        this.source = source;
-        this.index = 0;
+        this.source = new Source(source);
     }
 
     static JsonValue parse(final String source) {
@@ -19,15 +17,15 @@ class JsonParser {
     }
 
     private JsonValue parseRoot() {
-        skipWhitespace();
+        source.skipWhitespace();
         final JsonValue result = parseValue();
-        testEOT();
+        source.testEOT();
         return result;
     }
 
     private JsonValue parseValue() {
-        testNotEOT();
-        return switch (source.charAt(index)) {
+        source.testNotEOT();
+        return switch (source.peek()) {
             case '{' -> parseObject();
             case '[' -> parseArray();
             case '"' -> parseString();
@@ -37,27 +35,27 @@ class JsonParser {
     }
 
     private JsonObject parseObject() {
-        skipExpected('{');
-        skipWhitespace();
+        source.skipExpected('{');
+        source.skipWhitespace();
         final JsonObject.Builder builder = parseObjectBody();
-        skipExpected('}');
-        skipWhitespace();
+        source.skipExpected('}');
+        source.skipWhitespace();
         return builder.build();
     }
 
     private JsonObject.Builder parseObjectBody() {
         final JsonObject.Builder builder = JsonObject.builder();
-        char next = isEOT() ? 0 : ',';
-        while ((',' == next)) {
+        char next = source.isEOT() ? 0 : ',';
+        while (',' == next) {
             final String name = parseString().value();
-            skipExpected(':');
-            skipWhitespace();
-            final var value = parseValue();
+            source.skipExpected(':');
+            source.skipWhitespace();
+            final JsonValue value = parseValue();
             builder.put(name, value);
-            next = isEOT() ? 0 : source.charAt(index);
+            next = source.isEOT() ? 0 : source.peek();
             if (',' == next) {
-                index += 1;
-                skipWhitespace();
+                source.skip();
+                source.skipWhitespace();
             }
         }
         return builder;
@@ -68,130 +66,26 @@ class JsonParser {
     }
 
     private JsonString parseString() {
-        final StringLiteral stage = new StringLiteral();
-        return new JsonString(stage.body());
-    }
-
-    private void skipExpected(final char expected) {
-        final char c = source.charAt(index);
-        if (expected == c) {
-            index += 1;
-        } else {
-            throw new IllegalArgumentException(
-                    "expected '%c' - but was '%c' at index %d".formatted(expected, c, index));
-        }
+        final String stage = source.readStringLiteral();
+        source.skipWhitespace();
+        return new JsonString(stage);
     }
 
     private JsonBoolean parseBoolean() {
-        final int limit = findLimit();
-        final boolean value = Boolean.parseBoolean(source.substring(index, limit));
-        index = limit;
-        skipWhitespace();
+        final String candidate = source.readUntil(this::isLimitChar);
+        final boolean value = Boolean.parseBoolean(candidate);
+        source.skipWhitespace();
         return new JsonBoolean(value);
     }
 
     private JsonNumber parseNumber() {
-        final int limit = findLimit();
-        final BigDecimal number = new BigDecimal(source.substring(index, limit));
-        index = limit;
-        skipWhitespace();
+        final String candidate = source.readUntil(this::isLimitChar);
+        final BigDecimal number = new BigDecimal(candidate);
+        source.skipWhitespace();
         return new JsonNumber(number);
-    }
-
-    private int findLimit() {
-        int next = index + 1;
-        while (!isLimitIndex(next)) {
-            next += 1;
-        }
-        return next;
-    }
-
-    private boolean isLimitIndex(final int next) {
-        return isEOT() || isLimitChar(source.charAt(next));
     }
 
     private boolean isLimitChar(final char c) {
         return Character.isWhitespace(c) || (0 <= LIMIT_CHARS.indexOf(c));
-    }
-
-    private void testEOT() {
-        if (!isEOT()) {
-            throw new IllegalArgumentException("expected end of source text at index %d".formatted(index));
-        }
-    }
-
-    private void testNotEOT() {
-        if (isEOT()) {
-            throw new IllegalArgumentException("unexpected end of source text at index %d".formatted(index));
-        }
-    }
-
-    private boolean isEOT() {
-        return index >= source.length();
-    }
-
-    private void skipWhitespace() {
-        while (index < source.length() && Character.isWhitespace(source.charAt(index))) {
-            index += 1;
-        }
-    }
-
-    private class CharLiteral {
-
-        private int value;
-
-        CharLiteral() {
-            this.value = isEOT() ? -1 : source.charAt(index);
-            if ('"' == value) {
-                this.value = -1;
-            } else if ('\\' == value) {
-                this.value = escChar();
-            }
-            index += ((0 > value) ? 0 : 1);
-        }
-
-        private int escChar() {
-            index += 1;
-            testNotEOT();
-            final char next = source.charAt(index);
-            return switch (next) {
-                case '\\' -> '\\';
-                case '"' -> '"';
-                case 'b' -> '\b';
-                case 'f' -> '\f';
-                case 'n' -> '\n';
-                case 'r' -> '\r';
-                case 't' -> '\t';
-                default -> -1;
-            };
-        }
-
-        final boolean isPresent() {
-            return 0 <= value;
-        }
-
-        final char toChar() {
-            return (char) value;
-        }
-    }
-
-    private class StringLiteral {
-
-        private final StringBuilder body = new StringBuilder();
-
-        StringLiteral() {
-            skipExpected('"');
-            CharLiteral next = new CharLiteral();
-            while (next.isPresent()) {
-                body.append(next.toChar());
-                next = new CharLiteral();
-            }
-            skipExpected('"');
-            skipWhitespace();
-        }
-
-        final String body() {
-            return body.toString();
-        }
     }
 }
