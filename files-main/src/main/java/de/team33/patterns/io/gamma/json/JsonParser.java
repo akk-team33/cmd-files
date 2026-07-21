@@ -38,14 +38,18 @@ class JsonParser {
     private JsonObject parseObject() {
         source.skipExpected('{');
         source.skipWhitespace();
-        final JsonObject.Builder builder = parseObjectBody();
-        source.skipExpected('}');
+        final JsonObject.Builder builder = JsonObject.builder();
+        if (source.hasMore() && '}' == source.peek()) {
+            source.skip();
+        } else {
+            parseObjectBody(builder);
+            source.skipExpected('}');
+        }
         source.skipWhitespace();
         return builder.build();
     }
 
-    private JsonObject.Builder parseObjectBody() {
-        final JsonObject.Builder builder = JsonObject.builder();
+    private void parseObjectBody(final JsonObject.Builder builder) {
         char next = source.hasMore() ? ',' : 0;
         while (',' == next) {
             parseMember(builder);
@@ -55,7 +59,6 @@ class JsonParser {
                 source.skipWhitespace();
             }
         }
-        return builder;
     }
 
     private void parseMember(JsonObject.Builder builder) {

@@ -46,6 +46,11 @@ class SourceTest {
         return new ReadStringLiteralCase("\"%s\"".formatted(expected), expected);
     }
 
+    @Test
+    final void newNull() {
+        assertThrows(NullPointerException.class, () -> new Source(null));
+    }
+
     @ParameterizedTest
     @MethodSource("anyMoreCases")
     final void hasMore(final AnyMoreCase given) {

@@ -1,5 +1,7 @@
 package de.team33.patterns.io.gamma.json;
 
+import java.util.Objects;
+
 class Source {
 
     private final String text;
@@ -10,7 +12,7 @@ class Source {
     }
 
     private Source(final String text, final int index) {
-        this.text = text;
+        this.text = Objects.requireNonNull(text);
         this.index = index;
     }
 
