@@ -2,7 +2,7 @@ package de.team33.cmd.files.testing;
 
 import de.team33.cmd.files.Main;
 import de.team33.cmd.files.common.Output;
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.thalassa.TextIO;
 import de.team33.testing.io.hydra.FileInfo;
 import de.team33.testing.io.hydra.ZipIO;
 import org.junit.jupiter.api.BeforeEach;

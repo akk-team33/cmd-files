@@ -15,4 +15,5 @@ Expected request scheme:
 Parameters:
 
     SRC_PATH - The path to the source directory.
-    TGT_PATH - The path to the target directory.%n%n
+    TGT_PATH - The path to the target directory.
+

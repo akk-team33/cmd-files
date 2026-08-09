@@ -2,7 +2,7 @@ package de.team33.cmd.files.publics;
 
 import de.team33.cmd.files.Main;
 import de.team33.cmd.files.job.Command;
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.thalassa.TextIO;
 import de.team33.testing.stdio.ersa.Redirected;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,8 +19,7 @@ class MainTest {
 
     @Test
     final void main_noArgs() throws Exception {
-        final String expected = "%s%n%n"
-                .formatted(TextIO.read(MainTest.class, "MainTest-main_noArgs.txt"));
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_noArgs.txt");
 
         final String result = Redirected.outputOf(Main::main);
         // System.out.println(result);
@@ -44,8 +43,7 @@ class MainTest {
 
     @Test
     final void main_about() throws Exception {
-        final String expected = TextIO.read(MainTest.class, "MainTest-main_about.txt")
-                                      .formatted();
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_about.txt");
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "about"))
                                         .lines()
@@ -59,8 +57,18 @@ class MainTest {
     }
 
     @Test
+    final void main_config() throws Exception {
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_config.txt");
+
+        final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "config"));
+        // System.out.println(result);
+
+        assertEquals(expected, result.substring(0, expected.length()));
+    }
+
+    @Test
     final void main_list() throws Exception {
-        final String expected = TextIO.read(MainTest.class, "MainTest-main_list.txt").formatted();
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_list.txt");
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "list"));
         // System.out.println(result);
@@ -70,7 +78,7 @@ class MainTest {
 
     @Test
     final void main_lsd() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_lsd.txt"));
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_lsd.txt");
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "lsd"));
         // System.out.println(result);
@@ -80,7 +88,7 @@ class MainTest {
 
     @Test
     final void main_copy() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_copy.txt"));
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_copy.txt");
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "copy"));
         // System.out.println(result);
@@ -110,7 +118,7 @@ class MainTest {
 
     @Test
     final void main_delete() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_delete.txt"));
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_delete.txt");
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "delete"));
         // System.out.println(result);
@@ -120,7 +128,7 @@ class MainTest {
 
     @Test
     final void main_dcopy() throws Exception {
-        final String expected = String.format(TextIO.read(MainTest.class, "MainTest-main_dcopy.txt"));
+        final String expected = TextIO.read(MainTest.class, "MainTest-main_dcopy.txt");
 
         final String result = Redirected.outputOf(() -> Main.main(CMD_NAME, "dcopy"));
         // System.out.println(result);

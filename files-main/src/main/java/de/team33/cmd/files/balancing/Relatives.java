@@ -1,19 +1,18 @@
 package de.team33.cmd.files.balancing;
 
-import de.team33.patterns.directories.iocaste.DirectoryStreamer;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.files.styx.Styx;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Relatives {
+import static java.util.stream.Collectors.toCollection;
 
-    private static final DirectoryStreamer STREAMER = DirectoryStreamer.DEFAULT;
+public class Relatives {
 
     private final Function<String, Relative> toRelative;
     private final List<FileEntry> entries;
@@ -37,13 +36,13 @@ public class Relatives {
 
     private Set<String> collect() {
         return entries.stream()
-                      .flatMap(STREAMER::stream)
+                      .flatMap(Styx::stream)
                       .parallel()
                       .filter(FileEntry::isRegularFile)
                       .map(FileEntry::path)
                       .flatMap(this::relatives)
                       .map(Path::toString)
-                      .collect(Collectors.toCollection(TreeSet::new));
+                      .collect(toCollection(TreeSet::new));
     }
 
     private Stream<Path> relatives(final Path path) {

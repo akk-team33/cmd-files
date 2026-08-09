@@ -42,4 +42,3 @@
               22 of type REGULAR_FILE
               14 of type DIRECTORY
 
-

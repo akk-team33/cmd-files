@@ -37,7 +37,11 @@ class Copying implements Runnable {
         this.target = target;
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
+    public static Copying job(final Context context) throws RequestException {
+        return job(context.out(), context.args());
+    }
+
+    private static Copying job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
         assert Command.COPY.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -3,9 +3,8 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.directories.iocaste.DirectoryLister;
-import de.team33.patterns.directories.iocaste.DirectoryStreamer;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.files.styx.Styx;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,16 +12,14 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
-import static de.team33.patterns.directories.iocaste.LinkHandling.ORIGINAL;
 
 class Deletion implements Runnable {
 
     static final String EXCERPT = "Delete files whose names match a pattern.";
-    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT;
-    private static final DirectoryStreamer STREAMER = DirectoryStreamer.basedOn(LISTER);
 
     private final Output out;
     private final NameMatcher nameMatcher;
@@ -33,11 +30,15 @@ class Deletion implements Runnable {
         this.out = out;
         this.nameMatcher = NameMatcher.parse(expression);
         this.entries = paths.stream()
-                            .map(path -> FileEntry.of(path, ORIGINAL))
+                            .map(FileEntry::original)
                             .toList();
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
+    public static Deletion job(final Context context) throws RequestException {
+        return job(context.out(), context.args());
+    }
+
+    private static Deletion job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
         assert Command.DELETE.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -50,14 +51,14 @@ class Deletion implements Runnable {
                               .apply(cmdLine(args), cmdName(args));
     }
 
-    private static List<FileEntry> list(final FileEntry entry) {
-        return LISTER.list(entry);
+    private static Stream<FileEntry> children(final FileEntry entry) {
+        return Styx.children(entry);
     }
 
     @Override
     public final void run() {
         entries.stream()
-               .flatMap(STREAMER::stream)
+               .flatMap(Styx::stream)
                .filter(nameMatcher::matches)
                .forEach(entry -> delete(entry, Cause.EXPLICIT));
         out.printf("%n" +
@@ -71,7 +72,7 @@ class Deletion implements Runnable {
     private void delete(final FileEntry entry, final Cause cause) {
         if (stats.addCandidate(entry.path())) {
             if (entry.isDirectory()) {
-                delete(list(entry));
+                delete(children(entry));
             }
             out.printf("%s ...", entry.path());
             try {
@@ -87,7 +88,7 @@ class Deletion implements Runnable {
         }
     }
 
-    private void delete(final List<FileEntry> entries) {
+    private void delete(final Stream<FileEntry> entries) {
         entries.forEach(entry -> delete(entry, Cause.IMPLICIT));
     }
 

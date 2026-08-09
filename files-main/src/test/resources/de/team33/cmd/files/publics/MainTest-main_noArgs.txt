@@ -24,3 +24,4 @@ endlocal
 
 Note that in all examples, argument 0 of the script is passed as the first
 argument to the Java application!
+

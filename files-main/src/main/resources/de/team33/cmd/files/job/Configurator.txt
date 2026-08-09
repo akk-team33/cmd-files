@@ -1,0 +1,22 @@
+Your request:
+
+    %1$s
+
+Expected request scheme:
+
+    [1] %2$s config show [LEVEL]
+    [2] %2$s config take PATH LEVEL
+
+    ... to [1] show the current configuration [at a specific level].
+           [2] read a specific config file and
+               write it to the configuration at a specific level.
+
+Parameters:
+
+    PATH      - A path to a config file.
+    LEVEL     - One of {system, user, cwd} (case-insensitive)
+                system : write to the configuration at system level
+                         (usually requires root permissions)
+                user   : write to the configuration at user level
+                cwd    : write to the configuration at cwd level
+                         (stored in the current working directory)

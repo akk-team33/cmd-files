@@ -1,12 +1,8 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.cleaning.Cleaner;
-import de.team33.cmd.files.common.Args;
-import de.team33.cmd.files.common.Counter;
-import de.team33.cmd.files.common.Output;
-import de.team33.cmd.files.common.RequestException;
-import de.team33.cmd.files.listing.Option;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.cmd.files.common.*;
+import de.team33.patterns.files.pluto.FileEntry;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
@@ -35,12 +31,12 @@ class Cleaning implements Runnable {
         this.cleaner = new Cleaner(out, stats);
     }
 
-    static Cleaning job(final Output out, final List<String> args) throws RequestException {
+    static Cleaning job(final Context context) throws RequestException {
         try {
-            return job(out, ARGS.apply(args));
+            return job(context.out(), ARGS.apply(context.args()));
         } catch (final IllegalArgumentException e) {
             throw RequestException.format(Cleaning.class)
-                                  .apply(cmdLine(args), cmdName(args))
+                                  .apply(cmdLine(context.args()), cmdName(context.args()))
                                   .causedBy(e);
         }
     }

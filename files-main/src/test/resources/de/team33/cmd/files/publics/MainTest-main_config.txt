@@ -1,0 +1,11 @@
++------------------------------------------------------------------------------
+| ${project.groupId} - ${project.artifactId} - version ${project.version}
++------------------------------------------------------------------------------
+Your request:
+
+    MainTest config
+
+Expected request scheme:
+
+    [1] MainTest config show [LEVEL]
+    [2] MainTest config take PATH LEVEL

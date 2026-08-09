@@ -1,15 +1,12 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.*;
-import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.listing.PathQuery;
 import de.team33.cmd.files.listing.Recursion;
 import de.team33.cmd.files.listing.Report;
-import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.cmd.files.matching.TypeFilter;
-import de.team33.cmd.files.sorting.Order;
-import de.team33.patterns.directories.iocaste.FileEntry;
-import de.team33.patterns.directories.iocaste.FileType;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.files.pluto.FileType;
+import de.team33.patterns.functions.alpha.Predicates;
 
 import java.util.*;
 import java.util.function.Function;
@@ -25,7 +22,6 @@ class Lister implements Runnable {
 
     private static final Set<Option> OPTIONS = EnumSet.of(Option.N, Option.X, Option.T, Option.O);
     private static final Function<List<String>, Args> ARGS = Args.stage(3, OPTIONS);
-    private static final Predicate<FileEntry> POSITIVE = Filter.positive();
 
     private final Output out;
     private final PathQuery query;
@@ -40,37 +36,38 @@ class Lister implements Runnable {
         this.order = order; // nullable!
     }
 
-    static Runnable job(final Output out, final List<String> args) throws RequestException {
+    static Lister job(final Context context) throws RequestException {
+        return job(context.out(), context.config(), context.args());
+    }
+
+    private static Lister job(final Output out, final Config config, final List<String> args) throws RequestException {
         try {
-            return job(out, ARGS.apply(args));
+            final ListerConfig listerConfig = Optional.ofNullable(config.list())
+                                                      .orElse(ListerConfig.EMPTY);
+            return job(out, listerConfig, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
-            throw RequestException.format(Lister.class).apply(cmdLine(args), cmdName(args))
+            throw RequestException.format(Lister.class)
+                                  .apply(cmdLine(args), cmdName(args))
                                   .causedBy(e);
         }
     }
 
-    private static Runnable job(final Output out, final Args args) {
+    private static ListerConfig join(final ListerConfig config, final Args args) {
+        return config.addNamePattern(args.get(Option.N))
+                     .addExcludePattern(args.get(Option.X))
+                     .setTypes(args.get(Option.T))
+                     .setOrder(args.get(Option.O));
+    }
+
+    private static Lister job(final Output out, final ListerConfig config, final Args args) {
+        final ListerConfig joined = join(config, args);
         final PathQuery query = PathQuery.parse(args.get(2));
-        final Predicate<FileEntry> nameFilter = args.get(Option.N)
-                                                    .map(NameMatcher::parse)
-                                                    .map(NameMatcher::toFileEntryFilter)
-                                                    .orElse(null);
-        final Predicate<FileEntry> nameXFilter = args.get(Option.X)
-                                                     .map(NameMatcher::parse)
-                                                     .map(NameMatcher::toFileEntryFilter)
-                                                     .map(Predicate::negate)
-                                                     .orElse(null);
-        final Predicate<FileEntry> typeFilter = args.get(Option.T)
-                                                    .map(TypeFilter::parse)
-                                                    .orElse(null);
-        final Predicate<FileEntry> entryFilter = Stream.of(nameFilter, nameXFilter, typeFilter)
-                                                       .filter(Objects::nonNull)
-                                                       .reduce(Predicate::and)
-                                                       .orElse(POSITIVE);
-        final Comparator<FileEntry> order = args.get(Option.O)
-                                                .map(Order::parse)
-                                                .orElse(null);
-        return new Lister(out, query, entryFilter, order);
+        final Predicate<FileEntry> nameInclusion = joined.nameInclusion();
+        final Predicate<FileEntry> nameExclusion = joined.nameExclusion();
+        final Predicate<FileEntry> typeInclusion = joined.typeInclusion();
+        final Predicate<FileEntry> entryFilter = Predicates.and(nameInclusion, nameExclusion, typeInclusion);
+        final Comparator<FileEntry> entryOrder = joined.entryOrder();
+        return new Lister(out, query, entryFilter, entryOrder);
     }
 
     @Override
@@ -114,7 +111,7 @@ class Lister implements Runnable {
         }
 
         private void print(final Output out) {
-            final String aTotalOf = (Recursion.NONE == recursion) ? "           A total of%n"
+            final String aTotalOf = (Recursion.FLAT == recursion) ? "           A total of%n"
                                                                   : "%1$,12d directories and a total of%n";
             out.printf("%n" +
                        aTotalOf +

@@ -2,19 +2,18 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.patterns.directories.iocaste.DirectoryLister;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.files.styx.Styx;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 class DirCopying implements Runnable {
 
     static final String EXCERPT = "Copy the subdirectory structure from one directory to another.";
-
-    private static final DirectoryLister LISTER = DirectoryLister.RESOLVING;
 
     private final Output out;
     private final Path source;
@@ -26,7 +25,11 @@ class DirCopying implements Runnable {
         this.target = target;
     }
 
-    static DirCopying job(final Output out, final List<String> args) throws RequestException {
+    static DirCopying job(final Context context) throws RequestException {
+        return job(context.out(), context.args());
+    }
+
+    private static DirCopying job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
         assert Command.DCOPY.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,18 +42,22 @@ class DirCopying implements Runnable {
                               .apply(Util.cmdLine(args), Util.cmdName(args));
     }
 
-    @Override
-    public void run() {
-        copy(LISTER.list(FileEntry.resolved(source)));
+    private static Stream<FileEntry> children(final FileEntry entry) {
+        return Styx.children(entry, Styx.Options.RESOLVE);
     }
 
-    private void copy(final List<FileEntry> entries) {
+    @Override
+    public void run() {
+        copy(children(FileEntry.resolved(source)));
+    }
+
+    private void copy(final Stream<FileEntry> entries) {
         entries.forEach(this::copy);
     }
 
     private void copy(final FileEntry entry) {
         if (entry.isDirectory()) {
-            copy(LISTER.list(entry));
+            copy(children(entry));
             final Path relative = source.relativize(entry.path());
             out.printf("%s ...", relative);
             try {

@@ -1,6 +1,6 @@
 package de.team33.cmd.files.common;
 
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.thalassa.TextIO;
 
 @FunctionalInterface
 public interface Output {

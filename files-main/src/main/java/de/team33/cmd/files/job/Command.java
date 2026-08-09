@@ -1,9 +1,8 @@
 package de.team33.cmd.files.job;
 
-import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.patterns.enums.pan.Values;
-import de.team33.patterns.exceptional.dione.XBiFunction;
+import de.team33.patterns.exceptional.dione.XFunction;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +14,7 @@ import static de.team33.cmd.files.job.Util.cmdName;
 public enum Command {
 
     ABOUT(About::job, About.EXCERPT),
+    CONFIG(Configurator::job, Configurator.EXCERPT),
     CLEAN(Cleaning::job, Cleaning.EXCERPT),
     CMP(Comparing::job, Comparing.EXCERPT),
     COPY(Copying::job, Copying.EXCERPT),
@@ -27,10 +27,10 @@ public enum Command {
 
     private static final Values<Command> VALUES = Values.of(Command.class);
 
-    private final XBiFunction<Output, List<String>, Runnable, RequestException> toJob;
+    private final XFunction<Context, Runnable, RequestException> toJob;
     private final String excerpt;
 
-    Command(final XBiFunction<Output, List<String>, Runnable, RequestException> toJob, final String excerpt) {
+    Command(final XFunction<Context, Runnable, RequestException> toJob, final String excerpt) {
         this.toJob = toJob;
         this.excerpt = excerpt;
     }
@@ -57,20 +57,20 @@ public enum Command {
         }
     }
 
-    private static Runnable ofCharged(final Output out, final List<String> args) throws RequestException {
-        return ofAmbiguous(args).orElseThrow(() -> newBadArgsException(args))
-                                .runnable(out, args);
+    private static Runnable ofCharged(final Context context) throws RequestException {
+        return ofAmbiguous(context.args()).orElseThrow(() -> newBadArgsException(context.args()))
+                                          .runnable(context);
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
-        if (args.isEmpty()) {
+    public static Runnable job(final Context context) throws RequestException {
+        if (context.args().isEmpty()) {
             throw RequestException.read(Command.class, "NoArgs.txt");
         } else {
-            return ofCharged(out, args);
+            return ofCharged(context);
         }
     }
 
-    private Runnable runnable(final Output out, final List<String> args) throws RequestException {
-        return toJob.apply(out, args);
+    private Runnable runnable(final Context context) throws RequestException {
+        return toJob.apply(context);
     }
 }

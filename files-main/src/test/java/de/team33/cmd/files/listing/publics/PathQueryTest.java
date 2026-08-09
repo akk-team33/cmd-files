@@ -2,7 +2,7 @@ package de.team33.cmd.files.listing.publics;
 
 import de.team33.cmd.files.listing.PathQuery;
 import de.team33.cmd.files.listing.Recursion;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -17,37 +17,37 @@ import static org.junit.jupiter.api.Assertions.*;
 class PathQueryTest {
 
     static Stream<ParseCase> parseCases() {
-        return Stream.of(parseCase("/", "/", Recursion.NONE, "*"),
+        return Stream.of(parseCase("/", "/", Recursion.FLAT, "*"),
                          parseCase("/**", "/", Recursion.VISIBLE, "*"),
-                         parseCase("/path/to/:**/*.img", "/path/to", Recursion.ALL, "*.img"),
-                         parseCase("C:\\", "C:/", Recursion.NONE, "*"),
+                         parseCase("/path/to/:**/*.img", "/path/to", Recursion.DEEP, "*.img"),
+                         parseCase("C:\\", "C:/", Recursion.FLAT, "*"),
                          parseCase("C:\\**", "C:/", Recursion.VISIBLE, "*"),
-                         parseCase("C:\\path\\to\\:**\\:*.img", "C:/path/to", Recursion.ALL, ":*.img"),
-                         parseCase("", ".", Recursion.NONE, "*"),
-                         parseCase("*", ".", Recursion.NONE, "*"),
+                         parseCase("C:\\path\\to\\:**\\:*.img", "C:/path/to", Recursion.DEEP, ":*.img"),
+                         parseCase("", ".", Recursion.FLAT, "*"),
+                         parseCase("*", ".", Recursion.FLAT, "*"),
                          parseCase("**", ".", Recursion.VISIBLE, "*"),
-                         parseCase(":**", ".", Recursion.ALL, "*"),
+                         parseCase(":**", ".", Recursion.DEEP, "*"),
                          parseCase("**/", ".", Recursion.VISIBLE, "*"),
-                         parseCase(":**/", ".", Recursion.ALL, "*"),
+                         parseCase(":**/", ".", Recursion.DEEP, "*"),
                          parseCase("**/*", ".", Recursion.VISIBLE, "*"),
-                         parseCase(":**/*.java", ".", Recursion.ALL, "*.java"),
+                         parseCase(":**/*.java", ".", Recursion.DEEP, "*.java"),
                          parseCase("**/:*.txt", ".", Recursion.VISIBLE, ":*.txt"),
-                         parseCase(":**/:a*", ".", Recursion.ALL, ":a*"),
+                         parseCase(":**/:a*", ".", Recursion.DEEP, ":a*"),
                          parseCase("**/.*", ".", Recursion.VISIBLE, ".*"),
-                         parseCase(":**/.*", ".", Recursion.ALL, ".*"),
-                         parseCase("..", "..", Recursion.NONE, "*"),
-                         parseCase("../*", "..", Recursion.NONE, "*"),
+                         parseCase(":**/.*", ".", Recursion.DEEP, ".*"),
+                         parseCase("..", "..", Recursion.FLAT, "*"),
+                         parseCase("../*", "..", Recursion.FLAT, "*"),
                          parseCase("../**", "..", Recursion.VISIBLE, "*"),
-                         parseCase("../:**", "..", Recursion.ALL, "*"),
+                         parseCase("../:**", "..", Recursion.DEEP, "*"),
                          parseCase("../**/", "..", Recursion.VISIBLE, "*"),
-                         parseCase("../:**/", "..", Recursion.ALL, "*"),
+                         parseCase("../:**/", "..", Recursion.DEEP, "*"),
                          parseCase("../**/*", "..", Recursion.VISIBLE, "*"),
-                         parseCase("../:**/*", "..", Recursion.ALL, "*"),
+                         parseCase("../:**/*", "..", Recursion.DEEP, "*"),
                          parseCase("../**/:*", "..", Recursion.VISIBLE, ":*"),
-                         parseCase("../:**/:*", "..", Recursion.ALL, ":*"),
+                         parseCase("../:**/:*", "..", Recursion.DEEP, ":*"),
                          parseCase("../**/.*", "..", Recursion.VISIBLE, ".*"),
-                         parseCase("../:**/.*", "..", Recursion.ALL, ".*"),
-                         parseCase("path/to/../xo/:**/.*", "path/xo", Recursion.ALL, ".*"));
+                         parseCase("../:**/.*", "..", Recursion.DEEP, ".*"),
+                         parseCase("path/to/../xo/:**/.*", "path/xo", Recursion.DEEP, ".*"));
     }
 
     private static ParseCase parseCase(final String pattern,

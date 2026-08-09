@@ -1,6 +1,6 @@
 package de.team33.cmd.files.listing;
 
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
 
 public interface Report {
 

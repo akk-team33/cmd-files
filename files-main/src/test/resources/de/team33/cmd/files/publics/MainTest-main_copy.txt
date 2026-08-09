@@ -44,4 +44,5 @@ Examples:
         from 'path/to/source' to 'path/to/target', regardless of whether
         corresponding files exist in the destination or not, as well as to
         delete files from 'path/to/target' if no corresponding files exist in
-        the source.%n%n
+        the source.
+

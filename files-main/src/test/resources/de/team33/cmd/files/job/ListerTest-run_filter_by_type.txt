@@ -27,4 +27,3 @@
           22 entries found
               22 of type REGULAR_FILE
 
-

@@ -3,11 +3,8 @@ package de.team33.cmd.files.job;
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.testing.Buffer;
 import de.team33.cmd.files.testing.ModifyingTestBase;
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.thalassa.TextIO;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,12 +15,12 @@ class DirListerTest extends ModifyingTestBase {
     }
 
     @Test
-    final void run_java() throws RequestException, IOException {
+    final void run_java() throws RequestException {
         final Buffer buffer = new Buffer();
         final String expected = TextIO.read(DirListerTest.class, "DirListerTest-run_java.txt");
         final String queryString = leftPath().resolve("**").resolve("*.java").toString();
 
-        DirLister.job(buffer, Arrays.asList("files", "lsd", queryString))
+        DirLister.job(Context.of(buffer, "files", "lsd", queryString))
                  .run();
 
         final String result = buffer.toString()
@@ -32,12 +29,12 @@ class DirListerTest extends ModifyingTestBase {
     }
 
     @Test
-    final void run_56() throws RequestException, IOException {
+    final void run_56() throws RequestException {
         final Buffer buffer = new Buffer();
         final String expected = TextIO.read(DirListerTest.class, "DirListerTest-run_56.txt");
         final String queryString = leftPath().resolve("**").toString();
 
-        DirLister.job(buffer, Arrays.asList("files", "lsd", queryString, "n:rx:.{5,6}", "t:a"))
+        DirLister.job(Context.of(buffer, "files", "lsd", queryString, "n:rx:.{5,6}", "t:a"))
                  .run();
 
         final String result = buffer.toString()

@@ -1,8 +1,8 @@
 package de.team33.cmd.files.matching;
 
-import de.team33.cmd.files.common.Filter;
-import de.team33.patterns.directories.iocaste.FileEntry;
 import de.team33.patterns.enums.pan.Values;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.functions.alpha.Predicates;
 
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -17,7 +17,7 @@ public enum TypeFilter {
     S(FileEntry::isSpecialFile),
     M(FileEntry::isMissing),
     L(FileEntry::isSymbolicLink),
-    A(Filter.positive());
+    A(Predicates.accept());
 
     private static final Values<TypeFilter> VALUES = Values.of(TypeFilter.class);
 
@@ -33,11 +33,11 @@ public enum TypeFilter {
                                  .map(TypeFilter::of)
                                  .collect(toCollection(TreeSet::new));
         if (set.contains(A)) {
-            return Filter.positive();
+            return Predicates.accept();
         } else {
             return set.stream()
                       .map(value -> value.filter)
-                      .reduce(Filter.negative(), Predicate::or);
+                      .reduce(Predicates.reject(), Predicate::or);
         }
     }
 

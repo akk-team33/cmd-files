@@ -2,14 +2,13 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.cleaning.Cleaner;
 import de.team33.cmd.files.common.Args;
-import de.team33.cmd.files.common.Filter;
+import de.team33.cmd.files.common.Option;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.listing.PathQuery;
-import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.moving.Resolver;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.functions.alpha.Predicates;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +18,6 @@ import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -30,7 +28,6 @@ class Moving implements Runnable {
 
     private static final Set<Option> OPTIONS = EnumSet.of(Option.N, Option.X);
     private static final Function<List<String>, Args> ARGS = Args.stage(4, OPTIONS);
-    private static final Predicate<FileEntry> POSITIVE = Filter.positive();
 
     private final Set<Path> createDir = new HashSet<>();
     private final Output out;
@@ -40,7 +37,7 @@ class Moving implements Runnable {
     private final Stats stats;
     private final Cleaner cleaner;
 
-    public Moving(final Output out, final PathQuery query, final Resolver resolver, final Predicate<FileEntry> filter) {
+    private Moving(final Output out, final PathQuery query, final Resolver resolver, final Predicate<FileEntry> filter) {
         this.out = out;
         this.query = query;
         this.resolver = resolver;
@@ -49,32 +46,34 @@ class Moving implements Runnable {
         this.cleaner = new Cleaner(out, stats);
     }
 
-    static Moving job(final Output out, final List<String> args) throws RequestException {
+    static Moving job(final Context context) throws RequestException {
+        return job(context.out(), context.config(), context.args());
+    }
+
+    private static Moving job(final Output out, final Config config, final List<String> args) throws RequestException {
         try {
-            return job(out, ARGS.apply(args));
+            final MovingConfig movingConfig = Optional.ofNullable(config.move())
+                                                      .orElse(MovingConfig.EMPTY);
+            return job(out, movingConfig, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
             throw RequestException.format(Moving.class).apply(cmdLine(args), cmdName(args))
                                   .causedBy(e);
         }
     }
 
-    private static Moving job(final Output out, final Args args) {
+    private static MovingConfig join(final MovingConfig config, final Args args) {
+        return config.addNamePattern(args.get(Option.N))
+                     .addExcludePattern(args.get(Option.X));
+    }
+
+    private static Moving job(final Output out, final MovingConfig config, final Args args) {
+        final MovingConfig joined = join(config, args);
         final PathQuery query = PathQuery.parse(args.get(2));
         final Resolver resolver = Resolver.parse(args.get(3));
-        final Predicate<FileEntry> nameFilter = args.get(Option.N)
-                                                    .map(NameMatcher::parse)
-                                                    .map(NameMatcher::toFileEntryFilter)
-                                                    .orElse(null);
-        final Predicate<FileEntry> nameXFilter = args.get(Option.X)
-                                                     .map(NameMatcher::parse)
-                                                     .map(NameMatcher::toFileEntryFilter)
-                                                     .map(Predicate::negate)
-                                                     .orElse(null);
-        final Predicate<FileEntry> filter = Stream.of(nameFilter, nameXFilter)
-                                                  .filter(Objects::nonNull)
-                                                  .reduce(Predicate::and)
-                                                  .orElse(POSITIVE);
-        return new Moving(out, query, resolver, filter);
+        final Predicate<FileEntry> nameInclusion = joined.nameInclusion();
+        final Predicate<FileEntry> nameExclusion = joined.nameExclusion();
+        final Predicate<FileEntry> entryFilter = Predicates.and(nameInclusion, nameExclusion);
+        return new Moving(out, query, resolver, entryFilter);
     }
 
     @Override

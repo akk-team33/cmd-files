@@ -6,6 +6,8 @@ import java.util.Optional;
 
 final class Util {
 
+    static final String[] EMPTY = {};
+
     private Util() {
     }
 

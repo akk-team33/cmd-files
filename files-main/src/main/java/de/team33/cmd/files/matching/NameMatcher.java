@@ -1,7 +1,7 @@
 package de.team33.cmd.files.matching;
 
-import de.team33.patterns.directories.iocaste.FileEntry;
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.io.thalassa.TextIO;
 
 import java.nio.file.Path;
 import java.util.function.Predicate;

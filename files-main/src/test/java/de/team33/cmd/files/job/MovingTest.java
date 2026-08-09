@@ -2,11 +2,9 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.testing.ModifyingTestBase;
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.thalassa.TextIO;
 import de.team33.testing.io.hydra.FileInfo;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,7 +20,7 @@ class MovingTest extends ModifyingTestBase {
                                       .formatted(testID());
         final String queryString = leftPath().resolve("**").toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "../@P.moved/@Y/@M/@D/@F"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "../@P.moved/@Y/@M/@D/@F"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -34,7 +32,7 @@ class MovingTest extends ModifyingTestBase {
                                       .formatted(testID());
         final String queryString = leftPath().resolve("**").toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "../@P.moved/@N(1,3)/@F"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "../@P.moved/@N(1,3)/@F"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -46,7 +44,7 @@ class MovingTest extends ModifyingTestBase {
                                       .formatted(testID());
         final String queryString = leftPath().resolve("**").toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "../@P.moved/@N(1)/@F"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "../@P.moved/@N(1)/@F"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -57,7 +55,7 @@ class MovingTest extends ModifyingTestBase {
         final String expected = String.format(TextIO.read(MovingTest.class, "MovingTest-move_RpNX.txt"), testID());
         final String queryString = leftPath().resolve("**").toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "@R/../@p-@N.@X"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "@R/../@p-@N.@X"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -69,7 +67,7 @@ class MovingTest extends ModifyingTestBase {
                                               testID());
         final String queryString = leftPath().resolve("**").toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "@h/@m/@s/@#.@X"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "@h/@m/@s/@#.@X"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -81,9 +79,9 @@ class MovingTest extends ModifyingTestBase {
                                               testID());
         final String queryString = leftPath().resolve("**").toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "@R/@#@!.@X"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "@R/@#@!.@X"))
               .run();
-        Moving.job(MUTE, List.of("files", "move", queryString, "@R/@#@!.@X"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "@R/@#@!.@X"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -95,7 +93,7 @@ class MovingTest extends ModifyingTestBase {
                                               testID());
         final String queryString = leftPath().resolve("**").toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "@R/@F"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "@R/@F"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());
@@ -107,7 +105,7 @@ class MovingTest extends ModifyingTestBase {
                                               testID());
         final String queryString = leftPath().toString();
 
-        Moving.job(MUTE, List.of("files", "move", queryString, "@Y/@M/@D/@#"))
+        Moving.job(Context.of(MUTE, "files", "move", queryString, "@Y/@M/@D/@#"))
               .run();
 
         assertEquals(expected, FileInfo.of(testPath()).toString());

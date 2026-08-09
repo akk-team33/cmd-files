@@ -1,6 +1,6 @@
 package de.team33.tools.io;
 
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
 
 import java.time.temporal.ChronoUnit;
 import java.util.regex.MatchResult;

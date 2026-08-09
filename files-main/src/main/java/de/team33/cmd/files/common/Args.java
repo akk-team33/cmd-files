@@ -24,8 +24,12 @@ public class Args {
         return args.get(index);
     }
 
-    public final Optional<String> get(final Key key) {
-        return Optional.ofNullable(map.get(key));
+    public final String get(final Key key) {
+        return map.get(key);
+    }
+
+    public final Optional<String> getOptional(final Key key) {
+        return Optional.ofNullable(get(key));
     }
 
     @Override
@@ -44,7 +48,8 @@ public class Args {
 
     private static final class Stage implements Function<List<String>, Args> {
 
-        public static final String COLON = Pattern.quote(":");
+        private static final String COLON = Pattern.quote(":");
+
         private final int required;
         private final Set<? extends Key> keys;
 

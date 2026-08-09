@@ -52,4 +52,5 @@ Examples:
 
     ... to delete files with any of the extensions {"jpg", "jpe", "jpeg"}
         within the directories "images", "other/images" and "more/images"
-        and their subdirectories.%n%n
+        and their subdirectories.
+

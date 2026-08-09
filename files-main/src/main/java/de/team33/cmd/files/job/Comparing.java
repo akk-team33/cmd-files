@@ -30,7 +30,11 @@ class Comparing implements Runnable {
         this.target = target;
     }
 
-    public static Runnable job(final Output out, final List<String> args) throws RequestException {
+    static Comparing job(final Context context) throws RequestException {
+        return job(context.out(), context.args());
+    }
+
+    private static Comparing job(final Output out, final List<String> args) throws RequestException {
         assert 1 < args.size();
         assert Command.CMP.name().equalsIgnoreCase(args.get(1));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

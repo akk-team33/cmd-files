@@ -34,4 +34,3 @@ de/team33/patterns/io/alpha/FileType.java - BALANCED
 
               26 entries processed in total.
 
-

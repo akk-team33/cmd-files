@@ -26,15 +26,31 @@
         </dependency>
         <dependency>
             <groupId>de.team33.patterns</groupId>
-            <artifactId>io-deimos</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.team33.patterns</groupId>
             <artifactId>enums-pan</artifactId>
         </dependency>
         <dependency>
             <groupId>de.team33.patterns</groupId>
             <artifactId>decision-thyone</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>records-triton</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>io-thalassa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>files-pluto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>files-styx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>streamable-galatea</artifactId>
         </dependency>
 
         <dependency>
@@ -53,6 +69,11 @@
         <dependency>
             <groupId>de.team33.patterns</groupId>
             <artifactId>arbitrary-mimas</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>collection-ceres</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

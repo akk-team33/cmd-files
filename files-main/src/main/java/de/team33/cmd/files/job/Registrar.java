@@ -2,16 +2,12 @@ package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.cleaning.Cleaner;
 import de.team33.cmd.files.common.Args;
-import de.team33.cmd.files.common.Filter;
+import de.team33.cmd.files.common.Option;
 import de.team33.cmd.files.common.Output;
 import de.team33.cmd.files.common.RequestException;
-import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.listing.PathQuery;
-import de.team33.cmd.files.matching.NameMatcher;
-import de.team33.patterns.directories.iocaste.DirectoryLister;
-import de.team33.patterns.directories.iocaste.DirectoryStreamer;
-import de.team33.patterns.directories.iocaste.FileEntry;
-import de.team33.patterns.directories.iocaste.PathOrder;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.functions.alpha.Predicates;
 import de.team33.patterns.hashing.pandia.Algorithm;
 import de.team33.patterns.hashing.pandia.Hash;
 import de.team33.tools.io.Hashing;
@@ -20,11 +16,13 @@ import de.team33.tools.io.Registry;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import static de.team33.cmd.files.job.Util.cmdLine;
 import static de.team33.cmd.files.job.Util.cmdName;
@@ -35,9 +33,7 @@ class Registrar implements Runnable {
 
     private static final Set<Option> OPTIONS = EnumSet.of(Option.N, Option.X);
     private static final Function<List<String>, Args> ARGS = Args.stage(5, OPTIONS);
-    private static final Predicate<FileEntry> POSITIVE = Filter.positive();
-    private static final DirectoryLister LISTER = DirectoryLister.DEFAULT.pathOrder(PathOrder.BY_NAME);
-    private static final DirectoryStreamer STREAMER = DirectoryStreamer.basedOn(LISTER);
+    private static final Predicate<FileEntry> ACCEPT = Predicates.accept();
     private static final String DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz";
     private static final Pattern PATTERN = Pattern.compile("\\[#[" + DIGITS + "]+\\]",
                                                            Pattern.CASE_INSENSITIVE);
@@ -65,9 +61,17 @@ class Registrar implements Runnable {
         this.cleaner = new Cleaner(out, stats);
     }
 
-    static Registrar job(final Output out, final List<String> args) throws RequestException {
+    static Registrar job(final Context context) throws RequestException {
+        return job(context.out(), context.config(), context.args());
+    }
+
+    private static Registrar job(final Output out,
+                                 final Config config,
+                                 final List<String> args) throws RequestException {
         try {
-            return job(out, ARGS.apply(args));
+            final RegistrarConfig registrarConfig = Optional.ofNullable(config.register())
+                                                            .orElse(RegistrarConfig.EMPTY);
+            return job(out, registrarConfig, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
             throw RequestException.format(Registrar.class)
                                   .apply(cmdLine(args), cmdName(args))
@@ -75,24 +79,20 @@ class Registrar implements Runnable {
         }
     }
 
-    private static Registrar job(final Output out, final Args args) {
+    private static RegistrarConfig join(final RegistrarConfig config, final Args args) {
+        return config.addNamePattern(args.get(Option.N))
+                     .addExcludePattern(args.get(Option.X));
+    }
+
+    private static Registrar job(final Output out, final RegistrarConfig config, final Args args) {
+        final RegistrarConfig joined = join(config, args);
         final PathQuery query = PathQuery.parse(args.get(2));
         final Path registry = Path.of(args.get(3));
         final int keep = Integer.parseInt(args.get(4));
-        final Predicate<FileEntry> nFilter = args.get(Option.N)
-                                                 .map(NameMatcher::parse)
-                                                 .map(NameMatcher::toFileEntryFilter)
-                                                 .orElse(null);
-        final Predicate<FileEntry> xFilter = args.get(Option.X)
-                                                 .map(NameMatcher::parse)
-                                                 .map(NameMatcher::toFileEntryFilter)
-                                                 .map(Predicate::negate)
-                                                 .orElse(null);
-        final Predicate<FileEntry> filter = Stream.of(nFilter, xFilter)
-                                                  .filter(Objects::nonNull)
-                                                  .reduce(Predicate::and)
-                                                  .orElse(POSITIVE);
-        return new Registrar(out, query, registry, keep, filter);
+        final Predicate<FileEntry> nameInclusion = joined.nameInclusion();
+        final Predicate<FileEntry> nameExclusion = joined.nameExclusion();
+        final Predicate<FileEntry> entryFilter = Predicates.and(nameInclusion, nameExclusion);
+        return new Registrar(out, query, registry, keep, entryFilter);
     }
 
     @Override
@@ -101,7 +101,6 @@ class Registrar implements Runnable {
         try (final Registry registry = new Registry(regPath)) {
             query.stream()
                  .filter(FileEntry::isRegularFile)
-                 //.filter(Guard::unprotected)
                  .filter(filter)
                  .forEach(entry -> register(entry, registry));
         }
@@ -221,23 +220,23 @@ class Registrar implements Runnable {
             this.deleteFailed += 1;
         }
 
-        public final void incConfirmed() {
+        final void incConfirmed() {
             this.confirmed += 1;
         }
 
-        public final void incRegistered() {
+        final void incRegistered() {
             this.registered += 1;
         }
 
-        public void incTrashed() {
+        void incTrashed() {
             this.trashed += 1;
         }
 
-        public void incRegisterFailed() {
+        void incRegisterFailed() {
             this.registerFailed += 1;
         }
 
-        public void incTrashFailed() {
+        void incTrashFailed() {
             this.trashFailed += 1;
         }
     }

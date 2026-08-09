@@ -1,13 +1,13 @@
 package de.team33.cmd.files.job;
 
 import de.team33.cmd.files.common.*;
-import de.team33.cmd.files.listing.Option;
 import de.team33.cmd.files.listing.PathQuery;
 import de.team33.cmd.files.listing.Recursion;
 import de.team33.cmd.files.listing.Report;
 import de.team33.cmd.files.matching.NameMatcher;
 import de.team33.cmd.files.matching.TypeFilter;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
+import de.team33.patterns.functions.alpha.Predicates;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
@@ -27,7 +27,7 @@ class DirLister implements Runnable {
 
     private static final Set<Option> OPTIONS = EnumSet.of(Option.N, Option.X, Option.T);
     private static final Function<List<String>, Args> ARGS = Args.stage(3, OPTIONS);
-    private static final Predicate<FileEntry> POSITIVE = Filter.positive();
+    private static final Predicate<FileEntry> ACCEPT = Predicates.accept();
 
     private final Output out;
     private final PathQuery query;
@@ -39,7 +39,11 @@ class DirLister implements Runnable {
         this.filter = filter;
     }
 
-    static Runnable job(final Output out, final List<String> args) throws RequestException {
+    static DirLister job(final Context context) throws RequestException {
+        return job(context.out(), context.args());
+    }
+
+    private static DirLister job(final Output out, final List<String> args) throws RequestException {
         try {
             return job(out, ARGS.apply(args));
         } catch (final IllegalArgumentException e) {
@@ -48,24 +52,24 @@ class DirLister implements Runnable {
         }
     }
 
-    private static Runnable job(final Output out, final Args args) {
+    private static DirLister job(final Output out, final Args args) {
         final PathQuery query = PathQuery.parse(args.get(2));
-        final Predicate<FileEntry> nameFilter = args.get(Option.N)
+        final Predicate<FileEntry> nameFilter = args.getOptional(Option.N)
                                                     .map(NameMatcher::parse)
                                                     .map(NameMatcher::toFileEntryFilter)
                                                     .orElse(null);
-        final Predicate<FileEntry> nameXFilter = args.get(Option.X)
+        final Predicate<FileEntry> nameXFilter = args.getOptional(Option.X)
                                                      .map(NameMatcher::parse)
                                                      .map(NameMatcher::toFileEntryFilter)
                                                      .map(Predicate::negate)
                                                      .orElse(null);
-        final Predicate<FileEntry> typeFilter = args.get(Option.T)
+        final Predicate<FileEntry> typeFilter = args.getOptional(Option.T)
                                                     .map(TypeFilter::parse)
                                                     .orElseGet(() -> TypeFilter.parse("F"));
         final Predicate<FileEntry> entryFilter = Stream.of(nameFilter, nameXFilter, typeFilter)
                                                        .filter(Objects::nonNull)
                                                        .reduce(Predicate::and)
-                                                       .orElse(POSITIVE);
+                                                       .orElse(ACCEPT);
         return new DirLister(out, query, entryFilter);
     }
 
@@ -106,7 +110,7 @@ class DirLister implements Runnable {
         }
 
         private void print(final Output out) {
-            final String aTotalOf = (Recursion.NONE == recursion) ? "           A total of%n"
+            final String aTotalOf = (Recursion.FLAT == recursion) ? "           A total of%n"
                                                                   : "%1$,12d directories and a total of%n";
             out.printf("%n" +
                        aTotalOf +

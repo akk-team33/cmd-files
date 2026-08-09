@@ -24,9 +24,9 @@ class ArgsTest {
         assertEquals("x:1", args.get(3));
         assertEquals("y:2", args.get(4));
         assertEquals("z:3", args.get(5));
-        assertEquals("1", args.get(Key.X).orElse(null));
-        assertEquals("2", args.get(Key.Y).orElse(null));
-        assertEquals("3", args.get(Key.Z).orElse(null));
+        assertEquals("1", args.getOptional(Key.X).orElse(null));
+        assertEquals("2", args.getOptional(Key.Y).orElse(null));
+        assertEquals("3", args.getOptional(Key.Z).orElse(null));
         assertEquals("[[a, b, c, x:1, y:2, z:3], {X=1, Y=2, Z=3}]", args.toString());
     }
 
@@ -47,8 +47,8 @@ class ArgsTest {
         assertEquals("c", args.get(2));
         assertEquals("z:1", args.get(3));
         assertEquals("x:2", args.get(4));
-        assertEquals("1", args.get(Key.Z).orElse(null));
-        assertEquals("2", args.get(Key.X).orElse(null));
+        assertEquals("1", args.getOptional(Key.Z).orElse(null));
+        assertEquals("2", args.getOptional(Key.X).orElse(null));
         assertEquals("[[a, b, c, z:1, x:2], {X=2, Z=1}]", args.toString());
     }
 

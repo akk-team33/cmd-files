@@ -1,10 +1,10 @@
 package de.team33.cmd.files.balancing.publics;
 
-import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.balancing.Relative;
 import de.team33.cmd.files.balancing.Relatives;
+import de.team33.cmd.files.common.RequestException;
 import de.team33.cmd.files.testing.ModifyingTestBase;
-import de.team33.patterns.io.deimos.TextIO;
+import de.team33.patterns.io.thalassa.TextIO;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Collectors;

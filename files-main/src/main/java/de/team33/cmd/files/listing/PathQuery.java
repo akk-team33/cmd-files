@@ -1,7 +1,6 @@
 package de.team33.cmd.files.listing;
 
-import de.team33.patterns.directories.iocaste.FileEntry;
-import de.team33.patterns.directories.iocaste.LinkHandling;
+import de.team33.patterns.files.pluto.FileEntry;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -56,9 +55,9 @@ public final class PathQuery {
 
     public static PathQuery parse(final String queryString) {
         try {
-            final var entry = FileEntry.of(Path.of(queryString), LinkHandling.RESOLVE);
+            final var entry = FileEntry.resolved(Path.of(queryString));
             if (entry.isDirectory()) {
-                return compose(entry, Recursion.NONE, STD_NAME_PATTERN);
+                return compose(entry, Recursion.FLAT, STD_NAME_PATTERN);
             }
         } catch (Exception e) {
             LOGGER.log(System.Logger.Level.INFO, e);
@@ -80,7 +79,7 @@ public final class PathQuery {
 
     private static PathQuery parse(final Path root, final List<String> items) {
         if (items.isEmpty()) {
-            return compose(root, Recursion.NONE, STD_NAME_PATTERN);
+            return compose(root, Recursion.FLAT, STD_NAME_PATTERN);
         }
         final Split split = Split.of(items);
         return parse(root, split);
@@ -89,7 +88,7 @@ public final class PathQuery {
     private static PathQuery parse(final Path root, final Split split) {
         return switch (split.name) {
             case DEEP_VISIBLE_WILDCARD -> compose(root, split.parent, Recursion.VISIBLE, STD_NAME_PATTERN);
-            case DEEP_ALL_WILDCARD -> compose(root, split.parent, Recursion.ALL, STD_NAME_PATTERN);
+            case DEEP_ALL_WILDCARD -> compose(root, split.parent, Recursion.DEEP, STD_NAME_PATTERN);
             default -> parse(root, Split.of(split.parent), split.name);
         };
     }
@@ -98,8 +97,8 @@ public final class PathQuery {
         final String name = (null == split.name) ? "" : split.name;
         return switch (name) {
             case DEEP_VISIBLE_WILDCARD -> compose(root, split.parent, Recursion.VISIBLE, namePattern);
-            case DEEP_ALL_WILDCARD -> compose(root, split.parent, Recursion.ALL, namePattern);
-            default -> compose(root, split.path, Recursion.NONE, namePattern);
+            case DEEP_ALL_WILDCARD -> compose(root, split.parent, Recursion.DEEP, namePattern);
+            default -> compose(root, split.path, Recursion.FLAT, namePattern);
         };
     }
 

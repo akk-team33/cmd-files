@@ -1,7 +1,7 @@
 package de.team33.cmd.files.listing;
 
 import de.team33.cmd.files.matching.WildcardString;
-import de.team33.patterns.directories.iocaste.FileEntry;
+import de.team33.patterns.files.pluto.FileEntry;
 
 import java.nio.file.Path;
 import java.util.function.Function;

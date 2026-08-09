@@ -4,8 +4,8 @@ import de.team33.cmd.files.listing.Recursion;
 
 enum Depth {
 
-    FLAT(Recursion.NONE),
-    DEEP(Recursion.ALL);
+    FLAT(Recursion.FLAT),
+    DEEP(Recursion.DEEP);
 
     private final Recursion recursion;
 
