@@ -1,5 +1,7 @@
 package de.team33.patterns.config.alpha;
 
+import de.team33.patterns.typing.proteus.Type;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -31,17 +33,21 @@ public class ConfigRepo<T extends Record> {
 
     private static final System.Logger LOGGER = System.getLogger(ConfigRepo.class.getCanonicalName());
 
-    private final Class<T> configClass;
+    private final Type<T> configType;
     private final IOMapping<T> mapping;
 
     ConfigRepo(final IOMapping<T> mapping, final T defaultConfig) {
-        this.configClass = mapping.recordClass();
+        this.configType = mapping.recordType();
         this.mapping = mapping;
         write(ConfigLevel.DEFAULT, defaultConfig);
     }
 
-    public ConfigRepo(final Class<T> configClass, final T defaultConfig) {
-        this(new IOMapping<>(configClass, Pathing.DEFAULT, naming(configClass)), defaultConfig);
+    public static <T extends Record> ConfigRepo<T> by(final Class<T> configClass, final T defaultConfig) {
+        return by(Type.of(configClass), defaultConfig);
+    }
+
+    public static <T extends Record> ConfigRepo<T> by(final Type<T> configType, final T defaultConfig) {
+        return new ConfigRepo<>(new IOMapping<>(configType, Pathing.DEFAULT, naming(configType.core())), defaultConfig);
     }
 
     private static Naming naming(final Class<?> configClass) {
@@ -140,6 +146,6 @@ public class ConfigRepo<T extends Record> {
     }
 
     private T merge(T left, T right) {
-        return (null == right) ? left : Merger.by(configClass).merge(left, right);
+        return (null == right) ? left : Merger.by(configType).merge(left, right);
     }
 }

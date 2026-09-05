@@ -1,5 +1,7 @@
 package de.team33.patterns.config.alpha;
 
+import de.team33.patterns.typing.proteus.Type;
+
 import java.nio.file.Path;
 
 public class SampleRepo extends ConfigRepo<SampleConfig> {
@@ -8,6 +10,6 @@ public class SampleRepo extends ConfigRepo<SampleConfig> {
                                                     SampleConfig.class.getSimpleName());
 
     public SampleRepo(final SampleConfig defaultConfig, final Path system, final Path user, final Path cwd) {
-        super(new IOMapping<>(SampleConfig.class, new Pathing(system, user, cwd), NAMING), defaultConfig);
+        super(new IOMapping<>(new Type<>() {}, new Pathing(system, user, cwd), NAMING), defaultConfig);
     }
 }

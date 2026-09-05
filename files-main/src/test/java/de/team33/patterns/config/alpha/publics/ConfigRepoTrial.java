@@ -11,7 +11,7 @@ public class ConfigRepoTrial {
             new Supply();
     private static final SampleConfig DEFAULT_CONFIG =
             SUPPLY.anySampleConfig();
-    private static final ConfigRepo<SampleConfig> REPO = new ConfigRepo<>(SampleConfig.class, DEFAULT_CONFIG);
+    private static final ConfigRepo<SampleConfig> REPO = ConfigRepo.by(SampleConfig.class, DEFAULT_CONFIG);
 
     public static void main(String[] args) {
         System.out.printf("REPO/DEFAULT : %s%n", REPO.path(ConfigLevel.DEFAULT));

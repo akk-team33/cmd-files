@@ -9,7 +9,7 @@ record Config(ListerConfig list, MovingConfig move, RegistrarConfig register) {
     private static final Config DEFAULT = new Config(ListerConfig.DEFAULT,
                                                      MovingConfig.DEFAULT,
                                                      RegistrarConfig.DEFAULT);
-    private static final ConfigRepo<Config> REPO = new ConfigRepo<>(Config.class, DEFAULT);
+    private static final ConfigRepo<Config> REPO = ConfigRepo.by(Config.class, DEFAULT);
 
     static Config read() {
         return REPO.read();

@@ -1,27 +1,23 @@
 package de.team33.patterns.config.alpha;
 
-import de.team33.patterns.records.triton.Descriptor;
-import de.team33.patterns.records.triton.Triton;
+import de.team33.patterns.records.metis.Metis;
+import de.team33.patterns.typing.proteus.Type;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.team33.patterns.config.alpha.Util.shouldNotHappen;
-
 final class Merger<T extends Record> {
 
-    private final Descriptor<T> descriptor;
+    private final Type<T> recordType;
+    private final Map<String, Type<?>> description;
 
-    private Merger(final Class<T> configClass) throws NoSuchMethodException {
-        this.descriptor = Triton.descriptor(configClass);
+    private Merger(final Type<T> recordType) {
+        this.recordType = recordType;
+        this.description = Metis.description(recordType);
     }
 
-    static <T extends Record> Merger<T> by(final Class<T> configClass) {
-        try {
-            return new Merger<>(configClass);
-        } catch (final NoSuchMethodException e) {
-            throw shouldNotHappen(e);
-        }
+    static <T extends Record> Merger<T> by(final Type<T> recordType) {
+        return new Merger<>(recordType);
     }
 
     final T merge(final T left, final T right) {
@@ -30,16 +26,16 @@ final class Merger<T extends Record> {
         } else if (null == left) {
             return right;
         } else {
-            return merge(Triton.toMap(left), Triton.toMap(right));
+            return merge(Metis.toMap(left), Metis.toMap(right));
         }
     }
 
     private T merge(final Map<String, Object> leftMap, final Map<String, Object> rightMap) {
-        final var map = descriptor.names()
-                                  .stream()
-                                  .map(name -> merge(name, leftMap.get(name), rightMap.get(name)))
-                                  .collect(HashMap::new, this::put, Map::putAll);
-        return Triton.toRecord(descriptor.recordType(), map);
+        final var map = description.keySet()
+                                   .stream()
+                                   .map(name -> merge(name, leftMap.get(name), rightMap.get(name)))
+                                   .collect(HashMap::new, this::put, Map::putAll);
+        return Metis.toRecord(recordType, map);
     }
 
     private void put(final Map<String, Object> map, Entry entry) {
@@ -47,13 +43,13 @@ final class Merger<T extends Record> {
     }
 
     private Entry merge(final String name, final Object left, final Object right) {
-        final var value = (null == right) ? left : merge(descriptor.type(name), left, right);
+        final var value = (null == right) ? left : merge(description.get(name), left, right);
         return new Entry(name, value);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private Object merge(final Class type, final Object left, final Object right) {
-        if (type.isRecord()) {
+    private Object merge(final Type type, final Object left, final Object right) {
+        if (type.core().isRecord()) {
             return by(type).merge((Record) left, (Record) right);
         } else {
             return right;

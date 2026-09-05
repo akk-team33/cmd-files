@@ -46,6 +46,10 @@
         </dependency>
         <dependency>
             <groupId>de.team33.patterns</groupId>
+            <artifactId>records-metis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
             <artifactId>records-triton</artifactId>
         </dependency>
         <dependency>

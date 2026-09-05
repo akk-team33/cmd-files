@@ -2,6 +2,7 @@ package de.team33.patterns.config.alpha;
 
 import de.team33.patterns.io.thalassa.IO;
 import de.team33.patterns.io.thalassa.RecordIO;
+import de.team33.patterns.typing.proteus.Type;
 
 import java.nio.file.Path;
 import java.util.function.BiFunction;
@@ -56,18 +57,18 @@ public enum ConfigLevel {
     CWD(RecordIO::by, Resolving::cwd);
 
     @SuppressWarnings("rawtypes")
-    private final BiFunction<Class, Path, IO> toIO;
+    private final BiFunction<Type, Path, IO> toIO;
     private final BiFunction<Pathing, Naming, Path> toPath;
 
-    <T extends Record> ConfigLevel(final BiFunction<Class<T>, Path, IO<T>> toIO,
+    <T extends Record> ConfigLevel(final BiFunction<Type<T>, Path, IO<T>> toIO,
                                    final BiFunction<Pathing, Naming, Path> toPath) {
         this.toIO = toIO::apply;
         this.toPath = toPath;
     }
 
     @SuppressWarnings("unchecked")
-    final <T extends Record> IO<T> newIO(final Class<T> recordClass, final Pathing pathing, final Naming naming) {
-        return toIO.apply(recordClass, path(pathing, naming));
+    final <T extends Record> IO<T> newIO(final Type<T> recordType, final Pathing pathing, final Naming naming) {
+        return toIO.apply(recordType, path(pathing, naming));
     }
 
     final Path path(final Pathing pathing, final Naming naming) {
