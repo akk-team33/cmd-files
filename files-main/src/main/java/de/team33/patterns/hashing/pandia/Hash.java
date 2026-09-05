@@ -1,6 +1,6 @@
 package de.team33.patterns.hashing.pandia;
 
-import de.team33.patterns.lazy.narvi.Lazy;
+import de.team33.patterns.lazy.janus.Lazy;
 
 import java.math.BigInteger;
 import java.util.Arrays;

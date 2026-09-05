@@ -1,6 +1,6 @@
 package de.team33.cmd.files.job;
 
-import de.team33.patterns.streamable.galatea.Streamer;
+import de.team33.patterns.streamable.naiad.Streamer;
 
 import java.util.Arrays;
 import java.util.List;

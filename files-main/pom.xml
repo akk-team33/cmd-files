@@ -18,27 +18,11 @@
     <dependencies>
         <dependency>
             <groupId>de.team33.patterns</groupId>
-            <artifactId>exceptional-dione</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.team33.patterns</groupId>
-            <artifactId>lazy-narvi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.team33.patterns</groupId>
             <artifactId>enums-pan</artifactId>
         </dependency>
         <dependency>
             <groupId>de.team33.patterns</groupId>
-            <artifactId>decision-thyone</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.team33.patterns</groupId>
-            <artifactId>records-triton</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.team33.patterns</groupId>
-            <artifactId>io-thalassa</artifactId>
+            <artifactId>exceptional-dione</artifactId>
         </dependency>
         <dependency>
             <groupId>de.team33.patterns</groupId>
@@ -50,7 +34,27 @@
         </dependency>
         <dependency>
             <groupId>de.team33.patterns</groupId>
-            <artifactId>streamable-galatea</artifactId>
+            <artifactId>io-thalassa-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>io-thalassa-records</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>lazy-janus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>records-triton</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>streamable-naiad</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.team33.patterns</groupId>
+            <artifactId>typing-proteus</artifactId>
         </dependency>
 
         <dependency>
